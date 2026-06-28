@@ -53,7 +53,8 @@ information.
 | Post-Crash / Web 2.0 | 2002–2007 | Desaturated blues `#4A90D9`, lots of white | Verdana, Georgia, rational spacing | Subtle gradients, rounded corners, Web 2.0 gloss overlays |
 | Mobile / Skeuomorphic | 2008–2012 | Warm: leather textures, linen, `#E8D5A3` | Helvetica Neue, tight tracking | Stitched edges, embossed type, felt and metal textures |
 | Flat / Material | 2013–2018 | Google's 2014 palette: `#2196F3`, `#F44336`, `#4CAF50` | Roboto, geometric sans everywhere | No texture, long box shadows, FABs, elevation |
-| Now | 2019–present | Near-black `#0A0A0A`, white, electric accents | `-apple-system, BlinkMacSystemFont, 'Geist', 'Inter'`. Variable weight. (SF Pro is Apple-proprietary — system font stack only) | Glass blur, noise grain, floating cards |
+| Figma Era | 2019–2023 | Near-black `#0A0A0A`, white, electric blue `#00D4FF` | `-apple-system, BlinkMacSystemFont, 'Geist', 'Inter'`. Variable weight. (SF Pro is Apple-proprietary — system font stack only) | Glass blur (`backdrop-filter: blur()` — exact px value in FIGMA-ERA-BRIEF.md), noise grain, floating cards |
+| AI Web | 2024+ | TBD — brief authored in Phase 2 | TBD | TBD |
 
 **The contrast between chapters is violent and intentional.** The Browser Wars
 chapter is ugly on purpose — ugly in a way that requires craft to make

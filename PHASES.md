@@ -79,6 +79,9 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - Keystroke sound: `Tone.js` `Synth.triggerAttackRelease()`, pitch ±8% randomized
   - Audio unlock: `audioCtx.resume()` on first scroll event
   - iOS fallback: if `resume()` fails, show `PRESS ANY KEY TO CONTINUE` prompt in terminal
+  - Idle state after opening text: cursor drops to new empty line and blinks (no prompt, no further output until scroll)
+  - Fast-forward on scroll: if first scroll fires while typing is pending, cancel all `setTimeout` calls and flush remaining chars immediately to terminal DOM; then scroll-triggered facts proceed normally
+  - Facts rendering: each fact from `facts[]` types itself into the terminal as scroll-triggered output (one fact per scroll milestone within 200vh); stays in ARPANET amber monospace grammar
 - [ ] Network map artifact: `src/chapters/arpanet/network-map.ts`
   - SVG network diagram, glows in as chapter activates
   - Purely visual, no interaction required for Phase 1
@@ -92,6 +95,8 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - Direct-link entry: fade from black 0.5s ease-in; no preceding transition
   - `#` or empty hash → lobby (chapter 0)
 - [ ] Lobby screen: `src/chapters/lobby/`
+  - Visual identity: pure era-styled cards from top edge — no title, no tagline, no header. The era-styled grid IS the identity statement.
+  - LOBBY-BRIEF.md **must** define: background treatment, card grid columns, card dimensions, spacing rhythm, card label typography, hover behavior, entry animation. These are mandatory deliverables before any lobby code is written.
   - Chapter preview cards (2 live + 6 "Coming Soon" stubs)
   - Live cards show 2s looping CSS animation per chapter:
     - ARPANET: amber monospace text types a command with blinking cursor, loops
@@ -103,12 +108,12 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
     - Mobile: leather texture card, embossed label
     - Flat: flat color block, long shadow
     - AI Web: glass blur card, ambient gradient pulse
-  - No nav bar, no header — design brief in `docs/LOBBY-BRIEF.md`
+  - Lobby → Chapter transition: fade from black 0.5s ease-in (same code path as direct-link entry — hash router reuses the existing fade; no new transition component)
 
 ### Week 2 (parallel) — Figma Era Chapter
 
 - [ ] Chapter CSS: `src/chapters/figma-era/style.css`
-  - `background: #0A0A0A`, white text, electric accents
+  - `background: #0A0A0A`, white text, electric blue accent `#00D4FF`
   - Glassmorphism cards: `backdrop-filter: blur()`, `background: rgba(255,255,255,0.05)`
   - Typography: `-apple-system, BlinkMacSystemFont, 'Geist', 'Inter', sans-serif`
     (Note: SF Pro via system font stack only — cannot be served as web font)
@@ -123,7 +128,7 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 - [ ] html2canvas integration: `src/engine/transition.ts`
   - Fires at dwell zone entry (not at 80% — avoids capturing mid-type terminal)
   - `Promise.all([captureFrom, captureTo])` before triggering transition
-  - If capture takes > dwell zone: extend scroll lock (max 500ms extra), show no visual
+  - If capture takes > dwell zone: extend scroll lock (max 500ms extra); ARPANET progress indicator changes to pulsing pattern (block chars blink or trailing cursor blinks) — signals loading without breaking CRT grammar; no other visual change
   - Texture A (from): ARPANET chapter screenshot
   - Texture B (to): Early Web chapter rendered off-screen
 - [ ] GLSL shader: `src/shaders/crt-power-off.frag`
@@ -158,6 +163,8 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - ARPANET audio fades out over first 1s of transition
   - Figma Era audio fades in starting at 60% of transition
 - [ ] Reduced motion: `@media (prefers-reduced-motion: reduce)` → chapter swap with fade-to-black, no shader
+- [ ] Touch device detection: `ontouchstart in window || navigator.maxTouchPoints > 0` → disable GLSL shaders; transitions use fade-to-black (same path as reduced-motion). Chapters still render with full CSS visual fidelity. Resolves iOS ScrollTrigger quirk risk for Phase 1.
+- [ ] Figma Era end state: closing beat at chapter bottom edge — glassmorphism-styled line "END OF KNOWN HISTORY. MORE CHAPTERS LOADING." in Figma Era typography + Geist. Below it: a minimal `Explore more →` pill (glassmorphism, `#00D4FF` border) that navigates to `#` (lobby). This closes the Phase 1 emotional arc and provides the shareability moment.
 - [ ] Fix T9: enforce fixed chapter heights (`overflow: hidden` on containers)
 - [ ] Browser support smoke test: Chrome, Safari 15.4+, Firefox, iOS Safari, Windows Chrome
 - [ ] Ship Phase 1 as proof-of-concept
@@ -247,12 +254,14 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 | CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | SELECTIVE EXPANSION | 5 expansions accepted, plan updated |
 | Codex Review | `/codex review` | Independent 2nd opinion | 1 | issues_found | 7 findings (all resolved) |
 | Eng Review | `/plan-eng-review` | Architecture & tests (required) | 2 | CLEAR (PLAN) | 16 issues, 0 unresolved, 0 critical gaps |
-| Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | — |
+| Design Review | `/plan-design-review` | UI/UX gaps | 1 | CLEAR | score: 5/10 → 8/10, 10 decisions made |
 | DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
 
 **CEO REVIEW SCOPE CHANGES (2026-06-28):** Added lobby + hash routing (E0), audience/success definition (E1), split "Now" → Figma Era + AI Web ch.8 (E2), era-appropriate progress indicators (E3), code overlay stretch (E4), share cards stretch (E5). CRT shader contradiction resolved. Chapter lineup updated to 8 chapters. Pre-implementation gates updated.
 
-**CROSS-MODEL:** Outside voice (Claude subagent) found 7 issues — all substantive, all resolved in session. Most critical catch: D11 (DOM-to-texture problem — html2canvas) and D15 (GL program context specificity). Both were addressed as architecture decisions and are reflected in PHASES.md.
+**DESIGN REVIEW DECISIONS (2026-06-28):** Lobby = pure era-styled cards, no title (Pass 1A). Facts render as scroll-triggered terminal output (Pass 1B). Progress indicator pulses during dwell capture (Pass 2A). Lobby→chapter = fade-from-black same as direct-link (Pass 2B). Phase 1 end state = closing beat + back-to-lobby pill (Pass 3A). Figma Era accent locked to `#00D4FF` (Pass 4A). Touch devices = no-transition degradation, full CSS fidelity (Pass 6A). Terminal idle = blinking cursor on new empty line (Pass 7A). Typing interrupted by scroll = fast-forward flush (Pass 7B). Outside voice (Claude subagent) found 15 issues — 10 resolved, 5 deferred to briefs. Most critical catches: lobby entirely undesigned, "electric accents" undefined, facts rendering unspecified.
+
+**CROSS-MODEL:** Outside voice (Claude subagent) found 7 eng issues (session 1) + 15 design issues (session 2) — all resolved or gated on briefs. Most critical eng catches: D11 (html2canvas), D15 (GL context specificity). Most critical design catches: lobby hierarchy, Figma Era accent, facts rendering, Phase 1 end state.
 
 **VERDICT:** ENG CLEARED — ready to implement Phase 1.
 

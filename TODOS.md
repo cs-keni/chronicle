@@ -117,3 +117,20 @@ retrofit (which is always harder than content-first design).
 
 **Depends on:** D6 decision (visual/design history only) — already decided.
 Should be done BEFORE Phase 1 ARPANET chapter implementation.
+
+---
+
+## TODO-005: ARPANET phosphor glow SVG filter spike
+
+**What:** Iterate `feGaussianBlur` sigma values (suggest testing σ=2, σ=3, σ=6) and `feColorMatrix` channel weights against the quality target reference (ThinkPad X61 running a green-screen BBS). Lock the winning values in SPEC.md.
+
+**Why:** The plan specifies `feColorMatrix + feGaussianBlur` on the chapter root but no values. Two implementers will produce completely different glows — one too subtle (no atmosphere), one too heavy (garish). Quality target #1 says "the phosphor glow bleeding around bright characters" — that is the visual bar. Without locked values, this requires a redesign round after implementation.
+
+**Pros:** 30-minute visual spike prevents a Week 2 redesign. Exact values can be documented and versioned.
+**Cons:** None — this validates the most subjective visual effect in the project.
+
+**Context:** The ARPANET chapter's amber phosphor glow is the defining visual of Chronicle's most critical chapter. It must feel like real CRT hardware, not a CSS novelty. Reference image: `computerhistory.org/collections/` VT100 terminal photography. Try: sigma=3 as baseline; raise to 6 if the glow feels weak at normal pixel density.
+
+**Where to start:** Create `src/chapters/arpanet/spike-glow.html` — mount the chapter DOM with a test sentence in Courier New, apply the SVG filter with varying sigma, screenshot the result. Compare to reference. Lock sigma + matrix in `SPEC.md` → ARPANET row → Texture column.
+
+**Depends on:** ARPANET chapter CSS skeleton being in place (Week 2 start).
