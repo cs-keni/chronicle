@@ -34,7 +34,13 @@ Config:
 - `package.json`, `vite.config.ts`, `tsconfig.json`, `.gitignore`
 - `index.html` — chapter-lobby, chapter-arpanet, chapter-figma-era scenes; scroll-container + spacers; #gl-canvas
 
-**Next:** Run `npm install` → `npm run dev` → verify lobby renders. Then Week 2: terminal.ts typing scheduler (full ARPANET terminal), network-map.ts SVG, Week 2 Figma Era card restack.
+**Bugs found during browser verification:**
+- `IntersectionObserver({ rootMargin: '1vh 0px' })` — `vh` is invalid, only `px`/`%` allowed. Silently blocked module loading. Fixed to `'0px'`. Lazy-init works via `activate()` fallback anyway.
+- Vite stale module cache in WSL2: file edits not picked up until server restart. Workaround: `kill $(lsof -ti:3000)` before `npm run dev`.
+
+**Commit:** f7a0c4a
+
+**Next:** Week 2: terminal.ts typing scheduler (full ARPANET terminal), network-map.ts SVG, Week 2 Figma Era card restack.
 
 **Key decisions logged:**
 - D16: Promise.race([Promise.all, 500ms]) prevents black screen on slow html2canvas
