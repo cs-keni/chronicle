@@ -55,7 +55,7 @@ Technical Stack section about the font licensing constraint.
 
 ---
 
-## TODO-003: "Now" chapter design brief (2028-feeling UI)
+## ~~TODO-003: "Now" chapter design brief~~ ✓ DONE → `docs/FIGMA-ERA-BRIEF.md`
 
 **What:** Produce a 1-2 page design brief for the Modern/"Now" chapter before
 starting its implementation. Research speculative 2028 interface patterns and
@@ -84,7 +84,7 @@ write 1 page of visual direction, share for feedback before implementing the cha
 
 ---
 
-## TODO-004: ARPANET chapter content research and writing
+## ~~TODO-004: ARPANET chapter content research and writing~~ ✓ DONE → `docs/ARPANET-CONTENT.md`
 
 **What:** Research and write 5-8 facts/artifacts about how computing interfaces
 looked in 1969–1982 (visual/design history only — per D6 content scope decision).

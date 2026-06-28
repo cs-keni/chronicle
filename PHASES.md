@@ -36,9 +36,9 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 
 ### Pre-implementation (ALL must complete before Week 1 code)
 
-- [ ] ARPANET chapter content research and writing (`docs/ARPANET-CONTENT.md`) — see TODOS.md #004
-- [ ] Figma Era design brief (`docs/FIGMA-ERA-BRIEF.md`) — formerly "Now chapter brief" TODOS.md #003
-- [ ] Lobby design brief (`docs/LOBBY-BRIEF.md`) — new gate added by CEO review
+- [x] ARPANET chapter content research and writing (`docs/ARPANET-CONTENT.md`) — 8 facts, visual artifacts specified
+- [x] Figma Era design brief (`docs/FIGMA-ERA-BRIEF.md`) — color system, layout, boot animation, end state, blur values locked
+- [x] Lobby design brief (`docs/LOBBY-BRIEF.md`) — grid, card dimensions, era styling, hover, entry animation all specified
 - [ ] html2canvas spike — validate CSS filter capture AND main-thread block time < 16ms — see TODOS.md #001
 
 ### Week 1 — Scaffolding + Engine Core
