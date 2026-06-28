@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chronicle</title>
+</head>
+<body>
+  <div id="app">
+    <!-- Chapter scenes: all position:fixed, switched via translateX -->
+    <div id="chapter-lobby"     class="chapter-scene" data-chapter-id="lobby"     aria-label="Chronicle chapter select"></div>
+    <div id="chapter-arpanet"   class="chapter-scene" data-chapter-id="arpanet"   aria-label="ARPANET era, 1969 to 1982"></div>
+    <div id="chapter-figma-era" class="chapter-scene" data-chapter-id="figma-era" aria-label="Figma Era, 2019 to 2023"></div>
+
+    <!-- Scroll spacers: in document flow, create scroll height for chapters -->
+    <main id="scroll-container" aria-hidden="true">
+      <div class="chapter-scroll-spacer" data-chapter-id="arpanet"   style="height: 200.4vh"></div>
+      <div class="chapter-scroll-spacer" data-chapter-id="figma-era" style="height: 200.4vh"></div>
+    </main>
+
+    <!-- Persistent WebGL canvas — 1×1px at rest, fullscreen during transitions -->
+    <canvas id="gl-canvas" aria-hidden="true"></canvas>
+
+    <!-- Fade overlay for chapter-to-chapter transitions and direct-link entry -->
+    <div id="transition-overlay" aria-hidden="true"></div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -43,23 +43,23 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 
 ### Week 1 — Scaffolding + Engine Core
 
-- [ ] Vite + vanilla TypeScript project init
-- [ ] Install and configure: GSAP (ScrollTrigger), Tone.js, html2canvas, Playwright
-- [ ] Chapter data model: `src/data/chapters.ts` (typed JSON schema)
+- [x] Vite + vanilla TypeScript project init
+- [x] Install and configure: GSAP (ScrollTrigger), Tone.js, html2canvas, Playwright
+- [x] Chapter data model: `src/data/chapters.ts` (typed JSON schema)
   - Fields: id, yearRange, palette, fontFamily, artifacts, ambientAudio, facts
   - No `transitionOut` field — transitions live in `transitions.ts` (see below)
-- [ ] Transition registry: `src/data/transitions.ts`
+- [x] Transition registry: `src/data/transitions.ts`
   - Maps `{from: string, to: string}` → `{shader: string, duration: number}`
-- [ ] Chapter render engine: `src/engine/chapter.ts`
+- [x] Chapter render engine: `src/engine/chapter.ts`
   - DOM swap model: chapters positioned off-screen with `translateX(-100vw)`, NOT `display:none`
   - Active chapter: `translateX(0)`
   - Lazy-init: IntersectionObserver fires when chapter comes within 1vh of viewport
-- [ ] GSAP scroll engine: `src/engine/scroll.ts`
+- [x] GSAP scroll engine: `src/engine/scroll.ts`
   - Pin each chapter at 100% scroll progress
   - Dwell zone: 0.4vh of dead scroll after pin
   - Transition trigger: dwell zone exhausted AND texture capture Promise resolved
   - Scroll lock during transition: `pointer-events:none` + `touch-action:none` on body
-- [ ] Persistent WebGL canvas: `src/engine/webgl.ts`
+- [x] Persistent WebGL canvas: `src/engine/webgl.ts`
   - 1×1px hidden canvas, lives from page load to close
   - Resizes to 100vw×100vh during transitions, returns to 1×1px after
   - One GL context, always valid
@@ -67,12 +67,13 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 
 ### Week 2 — ARPANET Chapter
 
-- [ ] Chapter CSS: `src/chapters/arpanet/style.css`
+- [x] Chapter CSS stub: `src/chapters/arpanet/style.css` + `src/chapters/arpanet/index.ts`
   - `background: #000000`, `color: #FF9500`, `font-family: 'Courier New', monospace`
   - Scanlines: `::after` with `repeating-linear-gradient`, 30% opacity
   - Vignette: `::before` with `radial-gradient`, `position: fixed`, `pointer-events: none`
   - Phosphor glow: inline SVG filter with `feColorMatrix` + `feGaussianBlur` on chapter root
   - Fixed height: `200vh` (enforced — no dynamic growth from terminal content)
+  - Progress indicator: `▓▓▓▓▒▒░░░░ 40%` amber monospace bottom-left, wired to scroll
 - [ ] Terminal artifact: `src/chapters/arpanet/terminal.ts`
   - Typing scheduler: `setTimeout` on main thread (no Web Worker)
   - Character delay: 80–220ms randomized per character
@@ -89,12 +90,12 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 
 ### Week 1 (parallel) — Lobby + Hash Router
 
-- [ ] Hash router: `src/engine/router.ts`
+- [x] Hash router: `src/engine/router.ts`
   - Listen on `hashchange` and `DOMContentLoaded`
   - Valid hashes: `#arpanet`, `#figma-era` (Phase 1); expand per chapter in Phase 2
   - Direct-link entry: fade from black 0.5s ease-in; no preceding transition
   - `#` or empty hash → lobby (chapter 0)
-- [ ] Lobby screen: `src/chapters/lobby/`
+- [x] Lobby screen: `src/chapters/lobby/`
   - Visual identity: pure era-styled cards from top edge — no title, no tagline, no header. The era-styled grid IS the identity statement.
   - LOBBY-BRIEF.md **must** define: background treatment, card grid columns, card dimensions, spacing rhythm, card label typography, hover behavior, entry animation. These are mandatory deliverables before any lobby code is written.
   - Chapter preview cards (2 live + 6 "Coming Soon" stubs)
@@ -112,16 +113,17 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 
 ### Week 2 (parallel) — Figma Era Chapter
 
-- [ ] Chapter CSS: `src/chapters/figma-era/style.css`
+- [x] Chapter CSS stub: `src/chapters/figma-era/style.css` + `src/chapters/figma-era/index.ts`
   - `background: #0A0A0A`, white text, electric blue accent `#00D4FF`
-  - Glassmorphism cards: `backdrop-filter: blur()`, `background: rgba(255,255,255,0.05)`
+  - Glassmorphism cards: `backdrop-filter: blur(20px)`, `background: rgba(255,255,255,0.05)`
   - Typography: `-apple-system, BlinkMacSystemFont, 'Geist', 'Inter', sans-serif`
     (Note: SF Pro via system font stack only — cannot be served as web font)
-  - Noise grain overlay: CSS `url(noise.svg)` filter at 3% opacity
+  - Noise grain overlay: inline SVG data URI at 3% opacity
   - Fixed height: `200vh`
-- [ ] Floating card layout
-- [ ] Figma Era content: populate from design brief (`docs/FIGMA-ERA-BRIEF.md`)
-- [ ] Boot arrival animation: when entering via CRT power-off, a single pixel expands from center before chapter settles — creates continuity with the CRT expand phase
+- [x] Floating card layout (3-card depth stack, A/B/C rotation per FIGMA-ERA-BRIEF.md)
+- [x] Figma Era content: initial 3 facts from chapters data model
+- [x] Boot arrival animation: 2px `#00D4FF` pixel → `cubic-bezier(0.16,1,0.3,1)` → 600ms expand
+- [x] End state: closing beat + "Explore more →" back-to-lobby pill
 
 ### Week 3 — CRT Power-Off Transition Shader
 
@@ -131,17 +133,12 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - If capture takes > dwell zone: extend scroll lock (max 500ms extra); ARPANET progress indicator changes to pulsing pattern (block chars blink or trailing cursor blinks) — signals loading without breaking CRT grammar; no other visual change
   - Texture A (from): ARPANET chapter screenshot
   - Texture B (to): Early Web chapter rendered off-screen
-- [ ] GLSL shader: `src/shaders/crt-power-off.frag`
-  ```glsl
-  // Phase 0.0–0.4: compress uFrom to horizontal white line
-  // Phase 0.4–0.6: hold white line
-  // Phase 0.6–1.0: expand revealing uTo
-  uniform sampler2D uFrom;
-  uniform sampler2D uTo;
-  uniform float uProgress;
-  ```
-- [ ] Transition engine wiring: scroll lock → canvas resize → textures → rAF loop
-- [ ] Transition completion: canvas to 1×1, ARPANET off-screen, Figma Era active
+- [x] GLSL shader: `src/shaders/crt-power-off.frag`
+  - Phase 0.0–0.4: compress uFrom to horizontal white line via smoothstep
+  - Phase 0.4–0.6: hold white line
+  - Phase 0.6–1.0: expand revealing uTo via smoothstep
+- [x] Transition engine wiring: `src/engine/transition.ts` — dwell-enter → html2canvas → Promise.all gate → WebGL → chapter swap
+- [x] Transition completion: canvas to 1×1, chapter deactivated, target activated
 - [ ] Manual GPU profiling: Chrome DevTools → Performance → verify 60fps throughout
 - [ ] Document baseline frame time in `docs/SHADER-PROFILES.md`
 

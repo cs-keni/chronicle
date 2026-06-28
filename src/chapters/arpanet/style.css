@@ -1,0 +1,118 @@
+/* ARPANET chapter — 1969–1982 */
+
+#chapter-arpanet {
+  background: #000000;
+  color: #FF9500;
+  font-family: 'Courier New', Courier, monospace;
+  /* Fixed height via scroll spacer — overflow hidden prevents content growth */
+  overflow: hidden;
+}
+
+/* Phosphor glow — SVG filter on chapter root.
+   sigma=3 is the starting value (TODO-005: spike to find the exact value that
+   matches quality target #1 — ThinkPad X61 BBS reference). */
+#chapter-arpanet {
+  filter: url(#phosphor-glow);
+}
+
+/* Scanlines overlay */
+#chapter-arpanet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.3) 2px,
+    rgba(0, 0, 0, 0.3) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Vignette overlay */
+#chapter-arpanet::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  pointer-events: none;
+  z-index: 11;
+}
+
+/* Terminal container */
+.arpanet-terminal {
+  position: absolute;
+  top: 48px;
+  left: 48px;
+  right: 48px;
+  max-width: 720px;
+  z-index: 5;
+}
+
+.arpanet-terminal-output {
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #FF9500;
+}
+
+.arpanet-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: #FF9500;
+  animation: cursor-blink 1s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 1px;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Network map — bottom-right quadrant */
+.arpanet-network-map {
+  position: absolute;
+  bottom: 60px;
+  right: 48px;
+  width: 340px;
+  height: 260px;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 1.5s ease-in;
+}
+
+.arpanet-network-map.visible {
+  opacity: 1;
+}
+
+/* Progress indicator — bottom left, amber, monospace */
+.arpanet-progress {
+  position: fixed;
+  bottom: 24px;
+  left: 32px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  color: #FF9500;
+  z-index: 20;
+  letter-spacing: 0.05em;
+  /* Pulse during dwell zone capture */
+  transition: opacity 0.3s;
+}
+
+.arpanet-progress.pulsing {
+  animation: progress-pulse 0.6s step-end infinite;
+}
+
+@keyframes progress-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}

@@ -1,0 +1,97 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto; /* GSAP handles all scroll animation */
+  overflow-x: hidden;
+}
+
+body {
+  background: #000;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+/* Scrollbar hidden — chapter progress indicators replace it */
+::-webkit-scrollbar { display: none; }
+body { scrollbar-width: none; }
+
+/* Chapter scenes: all fixed, off-screen by default */
+.chapter-scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  transform: translateX(-100vw);
+  overflow: hidden;
+  will-change: transform;
+  /* Transition only for backwards nav fade — NOT used for forward shader transitions */
+  transition: none;
+}
+
+/* Scroll spacer container: hidden in lobby mode, shown in chapter mode */
+#scroll-container {
+  display: none;
+  position: relative;
+}
+
+#scroll-container.active {
+  display: block;
+}
+
+/* WebGL canvas: tiny at rest */
+#gl-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  z-index: 200;
+  opacity: 0;
+}
+
+#gl-canvas.active {
+  width: 100vw;
+  height: 100vh;
+  opacity: 1;
+}
+
+/* Fade overlay: used for fade-to/from-black */
+#transition-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+
+#transition-overlay.fade-in {
+  opacity: 1;
+  transition: opacity 0.15s ease-in;
+}
+
+#transition-overlay.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+
+/* Scroll lock: applied to body during transitions */
+body.scroll-locked {
+  overflow: hidden;
+  pointer-events: none;
+  touch-action: none;
+}
+
+/* Reduced motion: override all transitions */
+@media (prefers-reduced-motion: reduce) {
+  .chapter-scene { transition: none !important; }
+  #transition-overlay { transition: none !important; }
+}

@@ -1,0 +1,297 @@
+/* Lobby — Chapter 0. Pure era-styled cards, no title, no header. */
+
+#chapter-lobby {
+  background: #0D0D0D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 48px;
+  overflow-y: auto;
+
+  /* Noise grain — same as Figma Era for system-level consistency */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+.lobby-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+@media (max-width: 1024px) {
+  .lobby-grid { grid-template-columns: repeat(2, 1fr); }
+  #chapter-lobby { padding: 32px 24px; }
+}
+
+@media (max-width: 640px) {
+  .lobby-grid { grid-template-columns: 1fr; }
+  #chapter-lobby { padding: 24px 16px; align-items: flex-start; }
+}
+
+/* ── Base card ── */
+.lobby-card {
+  height: 240px;
+  padding: 20px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+
+  /* Entry animation */
+  opacity: 0;
+  transform: translateY(16px);
+  animation: card-arrive 400ms ease-out forwards;
+}
+
+@media (max-width: 1024px) { .lobby-card { height: 200px; } }
+@media (max-width: 640px)  { .lobby-card { height: 160px; } }
+
+@keyframes card-arrive {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lobby-card:nth-child(1) { animation-delay:   0ms; }
+.lobby-card:nth-child(2) { animation-delay:  40ms; }
+.lobby-card:nth-child(3) { animation-delay:  80ms; }
+.lobby-card:nth-child(4) { animation-delay: 120ms; }
+.lobby-card:nth-child(5) { animation-delay: 160ms; }
+.lobby-card:nth-child(6) { animation-delay: 200ms; }
+.lobby-card:nth-child(7) { animation-delay: 240ms; }
+.lobby-card:nth-child(8) { animation-delay: 280ms; }
+
+.lobby-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lobby-card-era {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lobby-card-years {
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.5;
+}
+
+.lobby-card-preview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.lobby-card-status {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+/* ── Live card hover ── */
+.lobby-card[data-live='true'] {
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.lobby-card[data-live='true']:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* ── Coming Soon card hover ── */
+.lobby-card[data-live='false'] {
+  cursor: not-allowed;
+  transition: opacity 150ms ease-out;
+}
+
+.lobby-card[data-live='false']:hover {
+  opacity: 0.7;
+}
+
+/* ══ Era-specific card styles ══ */
+
+/* ARPANET */
+.card-arpanet {
+  background: #000000;
+  color: #FF9500;
+  font-family: 'Courier New', Courier, monospace;
+  border: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+.card-arpanet:hover {
+  box-shadow: 0 0 24px rgba(255, 149, 0, 0.15);
+}
+
+/* Scanline overlay for ARPANET card */
+.card-arpanet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.2) 2px,
+    rgba(0, 0, 0, 0.2) 4px
+  );
+  pointer-events: none;
+}
+
+/* Figma Era */
+.card-figma-era {
+  background: rgba(255, 255, 255, 0.04);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.card-figma-era:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.08);
+}
+
+.card-figma-era .lobby-card-era { color: #00D4FF; }
+
+/* Early Web (stub) */
+.card-early-web {
+  background: #C0C0C0;
+  color: #000000;
+  font-family: 'Times New Roman', Times, serif;
+  border: 2px solid #000080;
+}
+
+/* Browser Wars (stub) */
+.card-browser-wars {
+  background: #FFFFFF;
+  color: #000000;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+  border: 3px solid;
+  border-image: linear-gradient(45deg, #FF00FF, #FFFF00, #00FF00, #00FFFF, #FF00FF) 1;
+}
+
+/* Post-Crash (stub) */
+.card-post-crash {
+  background: #EEF5FF;
+  color: #4A90D9;
+  font-family: Verdana, Geneva, sans-serif;
+  border: 1px solid #C8DDF5;
+  border-radius: 8px;
+}
+
+/* Mobile/Skeuomorphic (stub) */
+.card-mobile {
+  background: linear-gradient(to bottom, #D4A96A, #8B5E3C);
+  color: #FFF8EC;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+
+/* Flat/Material (stub) */
+.card-flat {
+  background: #2196F3;
+  color: #FFFFFF;
+  font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
+  border-radius: 0;
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.4);
+}
+
+/* AI Web (stub) */
+.card-ai-web {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: ai-pulse 4s ease-in-out infinite;
+}
+
+@keyframes ai-pulse {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.06); }
+  50%       { border-color: rgba(120, 80, 255, 0.2); }
+}
+
+/* ── ARPANET card typing animation ── */
+.arpanet-card-line {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  font-size: 9px;
+  line-height: 1.6;
+  color: #FF9500;
+}
+
+.arpanet-card-line.line-1 { animation: type-line 2.5s steps(24, end) infinite; }
+.arpanet-card-line.line-2 { animation: type-line 2.5s steps(12, end) 0.6s infinite; width: 0; }
+
+@keyframes type-line {
+  0%   { width: 0; opacity: 1; }
+  60%  { width: 100%; opacity: 1; }
+  85%  { width: 100%; opacity: 1; }
+  95%  { width: 100%; opacity: 0; }
+  100% { width: 0; opacity: 0; }
+}
+
+.arpanet-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 11px;
+  background: #FF9500;
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 1px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Figma Era pill animation ── */
+.figma-pill-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.figma-pill {
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Geist', 'Inter', sans-serif;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: none;
+}
+
+.figma-pill.active {
+  background: #00D4FF;
+  color: #000;
+  border-color: transparent;
+  animation: pill-ripple 2.5s ease-in-out infinite;
+}
+
+@keyframes pill-ripple {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(0, 212, 255, 0); }
+}
