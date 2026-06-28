@@ -53,7 +53,7 @@ information.
 | Post-Crash / Web 2.0 | 2002–2007 | Desaturated blues `#4A90D9`, lots of white | Verdana, Georgia, rational spacing | Subtle gradients, rounded corners, Web 2.0 gloss overlays |
 | Mobile / Skeuomorphic | 2008–2012 | Warm: leather textures, linen, `#E8D5A3` | Helvetica Neue, tight tracking | Stitched edges, embossed type, felt and metal textures |
 | Flat / Material | 2013–2018 | Google's 2014 palette: `#2196F3`, `#F44336`, `#4CAF50` | Roboto, geometric sans everywhere | No texture, long box shadows, FABs, elevation |
-| Now | 2019–present | Near-black `#0A0A0A`, white, electric accents | Geist, inter, SF Pro. Variable weight. | Glass blur, noise grain, floating cards |
+| Now | 2019–present | Near-black `#0A0A0A`, white, electric accents | `-apple-system, BlinkMacSystemFont, 'Geist', 'Inter'`. Variable weight. (SF Pro is Apple-proprietary — system font stack only) | Glass blur, noise grain, floating cards |
 
 **The contrast between chapters is violent and intentional.** The Browser Wars
 chapter is ugly on purpose — ugly in a way that requires craft to make
@@ -116,12 +116,13 @@ at this quality level.
   "yearRange": "1969–1982",
   "palette": { "bg": "#000000", "text": "#FF9500" },
   "fontFamily": "Courier New",
-  "transitionOut": "crt-power-off",
   "artifacts": ["terminal", "network-map"],
   "ambientAudio": "arpanet-beeps.mp3",
   "facts": [...]
 }
 ```
+
+> Note: `transitionOut` is NOT a chapter property. Transitions are relationships between chapters and live in `src/data/transitions.ts`, keyed by `{from, to}` pair (D5).
 
 The render engine reads this and applies the chapter's visual system. New eras
 can be added by adding a new JSON object + implementing any new artifacts.

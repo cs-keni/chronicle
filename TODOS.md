@@ -31,7 +31,7 @@ the output. Compare to a real screenshot of the same chapter.
 
 ---
 
-## TODO-002: SF Pro font licensing clarification in SPEC.md
+## ~~TODO-002: SF Pro font licensing clarification in SPEC.md~~ ✓ DONE
 
 **What:** Update the Modern chapter typography spec to be explicit about SF Pro's
 legal status. SF Pro cannot be downloaded and hosted as a web font — it is

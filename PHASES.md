@@ -1,18 +1,45 @@
 # Chronicle — PHASES
 
-Scroll-driven museum of web design history. Seven chapters. Six GLSL transitions.
+Scroll-driven museum of web design history. Eight chapters. Seven GLSL transitions.
+
+**Target audience:** Designers and developers who lived through these eras or want to understand what shaped current web design conventions.
+
+**Success (Phase 1):** A 2-chapter proof-of-concept that a designer would share on social media as "the most accurate ARPANET terminal recreation I've seen in a browser."
+
+**Success (full release):** Appears in at least one major design publication (Sidebar, CSS-Tricks, Smashing Magazine).
+
+---
+
+## Chapter Lineup
+
+| # | Chapter | Era | Phase |
+|---|---------|-----|-------|
+| 0 | Lobby | — | 1 |
+| 1 | ARPANET | 1969–1982 | 1 |
+| 2 | Early Web | 1983–1994 | 2 |
+| 3 | Browser Wars | 1995–2001 | 2 |
+| 4 | Post-Crash / Web 2.0 | 2002–2007 | 2 |
+| 5 | Mobile / Skeuomorphic | 2008–2012 | 2 |
+| 6 | Flat / Material | 2013–2018 | 2 |
+| 7 | Figma Era | 2019–2023 | 1 (formerly "Now") |
+| 8 | AI Web | 2024+ | 2 |
+
+**Phase 1 transition:** ARPANET → Figma Era uses CRT power-off as a temporary Phase 1 assignment. In Phase 2, CRT moves to its canonical position (ARPANET → Early Web), and Figma Era gets its proper shader (glass shatter from Flat/Material).
 
 ---
 
 ## Phase 1 — Foundation (Weeks 1–4)
 
-Goal: two shippable chapters and one working transition, proving the full stack.
+Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving the full stack.
 
-### Pre-implementation (before any code)
+**Phase 1 gate:** ARPANET + Figma Era are live, CRT transition runs at 60fps on M3, lobby serves working deep links. Code overlay (E4) and share cards (E5) are stretch goals — they do not block the gate.
 
-- [ ] ARPANET chapter content research and writing (see TODOS.md #004)
-- [ ] "Now" chapter design brief (see TODOS.md #003)
-- [ ] html2canvas spike — validate transition texture approach (see TODOS.md #001)
+### Pre-implementation (ALL must complete before Week 1 code)
+
+- [ ] ARPANET chapter content research and writing (`docs/ARPANET-CONTENT.md`) — see TODOS.md #004
+- [ ] Figma Era design brief (`docs/FIGMA-ERA-BRIEF.md`) — formerly "Now chapter brief" TODOS.md #003
+- [ ] Lobby design brief (`docs/LOBBY-BRIEF.md`) — new gate added by CEO review
+- [ ] html2canvas spike — validate CSS filter capture AND main-thread block time < 16ms — see TODOS.md #001
 
 ### Week 1 — Scaffolding + Engine Core
 
@@ -57,9 +84,30 @@ Goal: two shippable chapters and one working transition, proving the full stack.
   - Purely visual, no interaction required for Phase 1
 - [ ] ARPANET content: populate `facts` array from research (TODOS.md #004)
 
-### Week 2 (parallel) — Modern Chapter
+### Week 1 (parallel) — Lobby + Hash Router
 
-- [ ] Chapter CSS: `src/chapters/modern/style.css`
+- [ ] Hash router: `src/engine/router.ts`
+  - Listen on `hashchange` and `DOMContentLoaded`
+  - Valid hashes: `#arpanet`, `#figma-era` (Phase 1); expand per chapter in Phase 2
+  - Direct-link entry: fade from black 0.5s ease-in; no preceding transition
+  - `#` or empty hash → lobby (chapter 0)
+- [ ] Lobby screen: `src/chapters/lobby/`
+  - Chapter preview cards (2 live + 6 "Coming Soon" stubs)
+  - Live cards show 2s looping CSS animation per chapter:
+    - ARPANET: amber monospace text types a command with blinking cursor, loops
+    - Figma Era: a pill selection component ripples its active state, loops
+  - "Coming Soon" stubs styled in their era's visual grammar:
+    - Early Web: system-gray card with `#000080` border
+    - Browser Wars: gaudy rainbow border, WordArt-style label
+    - Post-Crash: desaturated blue, clean ratio, minimal
+    - Mobile: leather texture card, embossed label
+    - Flat: flat color block, long shadow
+    - AI Web: glass blur card, ambient gradient pulse
+  - No nav bar, no header — design brief in `docs/LOBBY-BRIEF.md`
+
+### Week 2 (parallel) — Figma Era Chapter
+
+- [ ] Chapter CSS: `src/chapters/figma-era/style.css`
   - `background: #0A0A0A`, white text, electric accents
   - Glassmorphism cards: `backdrop-filter: blur()`, `background: rgba(255,255,255,0.05)`
   - Typography: `-apple-system, BlinkMacSystemFont, 'Geist', 'Inter', sans-serif`
@@ -67,7 +115,8 @@ Goal: two shippable chapters and one working transition, proving the full stack.
   - Noise grain overlay: CSS `url(noise.svg)` filter at 3% opacity
   - Fixed height: `200vh`
 - [ ] Floating card layout
-- [ ] "Now" chapter content: populate from design brief (TODOS.md #003)
+- [ ] Figma Era content: populate from design brief (`docs/FIGMA-ERA-BRIEF.md`)
+- [ ] Boot arrival animation: when entering via CRT power-off, a single pixel expands from center before chapter settles — creates continuity with the CRT expand phase
 
 ### Week 3 — CRT Power-Off Transition Shader
 
@@ -87,48 +136,63 @@ Goal: two shippable chapters and one working transition, proving the full stack.
   uniform float uProgress;
   ```
 - [ ] Transition engine wiring: scroll lock → canvas resize → textures → rAF loop
-- [ ] Transition completion: canvas to 1×1, ARPANET off-screen, Early Web active
+- [ ] Transition completion: canvas to 1×1, ARPANET off-screen, Figma Era active
 - [ ] Manual GPU profiling: Chrome DevTools → Performance → verify 60fps throughout
 - [ ] Document baseline frame time in `docs/SHADER-PROFILES.md`
 
 ### Week 4 — Integration, QA, Polish
 
-- [ ] End-to-end scroll flow: ARPANET → dwell → CRT transition → Modern
-- [ ] Progress bar (if applicable): visual indicator of position within chapter
-- [ ] Playwright visual regression:
-  - ARPANET idle screenshot baseline
-  - Modern idle screenshot baseline
+- [ ] End-to-end scroll flow: ARPANET → dwell → CRT transition → Figma Era
+- [ ] Era-appropriate progress indicators: `src/chapters/{era}/progress.ts`
+  - ARPANET: `▓▓▓▓▒▒░░░░ 40%` — ASCII block chars, amber, monospace, bottom-left
+  - Figma Era: 7 pill dots (◉●●●○○○), glassmorphism, bottom-center
+- [ ] Backwards navigation: reverse scroll triggers 0.15s ease-in fade to black → 0.15s ease-out fade in from black (no reverse shader)
+- [ ] Playwright visual regression (DOM-only — no WebGL pixel comparison):
+  - Lobby idle screenshot baseline
+  - ARPANET idle screenshot baseline (DOM layer without WebGL transition)
+  - Figma Era idle screenshot baseline
   - Run: `npx playwright test --update-snapshots` to set baselines
-- [ ] Audio: Tone.js ambient audio crossfade during transition
+  - WebGL GLSL uniforms: verify via `gl.getUniform()` in test hooks, not pixel comparison
+- [ ] Audio: Tone.js crossfade during transition (driven by GSAP `onUpdate`, not Tone Transport):
+  - Schedule with `Tone.now()` at transition start — do NOT schedule per-frame
   - ARPANET audio fades out over first 1s of transition
-  - Modern audio fades in over last 1s of transition
-- [ ] Reduced motion: `@media (prefers-reduced-motion: reduce)` → chapter swap without shader
+  - Figma Era audio fades in starting at 60% of transition
+- [ ] Reduced motion: `@media (prefers-reduced-motion: reduce)` → chapter swap with fade-to-black, no shader
 - [ ] Fix T9: enforce fixed chapter heights (`overflow: hidden` on containers)
-- [ ] Update SPEC.md with all architectural decisions made during plan review
+- [ ] Browser support smoke test: Chrome, Safari 15.4+, Firefox, iOS Safari, Windows Chrome
 - [ ] Ship Phase 1 as proof-of-concept
+- [ ] STRETCH (cut if overrun): Code overlay (`?` key, slide-in panel 30% width)
+- [ ] STRETCH (cut if overrun): Share card (html2canvas + Web Share API + clipboard fallback)
 
 ---
 
 ## Phase 2 — Full Chapter Build-Out (Weeks 5–14)
 
+- [ ] CRT shader moves from ARPANET→Figma Era (Phase 1 temp) to canonical ARPANET→Early Web position
+- [ ] Figma Era gets its canonical entry shader: glass shatter (from Flat/Material)
 - [ ] Early Web chapter (1983–1994): system gray, Navy/Red palette, Times New Roman, dithered gradients
 - [ ] Browser Wars chapter (1995–2001): gaudy palette, animated GIFs (real ones), tiled bg, hit counter
 - [ ] Post-Crash / Web 2.0 chapter (2002–2007): desaturated blues, Verdana, rational spacing, gloss
 - [ ] Mobile / Skeuomorphic chapter (2008–2012): leather textures, linen, embossed type, Helvetica Neue
 - [ ] Flat / Material chapter (2013–2018): Google 2014 palette, Roboto, long shadows, FABs
-- [ ] All 6 transition shaders authored:
+- [ ] AI Web chapter (2024+): generative UI, LLM chat interfaces, spatial UI post-Vision Pro — visual brief to be authored in Phase 2
+- [ ] All 7 transition shaders authored (Phase 2 set):
+  - [ ] ARPANET → Early Web: CRT power-off (moved from Phase 1 temp assignment)
   - [ ] Early Web → Browser Wars: Windows 3.1 dialog box DOM overlay
   - [ ] Browser Wars → Post-Crash: BSOD wipe + dissolve
   - [ ] Post-Crash → Mobile: phone unlock swipe + perspective rotation
   - [ ] Mobile → Flat: progressive texture strip (leather, gradients, shadows)
-  - [ ] Flat → Now: glass shatter (triangle fragment system + WebGL)
+  - [ ] Flat → Figma Era: glass shatter (triangle fragment system + WebGL)
+  - [ ] Figma Era → AI Web: TBD — speculative, authored during Phase 2
 - [ ] All shaders profiled (60fps on M3 target), documented in SHADER-PROFILES.md
+- [ ] Era-appropriate progress indicators for all Phase 2 chapters
 - [ ] Interactive artifacts:
   - [ ] Visitor counter (Browser Wars): increments on load, CSS hit counter style
-  - [ ] Dark mode toggle (Modern): was introduced in 2019, live toggle in that chapter
+  - [ ] Dark mode toggle (Figma Era): was introduced in 2019, live toggle in that chapter
 - [ ] Variable font axes wired to scroll position within each chapter
 - [ ] Ambient audio per chapter (Creative Commons or original — see TODOS.md)
-- [ ] Content written for all 7 chapters (visual/design history focus)
+- [ ] Content written for all 8 chapters (visual/design history focus)
+- [ ] Code overlay (E4) if not shipped in Phase 1 stretch
 
 ---
 
@@ -139,7 +203,7 @@ Goal: two shippable chapters and one working transition, proving the full stack.
 - [ ] Mobile: chapters reflow — less immersive, still functional
 - [ ] Accessibility: full reduced-motion degradation to static-per-chapter
 - [ ] Performance audit: every shader profiled, lazy loading, font subsetting
-- [ ] "Now" chapter pushed to feel genuinely ahead of current design
+- [ ] Figma Era chapter pushed to feel genuinely ahead of current glassmorphism trends
 - [ ] iOS scroll locking during transitions (complete implementation)
 - [ ] Cross-browser QA matrix (Chrome, Firefox, Safari, Mobile Safari)
 - [ ] SF Pro system font stack confirmed in production
@@ -180,11 +244,13 @@ Goal: two shippable chapters and one working transition, proving the full stack.
 
 | Review | Trigger | Why | Runs | Status | Findings |
 |--------|---------|-----|------|--------|----------|
-| CEO Review | `/plan-ceo-review` | Scope & strategy | 0 | — | — |
+| CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | SELECTIVE EXPANSION | 5 expansions accepted, plan updated |
 | Codex Review | `/codex review` | Independent 2nd opinion | 1 | issues_found | 7 findings (all resolved) |
 | Eng Review | `/plan-eng-review` | Architecture & tests (required) | 2 | CLEAR (PLAN) | 16 issues, 0 unresolved, 0 critical gaps |
 | Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | — |
 | DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
+
+**CEO REVIEW SCOPE CHANGES (2026-06-28):** Added lobby + hash routing (E0), audience/success definition (E1), split "Now" → Figma Era + AI Web ch.8 (E2), era-appropriate progress indicators (E3), code overlay stretch (E4), share cards stretch (E5). CRT shader contradiction resolved. Chapter lineup updated to 8 chapters. Pre-implementation gates updated.
 
 **CROSS-MODEL:** Outside voice (Claude subagent) found 7 issues — all substantive, all resolved in session. Most critical catch: D11 (DOM-to-texture problem — html2canvas) and D15 (GL program context specificity). Both were addressed as architecture decisions and are reflected in PHASES.md.
 
