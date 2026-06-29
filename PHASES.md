@@ -74,15 +74,15 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - Phosphor glow: inline SVG filter with `feColorMatrix` + `feGaussianBlur` on chapter root
   - Fixed height: `200vh` (enforced — no dynamic growth from terminal content)
   - Progress indicator: `▓▓▓▓▒▒░░░░ 40%` amber monospace bottom-left, wired to scroll
-- [ ] Terminal artifact: `src/chapters/arpanet/terminal.ts`
-  - Typing scheduler: `setTimeout` on main thread (no Web Worker)
-  - Character delay: 80–220ms randomized per character
-  - Keystroke sound: `Tone.js` `Synth.triggerAttackRelease()`, pitch ±8% randomized
-  - Audio unlock: `audioCtx.resume()` on first scroll event
-  - iOS fallback: if `resume()` fails, show `PRESS ANY KEY TO CONTINUE` prompt in terminal
-  - Idle state after opening text: cursor drops to new empty line and blinks (no prompt, no further output until scroll)
-  - Fast-forward on scroll: if first scroll fires while typing is pending, cancel all `setTimeout` calls and flush remaining chars immediately to terminal DOM; then scroll-triggered facts proceed normally
-  - Facts rendering: each fact from `facts[]` types itself into the terminal as scroll-triggered output (one fact per scroll milestone within 200vh); stays in ARPANET amber monospace grammar
+- [x] Terminal artifact: `src/chapters/arpanet/terminal.ts`
+  - [x] Typing scheduler: `setTimeout` on main thread — 80ms boot, 60ms headlines, 20ms body
+  - [x] Fast-forward on scroll: cancels all pending timeouts, flushes current line + entire queue to DOM instantly
+  - [x] Scroll-triggered facts: 8 facts at FACT_THRESHOLDS = [0, 0.12, 0.24, 0.36, 0.48, 0.60, 0.72, 0.84]
+  - [x] Idle cursor blink after typing (CSS `cursor-blink` animation already in style.css)
+  - [x] Word-wrap at 72 chars (VT100 reference width)
+  - [x] Terminal scroll container auto-follows latest line
+  - [ ] Keystroke sound: `Tone.js` Synth (deferred → Week 4 with audio crossfade)
+  - [ ] Audio unlock + iOS fallback (deferred → Week 4)
 - [ ] Network map artifact: `src/chapters/arpanet/network-map.ts`
   - SVG network diagram, glows in as chapter activates
   - Purely visual, no interaction required for Phase 1

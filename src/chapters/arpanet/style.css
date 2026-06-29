@@ -55,12 +55,45 @@
   z-index: 5;
 }
 
+.arpanet-terminal {
+  /* Constrain height so content doesn't overflow the viewport.
+     Network map is 260px tall at bottom:60px, progress bar at bottom:24px.
+     Leave 48px top padding + 340px for bottom elements = ~388px taken. */
+  max-height: calc(100vh - 420px);
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+
+.arpanet-terminal::-webkit-scrollbar {
+  display: none;
+}
+
 .arpanet-terminal-output {
   white-space: pre-wrap;
-  word-break: break-all;
+  word-break: break-word;
   font-size: 14px;
   line-height: 1.7;
   color: #FF9500;
+}
+
+/* Per-line kind variants */
+.arpanet-line--boot {
+  color: #FF9500;
+}
+
+.arpanet-line--meta {
+  color: rgba(255, 149, 0, 0.5);
+}
+
+.arpanet-line--headline {
+  color: #FFB340;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+.arpanet-line--body {
+  color: rgba(255, 149, 0, 0.85);
 }
 
 .arpanet-cursor {

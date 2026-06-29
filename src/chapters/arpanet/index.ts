@@ -1,51 +1,74 @@
 // ARPANET chapter — 1969–1982.
-// Full implementation in Week 2 (terminal.ts, network-map.ts).
-// This file: registers chapter, mounts SVG phosphor filter, stubs progress indicator.
+// Week 2: terminal.ts typing scheduler + scroll-triggered facts.
+// Week 2: network-map.ts SVG node diagram (initNetworkMap stub below).
 
 import './style.css';
 import { chapterManager } from '../../engine/chapter';
 import { onChapterProgress } from '../../engine/scroll';
 import { getChapter } from '../../data/chapters';
+import { ArpanetTerminal } from './terminal';
 
 const CHAPTER_ID = 'arpanet';
 
+// Progress thresholds for each fact (0-indexed). 8 facts across 0–1 scroll.
+// Fact 0 fires at activate (progress 0). Facts 1–7 at even intervals.
+const FACT_THRESHOLDS = [0, 0.12, 0.24, 0.36, 0.48, 0.60, 0.72, 0.84];
+
+let terminal: ArpanetTerminal | null = null;
+let lastProgress = 0;
+
 export function initArpanet(container: HTMLElement) {
-  // Mount phosphor glow SVG filter (applied to the chapter via CSS filter: url(#phosphor-glow))
   mountPhosphorFilter();
 
-  // Stub layout — Week 2 replaces with terminal.ts and network-map.ts
   container.innerHTML = `
     <div class="arpanet-terminal">
       <div class="arpanet-terminal-output" id="arpanet-output"></div>
       <span class="arpanet-cursor" id="arpanet-cursor"></span>
     </div>
     <svg class="arpanet-network-map" id="arpanet-network-map" viewBox="0 0 340 260" aria-hidden="true">
-      <!-- Network map SVG — mounted by network-map.ts in Week 2 -->
+      <!-- network-map.ts mounts content in Week 2 -->
     </svg>
     <div class="arpanet-progress" id="arpanet-progress">▓▓▓▓▒▒░░░░ 0%</div>
   `;
 
-  // Register with chapter manager
   chapterManager.register(CHAPTER_ID, container, () => onChapterInit(container));
 
-  // Wire dwell-enter event → pulse progress indicator
   container.addEventListener('dwell-enter', () => {
     document.getElementById('arpanet-progress')?.classList.add('pulsing');
   });
 }
 
 function onChapterInit(container: HTMLElement) {
-  // Populate opening text (Week 2: terminal.ts takes over with full typing scheduler)
-  const output = document.getElementById('arpanet-output');
-  if (output) {
-    const chapter = getChapter(CHAPTER_ID)!;
-    output.textContent = `CONNECTED TO ARPANET NODE 1 — ${chapter.yearRange.split('–')[0]}\n`;
-  }
+  const chapter = getChapter(CHAPTER_ID)!;
+  const outputEl = document.getElementById('arpanet-output')!;
+  const cursorEl = document.getElementById('arpanet-cursor')!;
 
-  // Progress indicator wired to scroll
-  onChapterProgress(CHAPTER_ID, updateProgress);
+  terminal = new ArpanetTerminal(outputEl, cursorEl);
+  terminal.start(chapter.facts);
 
-  // Network map glows in after a short delay
+  // Reveal fact 0 immediately on chapter activate
+  terminal.revealFact(chapter.facts[0], 0);
+  lastProgress = 0;
+
+  onChapterProgress(CHAPTER_ID, (progress) => {
+    // Fast-forward any active typing when user is scrolling forward
+    if (progress > lastProgress && terminal) {
+      terminal.fastForward();
+    }
+    lastProgress = progress;
+
+    // Trigger remaining facts at scroll thresholds
+    FACT_THRESHOLDS.forEach((threshold, i) => {
+      if (i === 0) return; // already revealed above
+      if (progress >= threshold && terminal) {
+        terminal.revealFact(chapter.facts[i], i);
+      }
+    });
+
+    updateProgress(progress);
+  });
+
+  // Network map fades in after 2s (network-map.ts handles this in Week 2)
   setTimeout(() => {
     document.getElementById('arpanet-network-map')?.classList.add('visible');
   }, 2000);
@@ -57,9 +80,10 @@ function updateProgress(progress: number) {
 
   const pct = Math.round(progress * 100);
   const filled = Math.round(progress * 10);
-  const bar = '▓'.repeat(Math.min(filled, 4))
-    + '▒'.repeat(Math.min(Math.max(filled - 4, 0), 2))
-    + '░'.repeat(Math.max(10 - filled, 0));
+  const bar =
+    '▓'.repeat(Math.min(filled, 4)) +
+    '▒'.repeat(Math.min(Math.max(filled - 4, 0), 2)) +
+    '░'.repeat(Math.max(10 - filled, 0));
 
   el.textContent = `${bar} ${pct}%`;
 }
