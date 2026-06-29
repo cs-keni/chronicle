@@ -192,4 +192,4 @@ Note: WebGL canvas content not captured in headless Playwright screenshots (know
 - Total main-thread block: 364ms at dwell entry. Exceeds 16ms target but accepted per PHASES.md reasoning.
 - Results documented in `docs/SHADER-PROFILES.md`
 
-**Commit:** (this session)
+**Commit:** 9a21b87
