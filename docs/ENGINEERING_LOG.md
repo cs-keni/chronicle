@@ -116,4 +116,4 @@ Config:
 - Amber phosphor glow from chapter SVG filter applies to the map — looks like CRT terminal output
 - No console errors
 
-**Commit:** (pending)
+**Commit:** a2cf72e
