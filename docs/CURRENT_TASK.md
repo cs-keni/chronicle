@@ -8,7 +8,7 @@
 ARPANET chapter — completing Week 2 artifacts:
 
 1. **DONE** — `terminal.ts` typing scheduler: boot sequence, scroll-triggered facts, fast-forward on scroll, cursor blink
-2. **NEXT** — `network-map.ts`: SVG node diagram (UCLA/SRI/UCSB/Utah), fade-in on chapter activate
+2. **DONE** — `network-map.ts`: SVG node diagram (SRI/UTAH/UCLA/UCSB), draw-in animation, fade-in on chapter activate
 3. **NEXT** — Figma Era card restack: full A/B/C card swap at 1/3 and 2/3 scroll progress
 
 ## What Was Just Done

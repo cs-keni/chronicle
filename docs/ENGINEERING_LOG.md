@@ -88,3 +88,32 @@ Config:
 - No console errors
 
 **Commit:** b16b65a
+
+---
+
+### Week 2: ARPANET network map SVG
+
+**Files written this session:**
+
+- `src/chapters/arpanet/network-map.ts` — new file: `initNetworkMap(svgEl, visibleAt)`
+  - Injects 4 nodes (SRI, UTAH, UCLA, UCSB) + 4 IMP link lines into the existing SVG placeholder
+  - Historical topology (December 1969 BBN map): SRI→UTAH horizontal, SRI→UCLA vertical, UCLA→UCSB horizontal, UCSB→UTAH diagonal
+  - Line draw-in: `stroke-dashoffset` trick — `getTotalLength()` in rAF, CSS transition from `length` → 0 with per-link stagger (0, 0.7, 1.4, 2.1s delays + `visibleAt` offset)
+  - Node appearance: circles + labels at opacity 0, fade in at `NODE_DELAY + visibleAt` seconds after trigger
+  - `visibleAt` param: offsets all delays so animation starts as the SVG parent becomes visible (not before), preventing pre-drawn lines appearing when the map fades in
+  - "ARPANET — DEC 1969" title label above the diagram (dim amber)
+  - Node sublabels: MENLO PARK, SALT LAKE CITY, LOS ANGELES, SANTA BARBARA (7px, 50% opacity amber)
+
+- `src/chapters/arpanet/index.ts` — updated:
+  - Imports `initNetworkMap` from `./network-map`
+  - Calls `initNetworkMap(mapEl, 1.0)` immediately after chapter activate
+  - `setTimeout(() => mapEl.classList.add('visible'), 1000)` — fades parent in after 1s; `visibleAt=1.0` matches this delay
+
+**Browser verification result:**
+- Network map visible bottom-right at ~t=1s after chapter activate
+- All 4 link lines draw in sequentially (SRI→UTAH first, UCSB→UTAH diagonal last) — correct historical topology
+- Node circles + labels appear at ~t=3.8s after activate
+- Amber phosphor glow from chapter SVG filter applies to the map — looks like CRT terminal output
+- No console errors
+
+**Commit:** (pending)

@@ -83,9 +83,11 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - [x] Terminal scroll container auto-follows latest line
   - [ ] Keystroke sound: `Tone.js` Synth (deferred → Week 4 with audio crossfade)
   - [ ] Audio unlock + iOS fallback (deferred → Week 4)
-- [ ] Network map artifact: `src/chapters/arpanet/network-map.ts`
-  - SVG network diagram, glows in as chapter activates
-  - Purely visual, no interaction required for Phase 1
+- [x] Network map artifact: `src/chapters/arpanet/network-map.ts`
+  - [x] SVG node diagram: SRI/UTAH/UCLA/UCSB — historically accurate December 1969 BBN topology
+  - [x] Link draw-in animation via stroke-dashoffset with per-link stagger delays
+  - [x] Node circles + labels fade in after all lines complete
+  - [x] `visibleAt` offset prevents pre-drawn lines appearing before parent fades in
 - [ ] ARPANET content: populate `facts` array from research (TODOS.md #004)
 
 ### Week 1 (parallel) — Lobby + Hash Router

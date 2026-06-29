@@ -7,6 +7,7 @@ import { chapterManager } from '../../engine/chapter';
 import { onChapterProgress } from '../../engine/scroll';
 import { getChapter } from '../../data/chapters';
 import { ArpanetTerminal } from './terminal';
+import { initNetworkMap } from './network-map';
 
 const CHAPTER_ID = 'arpanet';
 
@@ -68,10 +69,13 @@ function onChapterInit(container: HTMLElement) {
     updateProgress(progress);
   });
 
-  // Network map fades in after 2s (network-map.ts handles this in Week 2)
-  setTimeout(() => {
-    document.getElementById('arpanet-network-map')?.classList.add('visible');
-  }, 2000);
+  // Network map: inject content first (getTotalLength needs element in DOM),
+  // fade parent in at 1s, then start line-draw animation at 2s.
+  const mapEl = document.getElementById('arpanet-network-map') as SVGSVGElement | null;
+  if (mapEl) {
+    initNetworkMap(mapEl, 1.0); // 1.0s matches setTimeout below
+    setTimeout(() => mapEl.classList.add('visible'), 1000);
+  }
 }
 
 function updateProgress(progress: number) {
