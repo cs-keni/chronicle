@@ -154,7 +154,7 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 - [ ] Era-appropriate progress indicators: `src/chapters/{era}/progress.ts`
   - ARPANET: `▓▓▓▓▒▒░░░░ 40%` — ASCII block chars, amber, monospace, bottom-left
   - Figma Era: 7 pill dots (◉●●●○○○), glassmorphism, bottom-center
-- [ ] Backwards navigation: reverse scroll triggers 0.15s ease-in fade to black → 0.15s ease-out fade in from black (no reverse shader)
+- [x] Backwards navigation: reverse scroll triggers 0.15s ease-in fade to black → 0.15s ease-out fade in from black (no reverse shader)
 - [ ] Playwright visual regression (DOM-only — no WebGL pixel comparison):
   - Lobby idle screenshot baseline
   - ARPANET idle screenshot baseline (DOM layer without WebGL transition)

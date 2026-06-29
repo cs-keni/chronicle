@@ -25,6 +25,15 @@ const progressListeners = new Map<string, ProgressCallback[]>();
 const dwellEnterListeners: DwellCallback[] = [];
 const transitionRequestListeners: TransitionCallback[] = [];
 
+// Per-chapter dwell tracking in a Map so fireBackwardsNav can reset it.
+// Closure variables can't be reset from outside — this lets backwards nav
+// clear the flag so the next forward pass re-triggers dwell capture.
+const dwellFiredMap = new Map<string, boolean>();
+
+export function resetDwellState(chapterId: string) {
+  dwellFiredMap.set(chapterId, false);
+}
+
 export function onChapterProgress(id: string, cb: ProgressCallback) {
   if (!progressListeners.has(id)) progressListeners.set(id, []);
   progressListeners.get(id)!.push(cb);
@@ -47,7 +56,7 @@ export function initScrollEngine() {
   spacers.forEach((spacer, index) => {
     const chapterId = spacer.dataset.chapterId!;
     const nextId = CHAPTER_ORDER[index + 1] ?? null;
-    let dwellFired = false;
+    dwellFiredMap.set(chapterId, false);
 
     ScrollTrigger.create({
       trigger: spacer,
@@ -56,7 +65,7 @@ export function initScrollEngine() {
 
       onEnter: () => {
         chapterManager.activate(chapterId);
-        dwellFired = false;
+        dwellFiredMap.set(chapterId, false);
       },
 
       onLeaveBack: () => {
@@ -75,8 +84,8 @@ export function initScrollEngine() {
         progressListeners.get(chapterId)?.forEach(cb => cb(chapterProgress));
 
         // Dwell zone entry
-        if (progress >= DWELL_THRESHOLD && !dwellFired) {
-          dwellFired = true;
+        if (progress >= DWELL_THRESHOLD && !dwellFiredMap.get(chapterId)) {
+          dwellFiredMap.set(chapterId, true);
           dwellEnterListeners.forEach(cb => cb(chapterId));
         }
 
@@ -89,8 +98,14 @@ export function initScrollEngine() {
   });
 }
 
+let backwardsNavInFlight = false;
+
 function fireBackwardsNav(fromId: string, toId: string) {
-  // Backwards nav: 0.15s fade-to-black → swap → 0.15s fade-from-black (no shader)
+  // Guard: the instant scrollTo during this function can re-trigger onLeaveBack
+  // for the chapter we're leaving, causing a second call before the first completes.
+  if (backwardsNavInFlight) return;
+  backwardsNavInFlight = true;
+
   const overlay = document.getElementById('transition-overlay')!;
   lockScroll();
 
@@ -99,17 +114,32 @@ function fireBackwardsNav(fromId: string, toId: string) {
 
   setTimeout(() => {
     chapterManager.activate(toId);
-    // Scroll to top of the previous chapter's spacer
+
+    // Land at 85% through the previous chapter — near the end but clear of the
+    // dwell zone (which starts at ~99.8%). Gives the user room to re-explore
+    // before the forward transition re-triggers.
     const prevSpacer = document.querySelector<HTMLElement>(
       `.chapter-scroll-spacer[data-chapter-id="${toId}"]`
     );
     if (prevSpacer) {
-      window.scrollTo({ top: prevSpacer.offsetTop, behavior: 'instant' });
+      window.scrollTo({
+        top: prevSpacer.offsetTop + prevSpacer.offsetHeight * 0.85,
+        behavior: 'instant',
+      });
     }
+
+    // Reset dwell so the next forward pass re-triggers capture at dwell entry.
+    // Without this, scrolling forward again skips the dwell capture (dwellFiredMap
+    // stays true from the previous pass, since onEnter only fires at the top boundary).
+    resetDwellState(toId);
 
     overlay.style.transition = 'opacity 0.15s ease-out';
     overlay.style.opacity = '0';
     unlockScroll();
+
+    setTimeout(() => {
+      backwardsNavInFlight = false;
+    }, 150);
   }, 150);
 }
 

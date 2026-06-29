@@ -193,3 +193,18 @@ Note: WebGL canvas content not captured in headless Playwright screenshots (know
 - Results documented in `docs/SHADER-PROFILES.md`
 
 **Commit:** 9a21b87
+
+---
+
+## 2026-06-29
+
+### Week 4: Backwards navigation — scroll.ts refactor
+
+**Files changed this session:**
+
+- `src/engine/scroll.ts` — three bug fixes to `fireBackwardsNav`:
+  1. **Scroll target**: was `prevSpacer.offsetTop` (top of chapter, 0%). Now `prevSpacer.offsetTop + prevSpacer.offsetHeight * 0.85` — lands user at 85% through the chapter, clear of the dwell zone (~99.8%), giving room to re-explore before re-triggering the forward transition.
+  2. **Double-fire guard**: added `backwardsNavInFlight` flag. The instant `scrollTo` inside `fireBackwardsNav` causes ScrollTrigger to re-fire `onLeaveBack` for the chapter being left, which would recurse into a second `fireBackwardsNav` call. The flag blocks that second call. Flag resets after the full 300ms animation cycle (150ms fade-in + 150ms fade-out).
+  3. **Dwell state reset**: refactored `let dwellFired = false` closure variable to a module-level `Map<string, boolean>` + exported `resetDwellState()`. After backwards nav, `resetDwellState(toId)` is called so the next forward pass re-triggers dwell capture at dwell entry. Without this, `dwellFiredMap` stays `true` from the previous pass (since `onEnter` only fires at the top spacer boundary, which we never cross when jumping to 85% via `scrollTo`), and the capture would be skipped — falling back to `captureChapter()` at transition time with no 500ms head start.
+
+**Commit:** (pending)

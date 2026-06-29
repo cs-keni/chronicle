@@ -1,36 +1,29 @@
 # Current Task
 
-**Phase:** Phase 1 — Week 3 (html2canvas spike complete)
-**Status:** Week 3 core work done — manual GPU profiling pending
+**Phase:** Phase 1 — Week 4
+**Status:** Backwards navigation complete — audio crossfade up next
 
-## Week 3 Complete (automated)
+## Week 4 In Progress
 
-1. **DONE** — html2canvas integration spike (TODO-001):
-   - SVG filter fix: `el.style.filter = 'none'` during capture, restore after
-   - Timing measured: ARPANET 364ms, Figma Era 167ms
-   - Gate at transition: 167ms (ARPANET already resolved from dwell entry)
-   - Transition fires, chapter swap correct, no errors
-   - Results in `docs/SHADER-PROFILES.md`
+1. **DONE** — Backwards navigation (`src/engine/scroll.ts`):
+   - `fireBackwardsNav` fixed: scroll target now 85% through previous chapter (not 0%)
+   - Double-fire guard (`backwardsNavInFlight`) prevents ScrollTrigger recursion during instant `scrollTo`
+   - `dwellFiredMap` refactor: dwell state is now resettable; `resetDwellState(toId)` called on backwards nav so next forward pass re-triggers dwell capture correctly
 
-2. **DONE** — `transitionInFlight` bug fixed (could double-fire fadeSwap on touch)
+2. **PENDING** — Audio: Tone.js crossfade during CRT transition
+   - ARPANET ambient fades out over first 1s of transition
+   - Figma Era fades in at 60% of transition (hook already stubbed in `transition.ts`)
+   - Web Audio unlock + iOS tap fallback required first
 
-3. **PENDING (manual)** — Chrome DevTools GPU profiling in headed browser:
-   - Open `http://localhost:3000/#arpanet` in headed Chrome
-   - Record Performance during ARPANET → Figma Era transition
-   - Verify 60fps, document dropped frames
-   - Update `docs/SHADER-PROFILES.md` with headed baseline
+3. **PENDING** — Keystroke sounds: Tone.js Synth per ARPANET terminal character
 
-## Next Up — Week 4
+4. **PENDING** — Playwright visual regression baselines (lobby, ARPANET idle, Figma Era idle)
 
-- Backwards navigation: reverse scroll → 0.15s fade-to-black → swap → fade-from-black
-- Audio: Tone.js crossfade during CRT transition (ARPANET ambient → Figma Era ambient)
-- Audio unlock + iOS tap fallback (Web Audio API requires user gesture)
-- Keystroke sounds for ARPANET terminal (Tone.js Synth)
-- Playwright visual regression baselines (lobby, ARPANET idle, Figma Era idle)
-- Touch device smoke test: does fadeSwap path work correctly?
+5. **PENDING (manual)** — Chrome DevTools GPU profiling (headed browser):
+   - Open `http://localhost:3000/#arpanet`, record Performance during CRT transition
+   - Verify 60fps, document in `docs/SHADER-PROFILES.md`
 
 ## Deferred
 
 - TODO-005: phosphor glow sigma spike (σ=2, σ=3, σ=6 vs ThinkPad X61 BBS reference)
 - Lobby visual polish (currently stub)
-- CRT shader GPU profiling in headed browser (requires manual step)
