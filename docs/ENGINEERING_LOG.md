@@ -207,4 +207,32 @@ Note: WebGL canvas content not captured in headless Playwright screenshots (know
   2. **Double-fire guard**: added `backwardsNavInFlight` flag. The instant `scrollTo` inside `fireBackwardsNav` causes ScrollTrigger to re-fire `onLeaveBack` for the chapter being left, which would recurse into a second `fireBackwardsNav` call. The flag blocks that second call. Flag resets after the full 300ms animation cycle (150ms fade-in + 150ms fade-out).
   3. **Dwell state reset**: refactored `let dwellFired = false` closure variable to a module-level `Map<string, boolean>` + exported `resetDwellState()`. After backwards nav, `resetDwellState(toId)` is called so the next forward pass re-triggers dwell capture at dwell entry. Without this, `dwellFiredMap` stays `true` from the previous pass (since `onEnter` only fires at the top spacer boundary, which we never cross when jumping to 85% via `scrollTo`), and the capture would be skipped — falling back to `captureChapter()` at transition time with no 500ms head start.
 
+**Commit:** 6f715db
+
+---
+
+### Week 4: Tone.js ambient audio + CRT crossfade
+
+**Files changed this session:**
+
+- `src/engine/audio.ts` — new file: audio engine
+  - **ARPANET ambient**: `Tone.Noise('brown')` → `Tone.Filter(280Hz, lowpass)` → `Tone.Volume`. Brown noise through a low-pass filter at 280Hz recreates machine room hum / fan noise at −24dB (barely perceptible background texture).
+  - **Figma Era ambient**: two `Tone.Oscillator` (C3=130.81Hz, G3=196Hz, both sine) → `Tone.Volume`. A perfect-fifth drone at −32dB — near-silent, clean, implies intentional designed space.
+  - Both layers start with `volume = -Infinity` (silent) and ramp to target dB on `start()`, back to `-Infinity` on `stop()`. Oscillators run continuously once started (just muted) — avoids restart latency.
+  - **Web Audio unlock**: `AudioContext` must be resumed via a user gesture. `Tone.start()` is called on first `click` or `touchstart` on document. The lobby card tap (required to navigate to any chapter) provides this gesture naturally. iOS: `touchstart` with `passive: true` catches mobile taps without blocking scroll. `pendingChapterId` queues whichever chapter was activated before unlock and starts it immediately after.
+  - **`crossfadeForTransition(fromId, toId, durationMs)`**: schedules all audio changes via `Tone.now()` at transition start — no per-frame callbacks. ARPANET: `rampTo(-Infinity, 1, now)`. Figma Era: `start()` oscillators, then `setValueAtTime(-Infinity, now)` + `setValueAtTime(-Infinity, fadeInStart)` + `rampTo(fullDb, fadeInDuration, fadeInStart)` where `fadeInStart = now + durationSec × 0.6`.
+  - **`startChapterAmbient(id)`** / **`stopChapterAmbient(id)`**: public API for chapter modules and backwards nav.
+
+- `src/engine/transition.ts` — replaced `scheduleAudioCrossfade` stub with `crossfadeForTransition` call before `runShader`. Removed unused `gsap` import (was only used by the stub). The call site: immediately after textures uploaded, before shader rAF loop starts.
+
+- `src/engine/scroll.ts` — `fireBackwardsNav` now calls `stopChapterAmbient(fromId)` at fade-to-black start and `startChapterAmbient(toId)` when chapter swaps. Audio crossfade matches the visual overlay timing.
+
+- `src/chapters/arpanet/index.ts` — `onChapterInit` calls `startChapterAmbient('arpanet')` after terminal start. Ambient starts as the chapter initializes.
+
+- `src/chapters/figma-era/index.ts` — `onChapterInit` calls `startChapterAmbient('figma-era')` before boot animation. Covers both CRT-transition arrival (crossfade already scheduled from transition.ts) and direct hash-link entry.
+
+- `src/main.ts` — `initAudioEngine()` called first (before scroll/router) to register document event listeners before any interaction events fire.
+
+**Build verification:** `npm run build` → 989 modules, no errors. Chunk size warning (584KB bundle) is expected for Phase 1 with GSAP + Tone.js + html2canvas in one bundle — code splitting deferred to Phase 3.
+
 **Commit:** (pending)

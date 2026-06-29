@@ -4,6 +4,7 @@ import { chapterManager } from './engine/chapter';
 import { initScrollEngine } from './engine/scroll';
 import { initRouter } from './engine/router';
 import { initTransitionEngine } from './engine/transition';
+import { initAudioEngine } from './engine/audio';
 import { initLobby } from './chapters/lobby/index';
 import { initArpanet } from './chapters/arpanet/index';
 import { initFigmaEra } from './chapters/figma-era/index';
@@ -26,6 +27,9 @@ chapterManager.register('lobby', lobbyEl);
 
 // Precompile shaders during idle time
 webgl.precompileAll({ 'crt-power-off': crtPowerOffFrag });
+
+// Wire audio engine first — it sets up unlock listeners on document
+initAudioEngine();
 
 // Wire scroll engine (GSAP ScrollTrigger on spacers)
 initScrollEngine();

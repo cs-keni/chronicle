@@ -85,7 +85,7 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - [x] Word-wrap at 72 chars (VT100 reference width)
   - [x] Terminal scroll container auto-follows latest line
   - [ ] Keystroke sound: `Tone.js` Synth (deferred → Week 4 with audio crossfade)
-  - [ ] Audio unlock + iOS fallback (deferred → Week 4)
+  - [x] Audio unlock + iOS fallback (deferred → Week 4)
 - [x] Network map artifact: `src/chapters/arpanet/network-map.ts`
   - [x] SVG node diagram: SRI/UTAH/UCLA/UCSB — historically accurate December 1969 BBN topology
   - [x] Link draw-in animation via stroke-dashoffset with per-link stagger delays
@@ -161,7 +161,7 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - Figma Era idle screenshot baseline
   - Run: `npx playwright test --update-snapshots` to set baselines
   - WebGL GLSL uniforms: verify via `gl.getUniform()` in test hooks, not pixel comparison
-- [ ] Audio: Tone.js crossfade during transition (driven by GSAP `onUpdate`, not Tone Transport):
+- [x] Audio: Tone.js crossfade during transition (driven by GSAP `onUpdate`, not Tone Transport):
   - Schedule with `Tone.now()` at transition start — do NOT schedule per-frame
   - ARPANET audio fades out over first 1s of transition
   - Figma Era audio fades in starting at 60% of transition

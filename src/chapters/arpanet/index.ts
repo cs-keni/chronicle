@@ -8,6 +8,7 @@ import { onChapterProgress } from '../../engine/scroll';
 import { getChapter } from '../../data/chapters';
 import { ArpanetTerminal } from './terminal';
 import { initNetworkMap } from './network-map';
+import { startChapterAmbient } from '../../engine/audio';
 
 const CHAPTER_ID = 'arpanet';
 
@@ -46,6 +47,7 @@ function onChapterInit(container: HTMLElement) {
 
   terminal = new ArpanetTerminal(outputEl, cursorEl);
   terminal.start(chapter.facts);
+  startChapterAmbient('arpanet');
 
   // Reveal fact 0 immediately on chapter activate
   terminal.revealFact(chapter.facts[0], 0);

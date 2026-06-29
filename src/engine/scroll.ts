@@ -10,6 +10,7 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { chapterManager } from './chapter';
+import { startChapterAmbient, stopChapterAmbient } from './audio';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -108,12 +109,14 @@ function fireBackwardsNav(fromId: string, toId: string) {
 
   const overlay = document.getElementById('transition-overlay')!;
   lockScroll();
+  stopChapterAmbient(fromId); // begin fading out alongside the overlay
 
   overlay.style.transition = 'opacity 0.15s ease-in';
   overlay.style.opacity = '1';
 
   setTimeout(() => {
     chapterManager.activate(toId);
+    startChapterAmbient(toId); // begin fading in as overlay clears
 
     // Land at 85% through the previous chapter — near the end but clear of the
     // dwell zone (which starts at ~99.8%). Gives the user room to re-explore

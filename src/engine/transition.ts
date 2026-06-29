@@ -13,11 +13,11 @@
 //     → transition complete: canvas reset, chapter swap, scroll unlock
 
 import html2canvas from 'html2canvas';
-import { gsap } from 'gsap';
 import { webgl } from './webgl';
 import { chapterManager } from './chapter';
 import { lockScroll, unlockScroll, isTouchDevice, onDwellEnter, onTransitionRequest } from './scroll';
 import { getTransition } from '../data/transitions';
+import { crossfadeForTransition } from './audio';
 
 const CAPTURE_TIMEOUT_MS = 500; // max extra scroll lock if capture is slow
 
@@ -101,6 +101,9 @@ async function handleTransitionRequest(fromId: string, toId: string) {
     webgl.uploadTexture(0, textureFrom);
     webgl.uploadTexture(1, textureTo);
 
+    // Schedule audio crossfade via Tone.now() before the shader starts
+    crossfadeForTransition(fromId, toId, transitionDef.duration);
+
     await runShader(transitionDef.shader, transitionDef.duration);
 
     // Transition complete — swap chapters, reset canvas
@@ -179,24 +182,3 @@ async function fadeSwap(fromId: string, toId: string) {
   });
 }
 
-// Audio crossfade — driven by GSAP onUpdate, NOT Tone Transport (avoids clock drift).
-// Called by the shader rAF loop progress; scheduled once at transition start.
-export function scheduleAudioCrossfade(
-  fromFade: () => void,
-  toFade: () => void,
-  durationMs: number,
-) {
-  // ARPANET audio fades out over first 1s of transition
-  gsap.to({}, {
-    duration: Math.min(1, durationMs / 1000),
-    onUpdate() { fromFade(); },
-  });
-
-  // Figma Era audio fades in starting at 60% of transition
-  gsap.delayedCall(durationMs * 0.6 / 1000, () => {
-    gsap.to({}, {
-      duration: (durationMs * 0.4) / 1000,
-      onUpdate() { toFade(); },
-    });
-  });
-}

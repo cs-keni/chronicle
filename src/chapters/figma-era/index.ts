@@ -8,6 +8,7 @@ import { chapterManager } from '../../engine/chapter';
 import { onChapterProgress } from '../../engine/scroll';
 import { navigateTo } from '../../engine/router';
 import { getChapter } from '../../data/chapters';
+import { startChapterAmbient } from '../../engine/audio';
 
 const CHAPTER_ID = 'figma-era';
 const TOTAL_PIPS = 7;
@@ -79,6 +80,7 @@ function onChapterInit(container: HTMLElement, chapter: ReturnType<typeof getCha
   // Card B starts with accent border
   cardEls[1].classList.add('figma-card--accent');
 
+  startChapterAmbient('figma-era');
   playBootAnimation(container);
   onChapterProgress(CHAPTER_ID, (progress) => updateChapter(progress, chapter));
 }
