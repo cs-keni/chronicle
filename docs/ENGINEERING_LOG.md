@@ -87,4 +87,4 @@ Config:
 - On scroll to 40% (580px / 1443px spacer): progress bar shows "▓▓▓▓░░░░░░ 40%", 89 lines in DOM (facts 0-3 revealed + flushed), terminal scrolled to show facts 2-3
 - No console errors
 
-**Commit:** (pending)
+**Commit:** b16b65a
