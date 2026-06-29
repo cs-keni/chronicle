@@ -1,8 +1,9 @@
 // Figma Era chapter — 2019–2023.
-// Full floating card layout and boot animation implemented here.
-// Week 2: wire remaining content from chapters data model.
+// Card restack at 1/3 progress: A exits, B→A, C→B, fact3 enters as new C.
+// GSAP drives all card positioning (removes nth-child CSS dependency).
 
 import './style.css';
+import { gsap } from 'gsap';
 import { chapterManager } from '../../engine/chapter';
 import { onChapterProgress } from '../../engine/scroll';
 import { navigateTo } from '../../engine/router';
@@ -11,10 +12,22 @@ import { getChapter } from '../../data/chapters';
 const CHAPTER_ID = 'figma-era';
 const TOTAL_PIPS = 7;
 
+// Card positions — match FIGMA-ERA-BRIEF.md layout spec
+const POS_A  = { x: -120, y: 20,   rotation: -1.5, zIndex: 2, opacity: 1 } as const;
+const POS_B  = { x:   60, y: -10,  rotation: 0,    zIndex: 3, opacity: 1 } as const;
+const POS_C  = { x:  -80, y: 60,   rotation: 1,    zIndex: 1, opacity: 1 } as const;
+const POS_OFF = { x: 280, y: -20,  rotation: 2,    zIndex: 0, opacity: 0 } as const;
+
+const RESTACK_DURATION = 0.6;
+const RESTACK_EASE = 'power2.inOut';
+const RESTACK_THRESHOLD = 0.33;
+
+let currentScene = 0;
+let cardEls: HTMLElement[] = [];
+
 export function initFigmaEra(container: HTMLElement) {
   const chapter = getChapter(CHAPTER_ID)!;
 
-  // Build chapter DOM
   container.innerHTML = `
     <div class="figma-cards-container" id="figma-cards"></div>
     <div class="figma-progress" id="figma-progress" aria-hidden="true">
@@ -28,13 +41,10 @@ export function initFigmaEra(container: HTMLElement) {
     </div>
   `;
 
-  // Wire back-to-lobby pill
   container.querySelector('.figma-back-pill')?.addEventListener('click', () => navigateTo(''));
 
-  // Register with chapter manager
   chapterManager.register(CHAPTER_ID, container, () => onChapterInit(container, chapter));
 
-  // Wire dwell-enter event (progress indicator pulses — handled by CSS class)
   container.addEventListener('dwell-enter', () => {
     document.getElementById('figma-progress')?.style.setProperty('opacity', '0.5');
   });
@@ -43,11 +53,12 @@ export function initFigmaEra(container: HTMLElement) {
 function onChapterInit(container: HTMLElement, chapter: ReturnType<typeof getChapter>) {
   if (!chapter) return;
 
-  // Mount cards for the first 3 facts (initial visible set)
   const cardsContainer = document.getElementById('figma-cards')!;
-  const initialFacts = chapter.facts.slice(0, 3);
+  currentScene = 0;
+  cardEls = [];
 
-  for (const fact of initialFacts) {
+  // Create all 4 cards upfront — fact3 starts off-screen
+  for (const fact of chapter.facts) {
     const card = document.createElement('div');
     card.className = 'figma-card';
     card.innerHTML = `
@@ -56,12 +67,19 @@ function onChapterInit(container: HTMLElement, chapter: ReturnType<typeof getCha
       <div class="figma-card-body">${fact.body}</div>
     `;
     cardsContainer.appendChild(card);
+    cardEls.push(card);
   }
 
-  // Boot arrival animation — plays when entering from CRT transition
-  playBootAnimation(container);
+  // Place cards at initial positions (instant, no animation)
+  gsap.set(cardEls[0], POS_A);
+  gsap.set(cardEls[1], { ...POS_B });
+  gsap.set(cardEls[2], POS_C);
+  gsap.set(cardEls[3], POS_OFF);
 
-  // Wire scroll progress
+  // Card B starts with accent border
+  cardEls[1].classList.add('figma-card--accent');
+
+  playBootAnimation(container);
   onChapterProgress(CHAPTER_ID, (progress) => updateChapter(progress, chapter));
 }
 
@@ -69,16 +87,13 @@ function playBootAnimation(container: HTMLElement) {
   const pixel = document.createElement('div');
   pixel.className = 'figma-boot-pixel';
   container.appendChild(pixel);
-
-  // Remove pixel element after animation completes
   pixel.addEventListener('animationend', () => pixel.remove(), { once: true });
 }
 
 function updateChapter(progress: number, chapter: NonNullable<ReturnType<typeof getChapter>>) {
   updatePips(progress);
-  updateCards(progress, chapter);
+  updateCards(progress);
 
-  // Show end state when near chapter bottom
   if (progress > 0.85) {
     document.getElementById('figma-end-state')?.classList.add('visible');
   }
@@ -95,32 +110,34 @@ function updatePips(progress: number) {
   });
 }
 
-function updateCards(progress: number, chapter: NonNullable<ReturnType<typeof getChapter>>) {
-  // Swap card sets at 1/3 and 2/3 progress
-  const container = document.getElementById('figma-cards');
-  if (!container) return;
+function updateCards(progress: number) {
+  const newScene = progress >= RESTACK_THRESHOLD ? 1 : 0;
+  if (newScene === currentScene || cardEls.length < 4) return;
+  currentScene = newScene;
 
-  const factGroup = Math.floor(progress * 3); // 0, 1, or 2
-  const startIdx = factGroup * 1; // show 1 new card per segment (supplement the initial 3)
-
-  // This is a stub for Week 2's full card restack animation.
-  // For now: just fade in additional facts when reached
-  const existingCards = container.querySelectorAll('.figma-card');
-  if (existingCards.length < chapter.facts.length && startIdx >= existingCards.length) {
-    const fact = chapter.facts[startIdx];
-    if (fact) {
-      const card = document.createElement('div');
-      card.className = 'figma-card';
-      card.style.cssText = 'opacity:0;transition:opacity 0.5s ease;transform:translateX(100px) translateY(-20px) rotate(-0.5deg);z-index:4';
-      card.innerHTML = `
-        <div class="figma-card-year">${fact.year}</div>
-        <div class="figma-card-headline">${fact.headline}</div>
-        <div class="figma-card-body">${fact.body}</div>
-      `;
-      container.appendChild(card);
-      requestAnimationFrame(() => {
-        card.style.opacity = '1';
-      });
-    }
+  if (newScene === 1) {
+    restackCards();
   }
+}
+
+function restackCards() {
+  const [c0, c1, c2, c3] = cardEls;
+
+  // c0 (was A) exits to the left
+  gsap.to(c0, {
+    x: -340, y: 100, rotation: -6, scale: 0.85, opacity: 0,
+    duration: 0.5, ease: 'power2.in',
+    onComplete: () => c0.remove(),
+  });
+
+  // c1 (was B) moves to A
+  gsap.to(c1, { ...POS_A, duration: RESTACK_DURATION, ease: RESTACK_EASE });
+  c1.classList.remove('figma-card--accent');
+
+  // c2 (was C) rises to B (front) — slight delay so c1 clears the way
+  gsap.to(c2, { ...POS_B, duration: RESTACK_DURATION, ease: RESTACK_EASE, delay: 0.1 });
+  c2.classList.add('figma-card--accent');
+
+  // c3 (was off-screen right) slides in to C
+  gsap.to(c3, { ...POS_C, duration: RESTACK_DURATION, ease: RESTACK_EASE, delay: 0.2 });
 }

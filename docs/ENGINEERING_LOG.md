@@ -117,3 +117,41 @@ Config:
 - No console errors
 
 **Commit:** a2cf72e
+
+---
+
+### Week 2: Figma Era card restack + scroll height fix
+
+**Files changed this session:**
+
+- `src/chapters/figma-era/index.ts` — fully rewritten:
+  - 4 cards created upfront (`c0`=fact0, `c1`=fact1, `c2`=fact2, `c3`=fact3); `c3` starts at `POS_OFF` (off-screen right, `x:280`, `opacity:0`)
+  - GSAP `set()` places all 4 at init; `to()` drives all transitions — nth-child CSS selectors removed entirely
+  - `POS_A = {x:-120, y:20, rotation:-1.5, zIndex:2, opacity:1}` (back-left)
+  - `POS_B = {x:60, y:-10, rotation:0, zIndex:3, opacity:1}` (front)
+  - `POS_C = {x:-80, y:60, rotation:1, zIndex:1, opacity:1}` (back-right)
+  - `POS_OFF = {x:280, y:-20, rotation:2, zIndex:0, opacity:0}` (off-screen)
+  - `RESTACK_THRESHOLD = 0.33`: fires once at 33% scroll progress
+  - `restackCards()`: c0 exits left with `scale:0.85 opacity:0` (0.5s power2.in, then `c0.remove()`); c1→A, c2→B (delay 0.1s), c3→C (delay 0.2s), `power2.inOut` 0.6s
+  - `.figma-card--accent` border migrates from c1 to c2 on restack
+  - End state fires at 85% progress via `progress > 0.85` gate
+
+- `src/chapters/figma-era/style.css` — updated:
+  - Removed `.figma-card:nth-child(1/2/3)` position rules
+  - Added `.figma-card--accent { border-color: rgba(0, 212, 255, 0.15) }` for front-card electric blue
+  - Added `height: 280px`, `box-sizing: border-box`, `overflow: hidden` to `.figma-card`
+  - Added `transition: border-color 0.4s ease` to `.figma-card`
+
+- `src/styles/global.css` — scroll height fix:
+  - Added `padding-bottom: 100vh` to `#scroll-container`
+  - Without this: last chapter spacer ends at `scrollY = 2886px` but `maxScroll = 2166px`, so final chapter can only reach ~50% progress
+  - With fix: `maxScroll` extends to cover the full spacer, last chapter reaches 100%
+  - Verified: `endStateVisible: true` at `scrollY: 2696`
+
+**Browser verification result:**
+- Restack fires at 33%: c1 moves back-left, c2 rises to center-front (gains accent border), c3 slides in from off-screen right to back-right; c0 exits with scale-down and fades out
+- End state fires at 87% (after scroll height fix): "END OF KNOWN HISTORY. MORE CHAPTERS LOADING." + "Explore more →" pill appear at bottom
+- Screenshot captured at `/tmp/figma-endstate.png` — 2 cards visible, pill visible, pip indicator on last dot
+- No console errors
+
+**Commit:** (this session)

@@ -38,6 +38,8 @@ body { scrollbar-width: none; }
 #scroll-container {
   display: none;
   position: relative;
+  /* Extra room so the last chapter's spacer can fully scroll past the viewport top. */
+  padding-bottom: 100vh;
 }
 
 #scroll-container.active {

@@ -123,9 +123,10 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - Noise grain overlay: inline SVG data URI at 3% opacity
   - Fixed height: `200vh`
 - [x] Floating card layout (3-card depth stack, A/B/C rotation per FIGMA-ERA-BRIEF.md)
-- [x] Figma Era content: initial 3 facts from chapters data model
+- [x] Card restack at 33% progress: GSAP-driven A/B/C/D swap; fact3 slides in from off-screen right; accent border migrates to new front card; c0 exits left with scale-down
+- [x] Figma Era content: initial 4 facts from chapters data model (4th card visible after restack)
 - [x] Boot arrival animation: 2px `#00D4FF` pixel → `cubic-bezier(0.16,1,0.3,1)` → 600ms expand
-- [x] End state: closing beat + "Explore more →" back-to-lobby pill
+- [x] End state: closing beat + "Explore more →" back-to-lobby pill (fires at 85% progress)
 
 ### Week 3 — CRT Power-Off Transition Shader
 

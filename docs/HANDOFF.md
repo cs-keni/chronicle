@@ -31,7 +31,7 @@ Chronicle is a scroll-driven museum. Eight chapters. Seven GLSL transitions.
 | ARPANET index | `src/chapters/arpanet/index.ts` | Complete |
 | ARPANET terminal | `src/chapters/arpanet/terminal.ts` | Complete (audio deferred) |
 | ARPANET network map | `src/chapters/arpanet/network-map.ts` | Complete |
-| Figma Era | `src/chapters/figma-era/` | Stub (card restack pending) |
+| Figma Era | `src/chapters/figma-era/` | Complete (Week 2) |
 | CRT shader | `src/shaders/crt-power-off.frag` | Complete |
 
 ## Key invariants

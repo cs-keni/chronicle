@@ -1,27 +1,32 @@
 # Current Task
 
-**Phase:** Phase 1 — Week 2
-**Status:** In progress
+**Phase:** Phase 1 — Week 3
+**Status:** Week 2 complete — ready for Week 3
 
-## Active Work
+## Week 2 Complete
 
-ARPANET chapter — completing Week 2 artifacts:
+All three Week 2 deliverables are done and committed:
 
-1. **DONE** — `terminal.ts` typing scheduler: boot sequence, scroll-triggered facts, fast-forward on scroll, cursor blink
-2. **DONE** — `network-map.ts`: SVG node diagram (SRI/UTAH/UCLA/UCSB), draw-in animation, fade-in on chapter activate
-3. **NEXT** — Figma Era card restack: full A/B/C card swap at 1/3 and 2/3 scroll progress
+1. **DONE** — `terminal.ts`: ARPANET typing scheduler, boot sequence, fast-forward on scroll, scroll-triggered facts
+2. **DONE** — `network-map.ts`: SVG topology diagram (Dec 1969 BBN), stroke-dashoffset draw-in animation
+3. **DONE** — Figma Era card restack: GSAP-driven A/B/C/D swap at 33% scroll progress; scroll height fix for last chapter
 
-## What Was Just Done
+## Next Up — Week 3
 
-Built `ArpanetTerminal` class (`src/chapters/arpanet/terminal.ts`):
-- Queued typing at 80ms/char (boot), 60ms (headlines), 20ms (body)
-- `fastForward()` cancels all pending timeouts + flushes queue instantly on scroll
-- 8 facts revealed at 12.5% scroll intervals across the ARPANET chapter
-- Terminal container auto-scrolls to latest line
+html2canvas integration spike (TODO-001):
+- Validate CSS filter capture (ARPANET phosphor glow SVG filter must survive capture)
+- Verify main-thread block time < 16ms
+- Gate: if block > 16ms, need offscreen canvas workaround or accept one dropped frame
 
-Verified in browser: boot sequence types correctly, facts reveal on scroll, fast-forward works, no console errors.
+CRT transition end-to-end verification:
+- Full ARPANET → Figma Era flow at 60fps
+- Chrome DevTools Performance recording
+- Document baseline frame time in `docs/SHADER-PROFILES.md`
 
 ## Deferred
 
 - Keystroke sounds (Tone.js) → Week 4 with audio crossfade
 - Audio unlock / iOS fallback → Week 4
+- Backwards navigation → Week 4
+- Playwright visual regression baselines → Week 4
+- TODO-005: phosphor glow SVG filter sigma spike (σ=2, σ=3, σ=6 comparison)
