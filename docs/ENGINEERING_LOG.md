@@ -154,4 +154,4 @@ Config:
 - Screenshot captured at `/tmp/figma-endstate.png` — 2 cards visible, pill visible, pip indicator on last dot
 - No console errors
 
-**Commit:** (this session)
+**Commit:** 270337f
