@@ -5,6 +5,7 @@
 // Fast-forward: any scroll movement flushes current line + entire queue to screen instantly.
 
 import type { ChapterFact } from '../../data/chapters';
+import { triggerKeystroke } from '../../engine/audio';
 
 const HEADLINE_DELAY_MS = 60;
 const BODY_DELAY_MS = 20;
@@ -140,6 +141,7 @@ export class ArpanetTerminal {
     lineEl.textContent = text.slice(0, index + 1);
     this.pendingText = text.slice(index + 1);
     this.container.scrollTop = this.container.scrollHeight;
+    triggerKeystroke();
 
     const delay = kind === 'body' ? BODY_DELAY_MS
       : kind === 'headline' ? HEADLINE_DELAY_MS

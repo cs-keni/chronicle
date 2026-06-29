@@ -235,4 +235,20 @@ Note: WebGL canvas content not captured in headless Playwright screenshots (know
 
 **Build verification:** `npm run build` → 989 modules, no errors. Chunk size warning (584KB bundle) is expected for Phase 1 with GSAP + Tone.js + html2canvas in one bundle — code splitting deferred to Phase 3.
 
+**Commit:** 6555a19
+
+---
+
+### Week 4: ARPANET keystroke sounds
+
+**Files changed this session:**
+
+- `src/engine/audio.ts` — added `clickSynth: Tone.NoiseSynth` (created at `initAudioEngine()`) and exported `triggerKeystroke()`:
+  - Synth: white noise, `{ attack: 0.001, decay: 0.025, sustain: 0, release: 0.005 }`. Total audible duration ~26ms — approximates the mechanical thwack of a Teletype Model 33 type bar hitting the platen.
+  - Volume: `Tone.Volume(-30)` → destination.
+  - Velocity: `0.5 + Math.random() × 0.5` per call. 50–100% variation prevents the machine-gun uniformity of identical rapid-fire clicks.
+  - Guard: `if (!audioUnlocked || !clickSynth) return` — no sound before Web Audio context is resumed.
+
+- `src/chapters/arpanet/terminal.ts` — `triggerKeystroke()` called in `typeChar` immediately after updating `lineEl.textContent`. Fast-forward bypasses `typeChar` entirely so no clicks fire during flush.
+
 **Commit:** (pending)

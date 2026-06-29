@@ -1,7 +1,7 @@
 # Current Task
 
 **Phase:** Phase 1 — Week 4
-**Status:** Backwards navigation complete — audio crossfade up next
+**Status:** Audio complete — Playwright baselines up next
 
 ## Week 4 In Progress
 
@@ -17,12 +17,10 @@
    - Web Audio unlock: `Tone.start()` on first `click`/`touchstart`; lobby card tap provides gesture
    - Backwards nav crossfade: `stopChapterAmbient(from)` + `startChapterAmbient(to)` in `fireBackwardsNav`
 
-3. **PENDING** — Keystroke sounds: Tone.js Synth per ARPANET terminal character
-   - ARPANET ambient fades out over first 1s of transition
-   - Figma Era fades in at 60% of transition (hook already stubbed in `transition.ts`)
-   - Web Audio unlock + iOS tap fallback required first
-
-3. **PENDING** — Keystroke sounds: Tone.js Synth per ARPANET terminal character
+3. **DONE** — Keystroke sounds:
+   - `Tone.NoiseSynth` white noise burst (~26ms envelope) per character typed
+   - Velocity variation 50–100% prevents machine-gun uniformity of rapid-fire clicks
+   - Fast-forward flushes without calling `typeChar` — no clicks during skip
 
 4. **PENDING** — Playwright visual regression baselines (lobby, ARPANET idle, Figma Era idle)
 

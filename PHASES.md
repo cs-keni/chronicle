@@ -84,7 +84,7 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - [x] Idle cursor blink after typing (CSS `cursor-blink` animation already in style.css)
   - [x] Word-wrap at 72 chars (VT100 reference width)
   - [x] Terminal scroll container auto-follows latest line
-  - [ ] Keystroke sound: `Tone.js` Synth (deferred → Week 4 with audio crossfade)
+  - [x] Keystroke sound: `Tone.js` Synth (deferred → Week 4 with audio crossfade)
   - [x] Audio unlock + iOS fallback (deferred → Week 4)
 - [x] Network map artifact: `src/chapters/arpanet/network-map.ts`
   - [x] SVG node diagram: SRI/UTAH/UCLA/UCSB — historically accurate December 1969 BBN topology

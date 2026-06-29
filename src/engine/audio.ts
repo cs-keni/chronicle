@@ -23,6 +23,9 @@ let pendingChapterId: string | null = null;
 
 const layers = new Map<string, AmbientLayer>();
 
+// Click synth — created at initAudioEngine(), fired per character typed
+let clickSynth: Tone.NoiseSynth | null = null;
+
 function buildArpanetLayer(): AmbientLayer {
   const noise = new Tone.Noise('brown');
   const filter = new Tone.Filter(280, 'lowpass');
@@ -86,6 +89,17 @@ export function initAudioEngine(): void {
   layers.set('arpanet', buildArpanetLayer());
   layers.set('figma-era', buildFigmaEraLayer());
 
+  // White noise burst — attack 1ms, decay 25ms, sustain 0. Approximates the
+  // mechanical thwack of a type bar hitting a platen on a Teletype Model 33.
+  const synth = new Tone.NoiseSynth({
+    noise: { type: 'white' },
+    envelope: { attack: 0.001, decay: 0.025, sustain: 0, release: 0.005 },
+  });
+  const clickVol = new Tone.Volume(-30);
+  synth.connect(clickVol);
+  clickVol.toDestination();
+  clickSynth = synth;
+
   const onUnlock = async () => {
     if (audioUnlocked) return;
     await Tone.start();
@@ -114,6 +128,15 @@ export function startChapterAmbient(chapterId: string): void {
 
 export function stopChapterAmbient(chapterId: string): void {
   layers.get(chapterId)?.stop();
+}
+
+// Fired for every character typed in the ARPANET terminal.
+// Velocity variation (50–100%) prevents the machine-gun effect from identical
+// rapid-fire clicks. Fast-forward bypasses typeChar entirely so no clicks fire.
+export function triggerKeystroke(): void {
+  if (!audioUnlocked || !clickSynth) return;
+  const velocity = 0.5 + Math.random() * 0.5;
+  clickSynth.triggerAttackRelease(0.001, Tone.now(), velocity);
 }
 
 // Called by transition.ts at the START of the CRT shader (before runShader).
