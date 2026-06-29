@@ -49,27 +49,22 @@ async function handleTransitionRequest(fromId: string, toId: string) {
   const transitionDef = getTransition(fromId, toId);
   if (!transitionDef) return;
 
-  // Touch devices: skip shader, use fade-to-black (Pass 6A decision)
-  if (isTouchDevice) {
-    await fadeSwap(fromId, toId);
-    return;
-  }
-
-  // Reduced motion: same as touch fallback
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    await fadeSwap(fromId, toId);
-    return;
-  }
-
+  // Set guard and lock scroll before any async work — prevents double-fire on both
+  // WebGL and touch/reduced-motion paths.
   transitionInFlight = true;
   lockScroll();
 
   try {
-    // Ensure we have capture for fromId (should already be running from dwell entry)
+    // Touch devices: skip shader, use fade-to-black (Pass 6A decision)
+    if (isTouchDevice || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      await fadeSwap(fromId, toId);
+      return;
+    }
+
     const fromEl = chapterManager.getElement(fromId)!;
     const toEl = chapterManager.getElement(toId)!;
 
-    // Pre-activate toId off-screen so html2canvas can capture it
+    // Bring toId into viewport (hidden) so html2canvas can capture its rendered state
     toEl.style.visibility = 'hidden';
     toEl.style.transform = 'translateX(0)';
 
@@ -97,7 +92,7 @@ async function handleTransitionRequest(fromId: string, toId: string) {
       return;
     }
 
-    // Restore toId off-screen (chapter.ts will activate it after transition)
+    // Restore toId off-screen — chapter.ts activate() handles the final swap
     toEl.style.transform = 'translateX(-100vw)';
     toEl.style.visibility = '';
 
@@ -108,7 +103,7 @@ async function handleTransitionRequest(fromId: string, toId: string) {
 
     await runShader(transitionDef.shader, transitionDef.duration);
 
-    // Transition complete
+    // Transition complete — swap chapters, reset canvas
     chapterManager.activate(toId);
     chapterManager.deactivate(fromId);
     webgl.resetAfterTransition();
@@ -121,12 +116,27 @@ async function handleTransitionRequest(fromId: string, toId: string) {
 }
 
 async function captureChapter(el: HTMLElement): Promise<HTMLCanvasElement> {
-  return html2canvas(el, {
-    useCORS: true,
-    allowTaint: true,
-    scale: Math.min(window.devicePixelRatio, 2),
-    logging: false,
-  });
+  // html2canvas cannot resolve SVG filter URL references (e.g. filter:url(#phosphor-glow)).
+  // Strip inline filter during capture and restore afterward to avoid rendering artifacts.
+  const savedFilter = el.style.filter;
+  el.style.filter = 'none';
+
+  const t0 = performance.now();
+  try {
+    const canvas = await html2canvas(el, {
+      useCORS: true,
+      allowTaint: true,
+      scale: Math.min(window.devicePixelRatio, 2),
+      logging: false,
+    });
+    const ms = performance.now() - t0;
+    // Spike measurement — Week 3 TODO-001: main-thread block target < 16ms
+    console.debug(`[transition] captureChapter(#${el.id}) ${ms.toFixed(1)}ms`);
+    if (ms > 16) console.warn(`[transition] html2canvas blocked main thread ${ms.toFixed(1)}ms (>16ms frame budget)`);
+    return canvas;
+  } finally {
+    el.style.filter = savedFilter;
+  }
 }
 
 function runShader(shaderName: string, durationMs: number): Promise<void> {

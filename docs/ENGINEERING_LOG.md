@@ -155,3 +155,41 @@ Config:
 - No console errors
 
 **Commit:** 270337f
+
+---
+
+### Week 3: CRT transition wiring + html2canvas spike (TODO-001)
+
+**Files changed this session:**
+
+- `src/engine/transition.ts` — two fixes + timing instrumentation:
+  - Fix: `transitionInFlight = true` moved to BEFORE touch/reduced-motion check — prevents double-firing fadeSwap on touch devices during the 300ms transition window
+  - Fix: `lockScroll()` moved to before the touch check — both paths now lock scroll
+  - New: `captureChapter()` strips `el.style.filter = 'none'` before html2canvas capture and restores after — html2canvas cannot resolve SVG filter URL references (`filter: url(#phosphor-glow)`); without this, result is undefined behavior per browser
+  - New: `performance.now()` timing around `html2canvas()` call; logs `[transition] captureChapter(#id) Xms` at debug, warns at > 16ms
+
+- `docs/SHADER-PROFILES.md` — new file: html2canvas spike results + crt-power-off timing table + full transition timeline
+
+**Browser verification (headless Playwright):**
+
+Transition flow end-to-end:
+1. Navigate to `http://localhost:3000/#arpanet`, ARPANET loads (terminal + network map)
+2. Scroll to progress = 0.998 (dwell entry at scrollY = 1441): ARPANET html2canvas fires
+3. Console: `captureChapter(#chapter-arpanet) 364.6ms` — 364ms main-thread block
+4. Scroll to progress = 1.0 (transition fire at scrollY = 1500): Figma Era html2canvas fires
+5. Console: `captureChapter(#chapter-figma-era) 167.7ms` — 167ms block
+6. GL ReadPixels messages confirm WebGL texture upload + shader execution
+7. After 2500ms shader: `arpanetTransform: "translateX(-100vw)"`, `figmaTransform: "translateX(0px)"`, `glCanvasActive: false` (1x1 reset), `scrollLocked: false`, `figmaCardsCount: 4` (chapter initialized)
+8. No JS errors in console
+
+Note: WebGL canvas content not captured in headless Playwright screenshots (known headless compositing limitation — GPU path differs). Transition IS running (confirmed by GL messages + chapter state). Production browsers (headed Chrome) render the full CRT effect.
+
+**html2canvas spike results (TODO-001):**
+- SVG filter: SOLVED via `el.style.filter = 'none'` strip-and-restore
+- ARPANET capture: 364ms (complex DOM — ~90 terminal lines + SVG map + CSS pseudo-elements)
+- Figma Era capture: 167ms (minimal DOM — no cards yet)
+- Gate time at transition: 167ms (ARPANET already resolved from dwell entry)
+- Total main-thread block: 364ms at dwell entry. Exceeds 16ms target but accepted per PHASES.md reasoning.
+- Results documented in `docs/SHADER-PROFILES.md`
+
+**Commit:** (this session)

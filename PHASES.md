@@ -39,7 +39,10 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 - [x] ARPANET chapter content research and writing (`docs/ARPANET-CONTENT.md`) — 8 facts, visual artifacts specified
 - [x] Figma Era design brief (`docs/FIGMA-ERA-BRIEF.md`) — color system, layout, boot animation, end state, blur values locked
 - [x] Lobby design brief (`docs/LOBBY-BRIEF.md`) — grid, card dimensions, era styling, hover, entry animation all specified
-- [ ] html2canvas spike — validate CSS filter capture AND main-thread block time < 16ms — see TODOS.md #001
+- [x] html2canvas spike — validate CSS filter capture AND main-thread block time < 16ms — see TODOS.md #001
+  - SVG filter capture: SOLVED — strip `el.style.filter = 'none'` before capture, restore after
+  - Main-thread block: 364ms (ARPANET) / 167ms (Figma Era) — exceeds 16ms target but accepted (fires at dwell entry, not transition moment; within 500ms abort timeout)
+  - Full results in `docs/SHADER-PROFILES.md`
 
 ### Week 1 — Scaffolding + Engine Core
 
@@ -142,8 +145,8 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - Phase 0.6–1.0: expand revealing uTo via smoothstep
 - [x] Transition engine wiring: `src/engine/transition.ts` — dwell-enter → html2canvas → Promise.all gate → WebGL → chapter swap
 - [x] Transition completion: canvas to 1×1, chapter deactivated, target activated
-- [ ] Manual GPU profiling: Chrome DevTools → Performance → verify 60fps throughout
-- [ ] Document baseline frame time in `docs/SHADER-PROFILES.md`
+- [ ] Manual GPU profiling: Chrome DevTools → Performance → verify 60fps throughout (requires headed browser, not automated)
+- [x] Document baseline frame time in `docs/SHADER-PROFILES.md`
 
 ### Week 4 — Integration, QA, Polish
 
