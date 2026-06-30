@@ -31,11 +31,15 @@ webgl.precompileAll({ 'crt-power-off': crtPowerOffFrag });
 // Wire audio engine first — it sets up unlock listeners on document
 initAudioEngine();
 
-// Wire scroll engine (GSAP ScrollTrigger on spacers)
-initScrollEngine();
-
 // Wire transition engine (dwell zone → html2canvas → WebGL → chapter swap)
 initTransitionEngine();
 
-// Start router last — reads hash and activates first chapter/lobby
+// Router runs before scroll engine: showChapter/showScrollContainer must
+// complete (scroll container visible, scroll position set, chapter activated)
+// before GSAP ScrollTrigger creates triggers. If scroll engine ran first with
+// display:none spacers, GSAP would compute wrong positions (all 0) and then
+// spuriously fire onLeaveBack / transition requests on layout recalculation.
 initRouter();
+
+// Wire scroll engine LAST — spacers are now in the correct layout position.
+initScrollEngine();

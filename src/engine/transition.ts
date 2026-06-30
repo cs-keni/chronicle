@@ -45,6 +45,10 @@ let transitionInFlight = false;
 
 async function handleTransitionRequest(fromId: string, toId: string) {
   if (transitionInFlight) return;
+  // Guard: if the router already navigated directly to toId (or anywhere else),
+  // fromId is no longer the active chapter. Skip this stale trigger from the
+  // scroll engine firing onUpdate(progress≥1) during a programmatic scrollTo.
+  if (chapterManager.getActiveId() !== fromId) return;
 
   const transitionDef = getTransition(fromId, toId);
   if (!transitionDef) return;

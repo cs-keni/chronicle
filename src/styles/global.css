@@ -5,6 +5,7 @@
 }
 
 html {
+  background: #000; /* prevent white flash when no chapter covers the canvas */
   scroll-behavior: auto; /* GSAP handles all scroll animation */
   overflow-x: hidden;
 }

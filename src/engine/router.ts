@@ -4,7 +4,7 @@
 // Lobby→Chapter: same fade-from-black code path.
 
 import { chapterManager } from './chapter';
-import { scrollToChapter } from './scroll';
+import { scrollToChapter, suppressTransitionRequests } from './scroll';
 
 const VALID_CHAPTERS = new Set(['arpanet', 'figma-era']);
 const SCROLL_CONTAINER = document.getElementById('scroll-container')!;
@@ -36,9 +36,13 @@ function showChapter(id: string) {
   OVERLAY.style.opacity = '1';
 
   showScrollContainer();
-  scrollToChapter(id);
+  // Suppress GSAP-triggered transition requests for 200ms: the programmatic
+  // scrollTo causes GSAP to fire onUpdate(progress≥1) for the preceding
+  // chapter, which would otherwise start a spurious CRT transition.
+  suppressTransitionRequests(200);
   chapterManager.activate(id);
   chapterManager.deactivate('lobby');
+  scrollToChapter(id);
 
   // Fade from black — 0.5s ease-in per spec
   requestAnimationFrame(() => {

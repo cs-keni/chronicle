@@ -251,4 +251,48 @@ Note: WebGL canvas content not captured in headless Playwright screenshots (know
 
 - `src/chapters/arpanet/terminal.ts` — `triggerKeystroke()` called in `typeChar` immediately after updating `lineEl.textContent`. Fast-forward bypasses `typeChar` entirely so no clicks fire during flush.
 
+**Commit:** a5d9262
+
+---
+
+## 2026-06-30
+
+### Week 4: Playwright visual regression setup + GSAP init-order bug fix
+
+**Problem:** Adding Playwright visual regression tests exposed a subtle initialization bug. When navigating to `/#figma-era` via direct link, the baseline screenshot captured the ARPANET chapter instead. Root cause: GSAP ScrollTrigger initialized while `#scroll-container` was `display:none` — spacers had zero dimensions, so all trigger positions computed as (0,0). When the router called `showScrollContainer()` (making them `display:block`), GSAP recalculated real positions and fired spurious callbacks:
+- `onEnter` for ARPANET with `self.progress ≈ 1` (initial state reconciliation) → re-activated ARPANET chapter
+- `onLeaveBack` for Figma Era (was "entered" at 0,0; now outside at its real position) → fired `fireBackwardsNav` activating ARPANET
+- `onUpdate(progress ≥ 1)` for ARPANET → started a 2500ms CRT transition keeping Figma Era at `translateX(-100vw)`
+
+**Files changed:**
+
+- `src/main.ts` — swapped initialization order: `initRouter()` now runs BEFORE `initScrollEngine()`. Router calls `showScrollContainer()` + `scrollToChapter()` + `chapterManager.activate()` first; GSAP then creates triggers against already-visible, correctly-positioned spacers. No more spurious callbacks on first layout.
+
+- `src/engine/scroll.ts` — three defense-in-depth guards:
+  1. `suppressTransitionRequests(durationMs)` export: sets a `_suppressUntil` timestamp. Router calls this with 200ms during `showChapter()` to block GSAP `onUpdate(progress≥1)` from firing a spurious transition during programmatic `scrollTo`.
+  2. `onEnter`: added `self.progress > 0.5` guard. GSAP fires `onEnter` during initial state reconciliation with `progress≈1` for triggers whose scroll position is already past their end. Real user entry always arrives at `progress≈0`. Guard blocks the spurious ARPANET re-activation.
+  3. `onLeaveBack`: added `performance.now() > _suppressUntil` check so backwards-nav fires are also blocked during the suppress window.
+
+- `src/engine/router.ts` — added `suppressTransitionRequests(200)` call inside `showChapter()`, before `scrollToChapter()`. Also imports `suppressTransitionRequests` from scroll engine. `chapterManager.activate(id)` moved before `scrollToChapter()` so active chapter is set before GSAP sees the scroll position change.
+
+- `src/engine/transition.ts` — added `chapterManager.getActiveId() !== fromId` guard at top of `handleTransitionRequest`. If the router already navigated to a chapter, `fromId` is stale and the transition should not fire. Defense against any remaining GSAP `onUpdate` callbacks that slip through the suppress window.
+
+- `src/styles/global.css` — added `background: #000` to `html` element. Without this, the HTML root background was white, which showed as a flash when all chapter scenes were transitioning (all at `translateX(-100vw)` briefly during the spurious CRT transition).
+
+**New files:**
+
+- `playwright.config.ts` — Chromium-only, single worker, `baseURL: http://localhost:3000`, `reuseExistingServer: true` for dev; `retries: 0` since visual baselines must be exact.
+
+- `tests/visual.spec.ts` — 3 baseline tests:
+  - `lobby idle`: navigate `/`, wait for `.lobby-grid`, 500ms for entry stagger, screenshot.
+  - `ARPANET idle`: navigate `/#arpanet`, wait for `.arpanet-terminal`, 600ms for fade-from-black, scroll 100px to fast-forward terminal, 300ms, screenshot.
+  - `Figma Era idle`: navigate `/#figma-era`, wait for `.figma-card`, `waitForFunction` until overlay opacity < 0.05 (fade-from-black complete), 700ms for boot pixel animation, screenshot.
+
+- `tests/visual.spec.ts-snapshots/` — three baseline PNGs (chromium-linux):
+  - `lobby-idle-chromium-linux.png` — 8-card lobby grid with film grain, era-styled cards
+  - `arpanet-idle-chromium-linux.png` — amber terminal text with phosphor glow + network map diamond
+  - `figma-era-idle-chromium-linux.png` — glassmorphism dark cards ("2019 Dark Mode...", "2020 Design Systems...") + 7-pip progress indicator
+
+**Test result:** 3 passed (7.3s) — all baselines correct.
+
 **Commit:** (pending)

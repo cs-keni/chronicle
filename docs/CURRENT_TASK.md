@@ -22,7 +22,10 @@
    - Velocity variation 50–100% prevents machine-gun uniformity of rapid-fire clicks
    - Fast-forward flushes without calling `typeChar` — no clicks during skip
 
-4. **PENDING** — Playwright visual regression baselines (lobby, ARPANET idle, Figma Era idle)
+4. **DONE** — Playwright visual regression baselines (lobby, ARPANET idle, Figma Era idle):
+   - `playwright.config.ts` + `tests/visual.spec.ts` + 3 baseline PNGs written
+   - Fixed GSAP init-order bug (see ENGINEERING_LOG.md 2026-06-30) — initRouter before initScrollEngine
+   - All 3 tests pass: 3/3 (7.3s)
 
 5. **PENDING (manual)** — Chrome DevTools GPU profiling (headed browser):
    - Open `http://localhost:3000/#arpanet`, record Performance during CRT transition

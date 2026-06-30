@@ -48,6 +48,14 @@ export function onTransitionRequest(cb: TransitionCallback) {
   transitionRequestListeners.push(cb);
 }
 
+// Router calls this during direct-link / hash navigation to prevent
+// GSAP's initial onUpdate (triggered by the programmatic scrollTo) from
+// firing a spurious transition. 200ms covers the scroll event + first RAF.
+let _suppressUntil = 0;
+export function suppressTransitionRequests(durationMs: number) {
+  _suppressUntil = performance.now() + durationMs;
+}
+
 // Spacer IDs in scroll order — used to determine next chapter
 const CHAPTER_ORDER = ['arpanet', 'figma-era'];
 
@@ -64,14 +72,24 @@ export function initScrollEngine() {
       start: 'top top',
       end: 'bottom top',
 
-      onEnter: () => {
+      onEnter: (self) => {
+        // Guard 1: ignore in lobby mode (scroll container not active).
+        if (!document.getElementById('scroll-container')?.classList.contains('active')) return;
+        // Guard 2: GSAP fires onEnter during initial state-reconciliation even
+        // when the scroll is already past the trigger's end (progress≈1). Real
+        // forward entry always starts at progress≈0. Skip spurious init calls.
+        if (self.progress > 0.5) return;
         chapterManager.activate(chapterId);
         dwellFiredMap.set(chapterId, false);
       },
 
       onLeaveBack: () => {
-        // Backwards navigation — handled by router's fade-to-black
-        if (index > 0) {
+        // Guard: only fire backwards nav when scroll container is active and
+        // not mid-router-navigation (GSAP recalculates trigger positions on
+        // display:none→block transition and spuriously fires onLeaveBack).
+        if (index > 0
+            && document.getElementById('scroll-container')?.classList.contains('active')
+            && performance.now() > _suppressUntil) {
           const prevId = CHAPTER_ORDER[index - 1];
           fireBackwardsNav(chapterId, prevId);
         }
@@ -90,8 +108,8 @@ export function initScrollEngine() {
           dwellEnterListeners.forEach(cb => cb(chapterId));
         }
 
-        // Dwell zone exit — request transition
-        if (progress >= 1 && nextId) {
+        // Dwell zone exit — request transition (suppressed during router nav)
+        if (progress >= 1 && nextId && performance.now() > _suppressUntil) {
           transitionRequestListeners.forEach(cb => cb(chapterId, nextId));
         }
       },
