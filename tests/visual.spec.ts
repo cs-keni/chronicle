@@ -44,3 +44,59 @@ test.describe('visual regression', () => {
     await expect(page).toHaveScreenshot('figma-era-idle.png');
   });
 });
+
+test.describe('e2e flow', () => {
+  // Verifies the full Phase 1 critical path:
+  // ARPANET → scroll to dwell zone → CRT transition fires → Figma Era active.
+  // WebGL canvas output is not screenshot-compared (headless compositing limitation),
+  // but DOM state after the transition is verified.
+  test('ARPANET → Figma Era transition', async ({ page }) => {
+    await page.goto('/#arpanet');
+    await page.waitForSelector('.arpanet-terminal');
+    await page.waitForTimeout(600); // overlay fade
+
+    // Get the ARPANET spacer's full scroll range from the DOM
+    const { spacerTop, spacerHeight } = await page.evaluate(() => {
+      const spacer = document.querySelector<HTMLElement>(
+        '.chapter-scroll-spacer[data-chapter-id="arpanet"]'
+      )!;
+      return {
+        spacerTop: spacer.offsetTop,
+        spacerHeight: spacer.offsetHeight,
+      };
+    });
+
+    // Scroll to the very end of the ARPANET spacer to fire the transition.
+    // progress=1 fires transitionRequest('arpanet', 'figma-era').
+    await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), spacerTop + spacerHeight);
+
+    // Wait for Figma Era to become active (final chapter swap, not the temporary
+    // capture position). The transition engine sets transform='translateX(0)' +
+    // visibility='hidden' during html2canvas capture, then restores visibility=''
+    // after capture. The real activation sets transform='translateX(0)' with no
+    // visibility override, so we gate on both conditions.
+    await page.waitForFunction(() => {
+      const figmaEl = document.getElementById('chapter-figma-era');
+      const transform = figmaEl?.style.transform ?? '';
+      const visibility = figmaEl?.style.visibility ?? '';
+      return (transform === 'translateX(0)' || transform === 'translateX(0px)')
+             && visibility !== 'hidden';
+    }, { timeout: 8000 });
+
+    // Verify Figma Era card content is in the DOM
+    const cardCount = await page.locator('.figma-card').count();
+    expect(cardCount).toBeGreaterThanOrEqual(3);
+
+    // Verify ARPANET is off-screen
+    const arpanetTransform = await page.evaluate(() =>
+      document.getElementById('chapter-arpanet')?.style.transform
+    );
+    expect(arpanetTransform).toMatch(/translateX\(-100vw\)/);
+
+    // Verify scroll lock was released (transition completed)
+    const scrollLocked = await page.evaluate(() =>
+      document.body.classList.contains('scroll-locked')
+    );
+    expect(scrollLocked).toBe(false);
+  });
+});

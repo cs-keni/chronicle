@@ -296,3 +296,23 @@ Note: WebGL canvas content not captured in headless Playwright screenshots (know
 **Test result:** 3 passed (7.3s) — all baselines correct.
 
 **Commit:** 588aadc
+
+---
+
+### Week 4: E2E flow test + PHASES.md audit
+
+**Files changed:**
+
+- `tests/visual.spec.ts` — added `e2e flow` describe block with `ARPANET → Figma Era transition` test:
+  - Navigates to `/#arpanet`, waits for terminal + fade overlay
+  - Reads spacer `offsetTop + offsetHeight` from DOM to get exact scroll target (viewport-agnostic)
+  - Scrolls to end of ARPANET spacer to fire `transitionRequest('arpanet', 'figma-era')`
+  - `waitForFunction` gates on Figma Era at `translateX(0)` AND `visibility !== 'hidden'` — prevents a false positive from the temporary capture position set during html2canvas (briefly `translateX(0) + visibility:hidden`, then the real swap is `translateX(0) + visibility:''`)
+  - Asserts: ≥3 `.figma-card` elements, ARPANET at `translateX(-100vw)`, scroll lock released
+  - All 4 tests pass (9.3s)
+
+- `PHASES.md` — corrected audit: marked done all Week 4 items already implemented in prior sessions but left unchecked: progress indicators, reduced motion, touch device detection, Figma Era end state, T9 overflow fix.
+
+- `vite.config.js` — deleted stale duplicate (canonical is `vite.config.ts`)
+
+**Commit:** (pending)

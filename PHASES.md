@@ -151,7 +151,7 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 ### Week 4 — Integration, QA, Polish
 
 - [ ] End-to-end scroll flow: ARPANET → dwell → CRT transition → Figma Era
-- [ ] Era-appropriate progress indicators: `src/chapters/{era}/progress.ts`
+- [x] Era-appropriate progress indicators: `src/chapters/{era}/progress.ts`
   - ARPANET: `▓▓▓▓▒▒░░░░ 40%` — ASCII block chars, amber, monospace, bottom-left
   - Figma Era: 7 pill dots (◉●●●○○○), glassmorphism, bottom-center
 - [x] Backwards navigation: reverse scroll triggers 0.15s ease-in fade to black → 0.15s ease-out fade in from black (no reverse shader)
@@ -165,10 +165,10 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
   - Schedule with `Tone.now()` at transition start — do NOT schedule per-frame
   - ARPANET audio fades out over first 1s of transition
   - Figma Era audio fades in starting at 60% of transition
-- [ ] Reduced motion: `@media (prefers-reduced-motion: reduce)` → chapter swap with fade-to-black, no shader
-- [ ] Touch device detection: `ontouchstart in window || navigator.maxTouchPoints > 0` → disable GLSL shaders; transitions use fade-to-black (same path as reduced-motion). Chapters still render with full CSS visual fidelity. Resolves iOS ScrollTrigger quirk risk for Phase 1.
-- [ ] Figma Era end state: closing beat at chapter bottom edge — glassmorphism-styled line "END OF KNOWN HISTORY. MORE CHAPTERS LOADING." in Figma Era typography + Geist. Below it: a minimal `Explore more →` pill (glassmorphism, `#00D4FF` border) that navigates to `#` (lobby). This closes the Phase 1 emotional arc and provides the shareability moment.
-- [ ] Fix T9: enforce fixed chapter heights (`overflow: hidden` on containers)
+- [x] Reduced motion: `@media (prefers-reduced-motion: reduce)` → chapter swap with fade-to-black, no shader
+- [x] Touch device detection: `ontouchstart in window || navigator.maxTouchPoints > 0` → disable GLSL shaders; transitions use fade-to-black (same path as reduced-motion). Chapters still render with full CSS visual fidelity. Resolves iOS ScrollTrigger quirk risk for Phase 1.
+- [x] Figma Era end state: closing beat at chapter bottom edge — glassmorphism-styled line "END OF KNOWN HISTORY. MORE CHAPTERS LOADING." in Figma Era typography + Geist. Below it: a minimal `Explore more →` pill (glassmorphism, `#00D4FF` border) that navigates to `#` (lobby). This closes the Phase 1 emotional arc and provides the shareability moment.
+- [x] Fix T9: enforce fixed chapter heights (`overflow: hidden` on containers)
 - [ ] Browser support smoke test: Chrome, Safari 15.4+, Firefox, iOS Safari, Windows Chrome
 - [ ] Ship Phase 1 as proof-of-concept
 - [ ] STRETCH (cut if overrun): Code overlay (`?` key, slide-in panel 30% width)
