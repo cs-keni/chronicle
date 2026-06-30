@@ -315,4 +315,4 @@ Note: WebGL canvas content not captured in headless Playwright screenshots (know
 
 - `vite.config.js` — deleted stale duplicate (canonical is `vite.config.ts`)
 
-**Commit:** (pending)
+**Commit:** 42e3d89
