@@ -295,4 +295,4 @@ Note: WebGL canvas content not captured in headless Playwright screenshots (know
 
 **Test result:** 3 passed (7.3s) — all baselines correct.
 
-**Commit:** (pending)
+**Commit:** 588aadc
