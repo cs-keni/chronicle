@@ -1,5 +1,21 @@
 # Engineering Log
 
+## 2026-07-07
+
+### Phase 1 shipped to Vercel + fixed intermittent deep-link bug (#figma-era showed ARPANET)
+
+**Ship:** Phase 1 deployed to Vercel (https://chronicle-topaz-ten.vercel.app/). Production build clean (`tsc && vite build`), `base: './'` serves relative assets. Local smoke (Playwright 4/4) + production-build preview both green.
+
+**Bug found in live QA (`/browse`):** Clicking "Explore" on the Figma Era lobby card, or a cold deep-link to `#figma-era`, intermittently displayed the **ARPANET** chapter instead of Figma Era. Measured broken state: `chapter-arpanet` at `translateX(0)`, `chapter-figma-era` at `translateX(-100vw)`.
+
+**Root cause (race condition):** `suppressTransitionRequests(200)` was a fixed 200ms time window meant to stop GSAP's reconciliation callbacks (fired by the router's programmatic `scrollTo` + the `display:none→block` layout change) from overriding the router's chosen chapter. GSAP's settle time depends on layout/asset load, which on a networked host (Vercel CDN latency, cold cache) routinely exceeds 200ms. When callbacks fired late, `scroll.ts` `onEnter` — which had **no suppression guard**, only `progress > 0.5` — called `activate('arpanet')`, flipping the active chapter away from the router's target and defeating the `transition.ts:51` `getActiveId() !== fromId` guard. Localhost (0ms asset load) always won the race; Vercel intermittently lost it. Confirmed via DBGX instrumentation: local trace showed callbacks firing at ~115-128ms into the window (won); the deployed byte-identical bundle (`index-BrOkNc1L.js`) broke twice then worked once — the intermittency signature of a timing race.
+
+**Fix (`src/engine/scroll.ts`):** Replaced the time-based window with a **state latch released by the first genuine user gesture** (`wheel`/`touchstart`/`keydown`), not a timer. The router owns the active chapter until the user actually interacts, so no network delay can let a stale GSAP callback override it. Added the latch guard to `onEnter` (the unguarded hole); `onUpdate` transition-fire and `onLeaveBack` now check `isNavSuppressed()` too. `suppressTransitionRequests()` kept as a thin compat wrapper that arms the latch. The existing `transition.ts:51` guard now reliably backstops late transition requests because `activeId` is never flipped.
+
+**Semantic change:** a programmatic `scrollTo` no longer fires the CRT transition on its own — only real user scrolling does. Correct behavior (router nav jumps should not auto-transition), but it required updating the E2E test to simulate a user gesture (`page.mouse.wheel`) before scrolling to the dwell zone.
+
+**Tests (`tests/visual.spec.ts`, 4→6):** Updated `ARPANET → Figma Era transition` to release the latch with a wheel gesture. Added `deep-link to #figma-era lands on Figma Era, not ARPANET` (invariant) and `nav latch: programmatic scroll does not fire transition until user gesture` (deterministic — fails against the old time-based behavior). 6/6 pass.
+
 ## 2026-06-28
 
 ### Week 1 scaffold — full engine + chapter stubs written

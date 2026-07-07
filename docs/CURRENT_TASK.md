@@ -1,7 +1,7 @@
 # Current Task
 
-**Phase:** Phase 1 — Week 4
-**Status:** Audio complete — Playwright baselines up next
+**Phase:** Phase 1 — shipped
+**Status:** Deployed to Vercel (https://chronicle-topaz-ten.vercel.app/). Fixed intermittent deep-link bug where `#figma-era` showed ARPANET (nav-latch race — see ENGINEERING_LOG 2026-07-07). Next: live-verify the fix on Vercel, then cross-browser smoke on real devices.
 
 ## Week 4 In Progress
 

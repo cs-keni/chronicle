@@ -48,12 +48,51 @@ export function onTransitionRequest(cb: TransitionCallback) {
   transitionRequestListeners.push(cb);
 }
 
-// Router calls this during direct-link / hash navigation to prevent
-// GSAP's initial onUpdate (triggered by the programmatic scrollTo) from
-// firing a spurious transition. 200ms covers the scroll event + first RAF.
-let _suppressUntil = 0;
-export function suppressTransitionRequests(durationMs: number) {
-  _suppressUntil = performance.now() + durationMs;
+// Router calls this during direct-link / hash navigation to prevent GSAP's
+// reconciliation callbacks (fired by the programmatic scrollTo + the
+// display:none→block layout change) from overriding the router's chosen
+// chapter or firing a spurious transition.
+//
+// This used to be a fixed 200ms time window. That was a race: GSAP's settle
+// time depends on how long layout/assets take, which on a networked host
+// (CDN latency, cold cache) routinely exceeds 200ms. When the callbacks fired
+// late, onEnter would call activate() on the previous chapter — flipping the
+// active chapter away from the router's target and stranding it off-screen
+// (e.g. direct nav to #figma-era showed ARPANET). Intermittent by nature:
+// fast loads won the race, slow loads lost it.
+//
+// The latch is now released by the first *genuine user scroll*, not a timer.
+// The router owns the active chapter until the user actually interacts, so no
+// amount of network delay can let a stale GSAP callback override it.
+let _navLatch = false;
+let _releaseNavLatch: (() => void) | null = null;
+
+export function isNavSuppressed(): boolean {
+  return _navLatch;
+}
+
+// Kept for API compatibility with the router. Duration is ignored — see below.
+export function suppressTransitionRequests(_durationMs?: number) {
+  beginNavLatch();
+}
+
+// Set the latch and arm a one-shot release on the first real user scroll
+// (wheel / touch / keyboard). Re-arming during an existing latch is a no-op.
+export function beginNavLatch() {
+  _navLatch = true;
+  if (_releaseNavLatch) return;
+
+  const release = () => {
+    _navLatch = false;
+    _releaseNavLatch = null;
+    window.removeEventListener('wheel', release);
+    window.removeEventListener('touchstart', release);
+    window.removeEventListener('keydown', release);
+  };
+  _releaseNavLatch = release;
+  window.addEventListener('wheel', release, { passive: true });
+  window.addEventListener('touchstart', release, { passive: true });
+  window.addEventListener('keydown', release);
 }
 
 // Spacer IDs in scroll order — used to determine next chapter
@@ -75,7 +114,12 @@ export function initScrollEngine() {
       onEnter: (self) => {
         // Guard 1: ignore in lobby mode (scroll container not active).
         if (!document.getElementById('scroll-container')?.classList.contains('active')) return;
-        // Guard 2: GSAP fires onEnter during initial state-reconciliation even
+        // Guard 2: during router navigation the router owns the active chapter.
+        // GSAP's reconciliation can fire onEnter for a chapter the scroll jumped
+        // past; without this guard it would call activate() and flip the active
+        // chapter away from the router's target (the #figma-era → ARPANET bug).
+        if (isNavSuppressed()) return;
+        // Guard 3: GSAP fires onEnter during initial state-reconciliation even
         // when the scroll is already past the trigger's end (progress≈1). Real
         // forward entry always starts at progress≈0. Skip spurious init calls.
         if (self.progress > 0.5) return;
@@ -89,7 +133,7 @@ export function initScrollEngine() {
         // display:none→block transition and spuriously fires onLeaveBack).
         if (index > 0
             && document.getElementById('scroll-container')?.classList.contains('active')
-            && performance.now() > _suppressUntil) {
+            && !isNavSuppressed()) {
           const prevId = CHAPTER_ORDER[index - 1];
           fireBackwardsNav(chapterId, prevId);
         }
@@ -109,7 +153,7 @@ export function initScrollEngine() {
         }
 
         // Dwell zone exit — request transition (suppressed during router nav)
-        if (progress >= 1 && nextId && performance.now() > _suppressUntil) {
+        if (progress >= 1 && nextId && !isNavSuppressed()) {
           transitionRequestListeners.forEach(cb => cb(chapterId, nextId));
         }
       },
