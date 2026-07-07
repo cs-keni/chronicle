@@ -16,6 +16,8 @@
 
 **Tests (`tests/visual.spec.ts`, 4→6):** Updated `ARPANET → Figma Era transition` to release the latch with a wheel gesture. Added `deep-link to #figma-era lands on Figma Era, not ARPANET` (invariant) and `nav latch: programmatic scroll does not fire transition until user gesture` (deterministic — fails against the old time-based behavior). 6/6 pass.
 
+**Commit:** `b5fc3c1` fix: nav latch stops #figma-era deep-link showing ARPANET
+
 ## 2026-06-28
 
 ### Week 1 scaffold — full engine + chapter stubs written
