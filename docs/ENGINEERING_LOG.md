@@ -23,6 +23,8 @@ Shipped both Phase 1 stretch goals (E4, E5). New `src/ui/` module holds all glob
 - `tsc` clean, `npm run build` clean. Entry JS 58.71 → **59.43 KB gzip** (+0.72 for the always-on cluster; overlay/share stay lazy). CSS +1.2 KB gzip. Nowhere near the 167 KB no-code-split regression.
 - Regenerated ARPANET-idle + Figma-idle visual baselines (they now legitimately include the cluster). Full suite: **10/10 pass**.
 
+**Commit:** `57fd8e5` feat: Phase 1 stretch — code overlay + share card
+
 ## 2026-07-08 (ARPANET content accuracy pass — TODO-004)
 
 Reviewed the shipped ARPANET `facts[]` (`src/data/chapters.ts`) against `docs/ARPANET-CONTENT.md` **and** the actual history. Chronicle's whole pitch is authentic design history, so a knowledgeable reader spotting a factual error is the failure mode that matters. Fixed four issues; source doc aligned to match so the two don't drift.
