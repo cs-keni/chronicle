@@ -8,6 +8,8 @@ Chronicle is a scroll-driven museum. Eight chapters. Seven GLSL transitions.
 
 **Stack:** Vanilla TypeScript + Vite, GSAP ScrollTrigger, WebGL 2 (transitions only), html2canvas, Tone.js.
 
+**Bundle / code-split:** GSAP + app code ship in the entry chunk (needed at first paint: ~59 KB gzip). Tone.js and html2canvas are dynamic `import()`s — each its own async chunk, kept out of the initial payload. Tone loads on the first user gesture (audio can't start before one); html2canvas is idle-preloaded (`requestIdleCallback` in `initTransitionEngine`) so it's ready before any transition capture without blocking paint. Both use `import type` for their types. Don't convert these back to static imports — it re-inflates cold paint from ~59 KB to ~167 KB gzip.
+
 **DOM model:** All chapter scenes are `position:fixed`, full viewport. Inactive chapters are at `translateX(-100vw)` (NOT `display:none` — IntersectionObserver needs them in layout). Active chapter is at `translateX(0)`. One chapter is ever active at a time.
 
 **Scroll engine:** Each chapter has an invisible `200.4vh` scroll spacer in document flow. GSAP ScrollTrigger observes the spacer. At `progress >= 200/200.4` (~0.998): dwell zone entered, html2canvas starts. At `progress = 1`: transition fires. `onChapterProgress(id, cb)` delivers 0–1 progress to chapter modules, normalized to exclude the dwell zone.

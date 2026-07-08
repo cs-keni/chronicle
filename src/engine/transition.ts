@@ -12,7 +12,7 @@
 //     → rAF loop: render shader at progress 0→1 over transition.duration ms
 //     → transition complete: canvas reset, chapter swap, scroll unlock
 
-import html2canvas from 'html2canvas';
+import type html2canvasType from 'html2canvas';
 import { webgl } from './webgl';
 import { chapterManager } from './chapter';
 import { lockScroll, unlockScroll, isTouchDevice, onDwellEnter, onTransitionRequest } from './scroll';
@@ -24,9 +24,34 @@ const CAPTURE_TIMEOUT_MS = 500; // max extra scroll lock if capture is slow
 // Pending capture promise per chapter
 const pendingCaptures = new Map<string, Promise<HTMLCanvasElement>>();
 
+// html2canvas (~large) is only needed for the DOM→texture capture that feeds
+// the CRT shader — which can't fire until the user has scrolled a full chapter.
+// So it's dynamically imported (its own async chunk) instead of shipped in the
+// initial paint bundle. `loadHtml2canvas()` caches the module promise; the first
+// caller triggers the fetch, everyone after reuses it.
+let html2canvasPromise: Promise<typeof html2canvasType> | null = null;
+function loadHtml2canvas(): Promise<typeof html2canvasType> {
+  if (!html2canvasPromise) {
+    html2canvasPromise = import('html2canvas').then((m) => m.default);
+  }
+  return html2canvasPromise;
+}
+
 export function initTransitionEngine() {
   onDwellEnter(handleDwellEnter);
   onTransitionRequest(handleTransitionRequest);
+
+  // Warm the html2canvas chunk during the first idle window after paint. The
+  // lobby → chapter → scroll-to-dwell path takes seconds, so this is loaded well
+  // before any capture — no first-transition stutter — without blocking paint.
+  const preload = () => void loadHtml2canvas();
+  if ('requestIdleCallback' in window) {
+    (window as typeof window & {
+      requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number;
+    }).requestIdleCallback(preload, { timeout: 4000 });
+  } else {
+    setTimeout(preload, 2000);
+  }
 }
 
 function handleDwellEnter(chapterId: string) {
@@ -123,6 +148,11 @@ async function handleTransitionRequest(fromId: string, toId: string) {
 }
 
 async function captureChapter(el: HTMLElement): Promise<HTMLCanvasElement> {
+  // Resolves instantly if the idle preload already loaded the chunk; otherwise
+  // this awaits the dynamic import (still gated by the dwell head start + the
+  // CAPTURE_TIMEOUT_MS fallback to fadeSwap).
+  const html2canvas = await loadHtml2canvas();
+
   // html2canvas cannot resolve SVG filter URL references (e.g. filter:url(#phosphor-glow)).
   // Strip inline filter during capture and restore afterward to avoid rendering artifacts.
   const savedFilter = el.style.filter;

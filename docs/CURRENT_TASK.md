@@ -1,7 +1,7 @@
 # Current Task
 
 **Phase:** Phase 1 — shipped
-**Status:** Deployed to Vercel (https://chronicle-topaz-ten.vercel.app/). Fixed intermittent deep-link bug where `#figma-era` showed ARPANET (nav-latch race — see ENGINEERING_LOG 2026-07-07). Next: live-verify the fix on Vercel, then cross-browser smoke on real devices.
+**Status:** Deployed to Vercel (https://chronicle-topaz-ten.vercel.app/). Fixed intermittent deep-link bug (`#figma-era` showed ARPANET — nav-latch race) and code-split the bundle (Tone + html2canvas lazy; initial JS 167→59 KB gzip). See ENGINEERING_LOG 2026-07-07. Next: cross-browser smoke test on real devices (needs hardware).
 
 ## Week 4 In Progress
 

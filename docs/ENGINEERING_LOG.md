@@ -1,5 +1,26 @@
 # Engineering Log
 
+## 2026-07-07 (later)
+
+### Bundle-size code-split: lazy-load Tone + html2canvas (initial JS 166→59 KB gzip)
+
+**Problem:** single JS bundle was 585 KB / 166.8 KB gzip — GSAP + Tone + html2canvas all eager, so cold paint downloaded/parsed all of it before the lobby appeared.
+
+**Fix:** converted the two heaviest non-critical libs to dynamic `import()` (Vite auto-splits each into its own async chunk). GSAP stays in the entry chunk (the scroll engine needs it at first paint).
+
+- **Tone.js (`src/engine/audio.ts`):** now `import type * as Tone` (types only, erased) + a runtime `import('tone')` inside the unlock handler. All node construction (layers, clickSynth) moved from `initAudioEngine()` into `onUnlock`, so both the import and the audio graph are built on the first user gesture — which is the only moment audio can start anyway (Web Audio policy). Added an `unlocking` flag to guard against a rapid click+touchstart double-importing.
+- **html2canvas (`src/engine/transition.ts`):** `import type` + a cached `loadHtml2canvas()` promise; `captureChapter` awaits it. `initTransitionEngine()` warms the chunk via `requestIdleCallback` (setTimeout fallback) so it's ready well before any capture — no first-transition stutter — without blocking paint.
+
+**Design note (why they differ):** html2canvas feeds a *visual* transition, so a load-on-demand stutter would be visible jank → idle-preload it. Tone feeds *ambient audio*, where a ~300ms late start is imperceptible (it ramps over 1.5-2s) → load strictly on-gesture, saving the bytes for anyone who bounces from the lobby.
+
+**Result (measured via `npm run build` + preview network):**
+- Entry chunk (GSAP + app): 149.8 KB / **58.6 KB gzip** — the only JS at first paint.
+- Tone chunk: 340.5 KB / 81.3 KB gzip — loads on first gesture.
+- html2canvas chunk: 201.4 KB / 48.0 KB gzip — loads on idle after paint.
+- **Initial gzipped JS: 166.8 → 58.6 KB (~65% smaller).** >500 KB chunk-size warning gone.
+
+**Verified:** 6/6 Playwright pass (transition test exercises lazy html2canvas). Browse on the production preview: initial paint loads only the entry chunk; Tone chunk appears after the first card click; full ARPANET→Figma transition fires with both captureChapter logs. No console errors.
+
 ## 2026-07-07
 
 ### Phase 1 shipped to Vercel + fixed intermittent deep-link bug (#figma-era showed ARPANET)
