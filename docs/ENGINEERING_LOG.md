@@ -21,6 +21,8 @@
 
 **Verified:** 6/6 Playwright pass (transition test exercises lazy html2canvas). Browse on the production preview: initial paint loads only the entry chunk; Tone chunk appears after the first card click; full ARPANET→Figma transition fires with both captureChapter logs. No console errors.
 
+**Commit:** `73c741d` perf: code-split Tone + html2canvas out of initial bundle
+
 ## 2026-07-07
 
 ### Phase 1 shipped to Vercel + fixed intermittent deep-link bug (#figma-era showed ARPANET)
