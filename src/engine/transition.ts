@@ -28,9 +28,10 @@ const pendingCaptures = new Map<string, Promise<HTMLCanvasElement>>();
 // the CRT shader — which can't fire until the user has scrolled a full chapter.
 // So it's dynamically imported (its own async chunk) instead of shipped in the
 // initial paint bundle. `loadHtml2canvas()` caches the module promise; the first
-// caller triggers the fetch, everyone after reuses it.
+// caller triggers the fetch, everyone after reuses it. Exported so the share-card
+// UI reuses the same cached chunk instead of pulling a second copy of html2canvas.
 let html2canvasPromise: Promise<typeof html2canvasType> | null = null;
-function loadHtml2canvas(): Promise<typeof html2canvasType> {
+export function loadHtml2canvas(): Promise<typeof html2canvasType> {
   if (!html2canvasPromise) {
     html2canvasPromise = import('html2canvas').then((m) => m.default);
   }

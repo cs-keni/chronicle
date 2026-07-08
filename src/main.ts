@@ -8,6 +8,7 @@ import { initAudioEngine } from './engine/audio';
 import { initLobby } from './chapters/lobby/index';
 import { initArpanet } from './chapters/arpanet/index';
 import { initFigmaEra } from './chapters/figma-era/index';
+import { initControls } from './ui/controls';
 
 // Phase 1 shader sources — imported as raw strings via Vite's ?raw suffix
 import crtPowerOffFrag from './shaders/crt-power-off.frag?raw';
@@ -43,3 +44,7 @@ initRouter();
 
 // Wire scroll engine LAST — spacers are now in the correct layout position.
 initScrollEngine();
+
+// Global UI chrome: view-source overlay + share card (bottom-right cluster,
+// `?` / `s` shortcuts). Tiny + eager; heavy modules lazy-load on first use.
+initControls();

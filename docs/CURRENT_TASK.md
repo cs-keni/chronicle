@@ -1,7 +1,7 @@
 # Current Task
 
 **Phase:** Phase 1 — shipped
-**Status:** Deployed to Vercel (https://chronicle-topaz-ten.vercel.app/). Fixed intermittent deep-link bug (`#figma-era` showed ARPANET — nav-latch race) and code-split the bundle (Tone + html2canvas lazy; initial JS 167→59 KB gzip). ARPANET content accuracy pass done 2026-07-08 (TODO-004: phosphor types, baud cps, VT100 cell, PARC distance — see ENGINEERING_LOG). Next: cross-browser smoke test on real devices (needs hardware).
+**Status:** Deployed to Vercel (https://chronicle-topaz-ten.vercel.app/). Fixed intermittent deep-link bug (`#figma-era` showed ARPANET — nav-latch race) and code-split the bundle (Tone + html2canvas lazy; initial JS 167→59 KB gzip). ARPANET content accuracy pass done 2026-07-08 (TODO-004). Both Phase 1 STRETCH goals shipped 2026-07-08: code overlay (`?` view-source panel) + share card (`s`, branded 1200×630, Web Share/clipboard/download). New `src/ui/` layer — see ENGINEERING_LOG + HANDOFF. Next: cross-browser smoke test on real devices (needs hardware).
 
 **Known issue:** `tests/visual.spec.ts` "ARPANET idle" snapshot now fails on environmental anti-aliasing drift (fails on clean tree too — not tied to any code change). Needs baseline regen in a stable CI env or a `maxDiffPixelRatio` threshold. Do NOT trust this snapshot for phosphor/CRT/content regressions (verify by eye).
 

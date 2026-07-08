@@ -1,5 +1,28 @@
 # Engineering Log
 
+## 2026-07-08 (Phase 1 STRETCH: code overlay + share card)
+
+Shipped both Phase 1 stretch goals (E4, E5). New `src/ui/` module holds all global chrome. Design decisions confirmed with Kenny up front: real curated source, purpose-built share card, floating cluster + shortcuts.
+
+**New files:**
+- `src/ui/controls.ts` — bottom-right control cluster (`</>` + share) and keyboard shortcuts (`?` source, `s` share, `Esc` close). Eager (tiny); lazy-imports the two heavy modules on first use. Hidden on the lobby via `hashchange` → `.is-hidden`.
+- `src/ui/code-overlay.ts` — the "view source" slide-in panel. Imports the REAL chapter source via Vite `?raw` (`arpanet/index.ts`, `terminal.ts`, `figma-era/style.css`, `figma-era/index.ts`) so it can never drift from what ships. Per-chapter curated file tabs + a one-line caption on the technique. Lazy chunk: 8.26 KB gzip.
+- `src/ui/share-card.ts` — builds an off-screen 1200×630 branded card (CHRONICLE wordmark + era/year + chapter content + URL back-link), rasterizes with html2canvas, then Web Share API → clipboard image → file download. Lazy chunk: 2.14 KB gzip.
+- `src/ui/highlight.ts` — minimal single-pass tokenizer (comments/strings/numbers/hex-colors/keywords) for TS + CSS. No external lib (CSP + bundle safe).
+- `src/ui/ui.css` — cluster, overlay, toast styling. Neutral dark-glass so it reads over both ARPANET (#000) and Figma (#0A0A0A).
+
+**Why a purpose-built share card, not a live screenshot:** html2canvas can't render the ARPANET phosphor SVG filter or any WebGL, and Figma's glass uses backdrop-filter (also uncapturable). A hand-built card sidesteps all three, always looks right, and bakes the URL into every share. ARPANET's amber glow uses `text-shadow` (which DOES capture) instead of the SVG filter.
+
+**Reused, not duplicated:** exported `loadHtml2canvas()` from `transition.ts` so the share card shares the transition engine's single cached html2canvas chunk instead of pulling a second copy.
+
+**Bug caught during verification (would have shipped):** the cluster's entrance used a `@keyframes` with `animation-fill-mode: both`. A CSS animation's fill pins `opacity` at higher priority than a normal declaration, so `.is-hidden { opacity: 0 }` was defeated once the entrance completed — the controls would have stayed visible on the lobby. The lobby visual snapshot flagged it (the two buttons showed bottom-right in the diff). Fix: drive entrance via an `.is-ready` class-toggled transition instead, with `.is-hidden` defined after `.is-ready` so it wins at equal specificity. Lobby snapshot passes again.
+
+**Verification:**
+- New `tests/ui-controls.spec.ts` (4 behavior tests): cluster hide/show, `?` opens overlay with real highlighted source + 2 tabs + `Esc` closes, tab switching swaps file path, `s` surfaces a toast and resolves without crashing. All pass.
+- Eyeballed both share cards + the code overlay in a real headless browser (screenshots) — highlighting, layout, glow, and URL back-link all correct.
+- `tsc` clean, `npm run build` clean. Entry JS 58.71 → **59.43 KB gzip** (+0.72 for the always-on cluster; overlay/share stay lazy). CSS +1.2 KB gzip. Nowhere near the 167 KB no-code-split regression.
+- Regenerated ARPANET-idle + Figma-idle visual baselines (they now legitimately include the cluster). Full suite: **10/10 pass**.
+
 ## 2026-07-08 (ARPANET content accuracy pass — TODO-004)
 
 Reviewed the shipped ARPANET `facts[]` (`src/data/chapters.ts`) against `docs/ARPANET-CONTENT.md` **and** the actual history. Chronicle's whole pitch is authentic design history, so a knowledgeable reader spotting a factual error is the failure mode that matters. Fixed four issues; source doc aligned to match so the two don't drift.

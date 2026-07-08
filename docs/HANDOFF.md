@@ -1,6 +1,6 @@
 # Handoff
 
-Last updated: 2026-06-29
+Last updated: 2026-07-08
 
 ## Architecture snapshot
 
@@ -37,6 +37,20 @@ Chronicle is a scroll-driven museum. Eight chapters. Seven GLSL transitions.
 | ARPANET network map | `src/chapters/arpanet/network-map.ts` | Complete |
 | Figma Era | `src/chapters/figma-era/` | Complete (Week 2) |
 | CRT shader | `src/shaders/crt-power-off.frag` | Complete |
+| UI controls cluster | `src/ui/controls.ts` | Complete (stretch) |
+| Code overlay (view source) | `src/ui/code-overlay.ts` | Complete (stretch) |
+| Share card | `src/ui/share-card.ts` | Complete (stretch) |
+| Syntax highlighter | `src/ui/highlight.ts` | Complete (stretch) |
+
+## Global UI layer (`src/ui/`)
+
+Chrome that sits above all chapters, wired once from `main.ts` via `initControls()`.
+
+- **Controls cluster** (bottom-right): `</>` view-source + share. Keyboard `?` (source), `s` (share), `Esc` (close). Eager-loaded (tiny); the two heavy modules are `import()`-ed on first use so they stay out of the initial paint bundle (code-overlay 8.26 KB gzip, share-card 2.14 KB gzip). Hidden on the lobby.
+- **Cluster visibility invariant:** entrance is a `.is-ready` class-toggled transition, NOT a fill-mode keyframe. A `@keyframes … both` fill pins `opacity` above normal declarations and defeats `.is-hidden` — do not reintroduce one, or the cluster gets stuck visible on the lobby. `.is-hidden` is defined AFTER `.is-ready` so it wins at equal specificity.
+- **Code overlay:** imports real chapter source via Vite `?raw` — the panel is guaranteed to match what ships. To add a chapter, extend `REGISTRY` in `code-overlay.ts`.
+- **Share card:** purpose-built off-screen 1200×630 node, not a live screenshot — html2canvas cannot capture the ARPANET SVG phosphor filter, WebGL, or Figma's backdrop-filter. Reuses `loadHtml2canvas()` exported from `transition.ts` (one shared cached chunk). ARPANET glow uses `text-shadow` (capturable), not the SVG filter.
+- **Active chapter** for both features comes from `chapterManager.getActiveId()`.
 
 ## Key invariants
 

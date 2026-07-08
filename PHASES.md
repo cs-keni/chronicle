@@ -173,8 +173,8 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 - [x] Ship Phase 1 as proof-of-concept — deployed to Vercel (https://chronicle-topaz-ten.vercel.app/)
 - [x] Fix intermittent deep-link bug: `#figma-era` showed ARPANET (nav-latch race; ENGINEERING_LOG 2026-07-07)
 - [x] Bundle-size code-split: lazy-load Tone + html2canvas (initial JS 167→59 KB gzip; ENGINEERING_LOG 2026-07-07)
-- [ ] STRETCH (cut if overrun): Code overlay (`?` key, slide-in panel 30% width)
-- [ ] STRETCH (cut if overrun): Share card (html2canvas + Web Share API + clipboard fallback)
+- [x] STRETCH: Code overlay (`?` key, slide-in panel 30% width) — real source via `?raw`, per-chapter curated tabs, custom highlighter. `src/ui/code-overlay.ts` (ENGINEERING_LOG 2026-07-08)
+- [x] STRETCH: Share card (html2canvas + Web Share API + clipboard fallback) — purpose-built branded 1200×630 card. `src/ui/share-card.ts` (ENGINEERING_LOG 2026-07-08)
 
 ---
 
