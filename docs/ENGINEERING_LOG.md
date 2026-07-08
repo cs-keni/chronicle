@@ -12,7 +12,7 @@
 
 **Closes TODO-005** (phosphor sigma spike). The real problem wasn't the sigma value, it was the merge order; σ=2 with correct compositing hits the target. No further spike needed.
 
-**Commit:** _pending push_
+**Commit:** `b1c4d6e` polish: fix ARPANET phosphor blur + warm terminal audio
 
 ### Sound design pass: warmer keystroke click + deeper ARPANET hum (`src/engine/audio.ts`)
 
@@ -24,7 +24,7 @@
 
 **Verified:** manual listen on dev server (Kenny confirmed) — hum reads as felt-not-heard, keystroke is a woody clack not digital static. `tsc --noEmit` clean, `npm run build` clean (entry still 58.6 KB gzip — code-split intact), 6/6 Playwright pass.
 
-**Commit:** _pending push_
+**Commit:** `b1c4d6e` polish: fix ARPANET phosphor blur + warm terminal audio
 
 ## 2026-07-07 (later)
 
