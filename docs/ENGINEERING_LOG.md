@@ -13,6 +13,8 @@ Reviewed the shipped ARPANET `facts[]` (`src/data/chapters.ts`) against `docs/AR
 
 **Closes TODO-004** (ARPANET content quality pass).
 
+**Commit:** `af484ec` content: fix 4 ARPANET factual errors (phosphor, baud, VT100, PARC)
+
 ## 2026-07-07 (authenticity polish)
 
 ### Fix ARPANET phosphor-glow: text was all-over blurry, not glowing (`src/chapters/arpanet/index.ts`)
