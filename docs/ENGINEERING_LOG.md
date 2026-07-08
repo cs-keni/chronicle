@@ -1,5 +1,18 @@
 # Engineering Log
 
+## 2026-07-08 (ARPANET content accuracy pass — TODO-004)
+
+Reviewed the shipped ARPANET `facts[]` (`src/data/chapters.ts`) against `docs/ARPANET-CONTENT.md` **and** the actual history. Chronicle's whole pitch is authentic design history, so a knowledgeable reader spotting a factual error is the failure mode that matters. Fixed four issues; source doc aligned to match so the two don't drift.
+
+- **Fact 8 "The Baud Rate Was a Sound" — objective error.** Body said "300 baud (10 characters per second)." 300 baud ≈ **30** cps; 10 cps is **110** baud (the Teletype Model 33 in Fact 1), so the deck contradicted itself. Changed to "(about 30 characters per second)." (The research doc was already correct — "300 bits per second" — the bad parenthetical was code-only.)
+- **Fact 4 "Green Phosphor Was Upgraded to Amber" — phosphor types wrong (stings; amber is this chapter's own aesthetic).** "P4 phosphor: a green-white glow" → P4 is *white*; green terminals used **P1**. "amber phosphor (P12)" → P12 is a long-persistence *orange radar* phosphor; amber terminals used **P3**. Dropped "Wyse-50 became the professional standard by 1980" (the WY-50 shipped **1983**, contradicting the fact's own `year: 1979`) in favor of "by the early 1980s amber terminals had become the professional standard." Softened the "IBM and DEC studies showed measurably less eye strain" claim (largely period marketing lore, not measured science) to "marketed as easier on the eyes." Fixed the `visualArtifact` phosphor codes P4→P1, P12→P3.
+- **Fact 7 "The Character Cell" — wrong precise figure.** "each character occupied exactly 10×12 pixels" → "drawn as a 7×9 dot matrix inside a fixed cell" (VT100 technical manual). Fixed `visualArtifact` to match.
+- **Fact 6 "Xerox PARC" — loose geography.** "40 miles away" → "a few miles away." PARC (Palo Alto) is ~5 miles from SRI (Menlo Park), an actual ARPANET node — the accurate version sharpens the "so close, unknown to each other" point.
+
+**Verified:** `tsc --noEmit` clean, `npm run build` clean (entry still 58.71 KB gzip — code-split intact). Playwright: 5/6 pass. The 1 failure ("ARPANET idle" visual snapshot) is **pre-existing environmental drift, not this change** — proven by `git stash` + re-run: the clean tree fails identically. That snapshot only renders the boot sequence + Fact 1 (which this pass did not touch); the diff is a uniform anti-aliasing shimmer across all glyphs, the exact flakiness the 2026-07-07 checkpoint flagged as untrustworthy. Baseline left untouched (regenerating a drifted flaky baseline in this env would mask real future regressions). **Open:** the ARPANET-idle baseline needs regenerating in a stable CI env, or the test needs a threshold — tracked separately, not part of the content pass.
+
+**Closes TODO-004** (ARPANET content quality pass).
+
 ## 2026-07-07 (authenticity polish)
 
 ### Fix ARPANET phosphor-glow: text was all-over blurry, not glowing (`src/chapters/arpanet/index.ts`)

@@ -52,8 +52,8 @@ export const chapters: Chapter[] = [
       {
         headline: 'Green Phosphor Was Upgraded to Amber',
         year: 1979,
-        body: 'The first CRT terminals used P4 phosphor: a green-white glow. By the late 1970s, IBM and DEC studies showed that extended reading on amber phosphor (P12) caused measurably less eye strain. Amber terminals like the Wyse-50 became the professional standard by 1980. Green was entry-level. Amber said: this terminal is for people who spend all day here.',
-        visualArtifact: 'Split-screen: left panel shows the same text in P4 green phosphor (#33FF33), right in P12 amber (#FF9500). Same line: CONNECTED TO ARPANET NODE 1 — 1969',
+        body: 'Early CRT terminals glowed green — P1 phosphor on black glass. Through the late 1970s, amber (P3) phosphor was marketed as easier on the eyes for long reading sessions, and by the early 1980s amber terminals had become the professional standard. Green was entry-level. Amber said: this terminal is for people who spend all day here.',
+        visualArtifact: 'Split-screen: left panel shows the same text in P1 green phosphor (#33FF33), right in P3 amber (#FF9500). Same line: CONNECTED TO ARPANET NODE 1 — 1969',
       },
       {
         headline: 'The VT100 Defined the 80-Column Universe',
@@ -64,19 +64,19 @@ export const chapters: Chapter[] = [
       {
         headline: 'Xerox PARC Invented the Desktop Metaphor in Secret',
         year: 1973,
-        body: 'While ARPANET terminals showed amber text on black glass, a different visual grammar was being invented 40 miles away at Xerox PARC. The Alto — built 1973, never sold — had a bitmapped display, a mouse, overlapping windows, proportional fonts. PARC kept it internal for years. The two visual paradigms of computing coexisted in 1973–1982, unknown to each other outside a small research community.',
+        body: 'While ARPANET terminals showed amber text on black glass, a different visual grammar was being invented a few miles away at Xerox PARC. The Alto — built 1973, never sold — had a bitmapped display, a mouse, overlapping windows, proportional fonts. PARC kept it internal for years. The two visual paradigms of computing coexisted in 1973–1982, unknown to each other outside a small research community.',
         visualArtifact: 'Side-by-side: left is an ARPANET terminal session (amber, monospaced, character-cell grid), right is a Xerox Alto GUI reproduction (white bg, bitmapped fonts, document windows). Both dated 1973.',
       },
       {
         headline: 'The Character Cell: Every Letter in Its Own Box',
         year: 1978,
-        body: "CRT terminal text was organized in a fixed grid of identical rectangles — on the VT100, each character occupied exactly 10×12 pixels. This wasn't limiting; it was generative. The monospaced grid made data tables readable without CSS, enabled ASCII art without graphics hardware, gave every terminal application an inherent visual rhythm. The character cell is the reason terminal UIs still feel cleaner than most modern interfaces.",
-        visualArtifact: 'Zoomed diagram of a VT100 character cell grid — 10×12 pixel rectangles tiling the screen, with characters A, R, P rendered inside their cells. Amber pixel dots on black, grid lines visible at 1px opacity.',
+        body: "CRT terminal text was organized in a fixed grid of identical rectangles — on the VT100, each character was drawn as a 7×9 dot matrix inside a fixed cell. This wasn't limiting; it was generative. The monospaced grid made data tables readable without CSS, enabled ASCII art without graphics hardware, gave every terminal application an inherent visual rhythm. The character cell is the reason terminal UIs still feel cleaner than most modern interfaces.",
+        visualArtifact: 'Zoomed diagram of a VT100 character cell grid — uniform rectangular cells tiling the screen, each holding a 7×9 dot-matrix glyph (A, R, P shown). Amber pixel dots on black, grid lines visible at 1px opacity.',
       },
       {
         headline: 'The Baud Rate Was a Sound',
         year: 1980,
-        body: 'Early ARPANET connections traveled over acoustic couplers — a telephone handset placed into rubber cups that converted digital signals into audible tones. At 300 baud (10 characters per second), you could hear the data as a high-pitched warble. Every character that appeared on screen had arrived as a specific sound through the telephone system. The modem was not incidental to the network; it was the network made audible.',
+        body: 'Early ARPANET connections traveled over acoustic couplers — a telephone handset placed into rubber cups that converted digital signals into audible tones. At 300 baud (about 30 characters per second), you could hear the data as a high-pitched warble. Every character that appeared on screen had arrived as a specific sound through the telephone system. The modem was not incidental to the network; it was the network made audible.',
         visualArtifact: 'Oscilloscope-style waveform display — amber lines on black — showing the acoustic waveform of a 300-baud modem signal. Below it: the character that waveform encodes, appearing letter-by-letter.',
       },
     ],

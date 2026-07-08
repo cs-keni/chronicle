@@ -1,7 +1,9 @@
 # Current Task
 
 **Phase:** Phase 1 — shipped
-**Status:** Deployed to Vercel (https://chronicle-topaz-ten.vercel.app/). Fixed intermittent deep-link bug (`#figma-era` showed ARPANET — nav-latch race) and code-split the bundle (Tone + html2canvas lazy; initial JS 167→59 KB gzip). See ENGINEERING_LOG 2026-07-07. Next: cross-browser smoke test on real devices (needs hardware).
+**Status:** Deployed to Vercel (https://chronicle-topaz-ten.vercel.app/). Fixed intermittent deep-link bug (`#figma-era` showed ARPANET — nav-latch race) and code-split the bundle (Tone + html2canvas lazy; initial JS 167→59 KB gzip). ARPANET content accuracy pass done 2026-07-08 (TODO-004: phosphor types, baud cps, VT100 cell, PARC distance — see ENGINEERING_LOG). Next: cross-browser smoke test on real devices (needs hardware).
+
+**Known issue:** `tests/visual.spec.ts` "ARPANET idle" snapshot now fails on environmental anti-aliasing drift (fails on clean tree too — not tied to any code change). Needs baseline regen in a stable CI env or a `maxDiffPixelRatio` threshold. Do NOT trust this snapshot for phosphor/CRT/content regressions (verify by eye).
 
 ## Week 4 In Progress
 
@@ -34,4 +36,5 @@
 ## Deferred
 
 - TODO-005: **DONE** — phosphor glow. Real issue was an inverted `feMerge` order (blur composited over sharp text → all-over blur, not a halo). Fixed by putting `glow` under `SourceGraphic`; σ=2. No sigma spike needed. See ENGINEERING_LOG 2026-07-07 authenticity polish.
+- TODO-004: **DONE** — ARPANET content quality pass. Fixed 4 factual errors (phosphor types P4/P12→P1/P3, baud 300≈30 cps not 10, VT100 cell 7×9 dot matrix, PARC ~a few miles). See ENGINEERING_LOG 2026-07-08.
 - Lobby visual polish (currently stub)

@@ -36,8 +36,8 @@ Content scope: visual grammar, interface design, and typographic constraints of 
 
 **headline:** "Green Phosphor Was Upgraded to Amber"
 **year:** 1979
-**body:** The first CRT terminals used P4 phosphor: a green-white glow on black. By the late 1970s, studies from IBM and DEC showed that extended reading on amber phosphor (P12 — longer wavelength, warmer tone) caused measurably less eye strain than green. Amber terminals like the Wyse-50 and DEC VT241 became the professional standard by 1980. Green was entry-level. Amber was the premium choice for serious work — the color that said "this terminal is for people who spend all day here."
-**visual_artifact:** A split-screen comparison: left panel shows the same terminal text in P4 green phosphor (`#33FF33` on black, tighter glow, cooler tone); right panel shows the same text in P12 amber (`#FF9500` on black, softer spread, warmer halo). Both showing: `CONNECTED TO ARPANET NODE 1 — 1969`.
+**body:** Early CRT terminals glowed green — P1 phosphor on black glass. Through the late 1970s, amber (P3 — longer wavelength, warmer tone) phosphor was marketed as easier on the eyes for long reading sessions, and by the early 1980s amber terminals had become the professional standard. Green was entry-level. Amber was the premium choice for serious work — the color that said "this terminal is for people who spend all day here."
+**visual_artifact:** A split-screen comparison: left panel shows the same terminal text in P1 green phosphor (`#33FF33` on black, tighter glow, cooler tone); right panel shows the same text in P3 amber (`#FF9500` on black, softer spread, warmer halo). Both showing: `CONNECTED TO ARPANET NODE 1 — 1969`.
 
 ---
 
@@ -54,7 +54,7 @@ Content scope: visual grammar, interface design, and typographic constraints of 
 
 **headline:** "Xerox PARC Invented the Desktop Metaphor in Secret"
 **year:** 1973
-**body:** While ARPANET terminals showed amber text on black glass, a different visual grammar was being invented 40 miles away at Xerox PARC in Palo Alto. The Alto — built in 1973, never sold to the public — had a bitmapped display, a mouse, overlapping windows, and proportional fonts. It looked nothing like the terminal world of its time. PARC kept it internal for years. The two visual paradigms of computing — the terminal and the GUI — coexisted in 1973–1982, unknown to each other outside a small research community.
+**body:** While ARPANET terminals showed amber text on black glass, a different visual grammar was being invented a few miles away at Xerox PARC in Palo Alto. The Alto — built in 1973, never sold to the public — had a bitmapped display, a mouse, overlapping windows, and proportional fonts. It looked nothing like the terminal world of its time. PARC kept it internal for years. The two visual paradigms of computing — the terminal and the GUI — coexisted in 1973–1982, unknown to each other outside a small research community.
 **visual_artifact:** A side-by-side composition: left is an ARPANET terminal session (amber, monospaced, character-cell grid visible), right is a reproduction of the Xerox Alto GUI (white background, bitmapped fonts, overlapping document windows with scroll bars). Both dated 1973. The visual distance between them is the entire history of interface design.
 
 ---
@@ -63,8 +63,8 @@ Content scope: visual grammar, interface design, and typographic constraints of 
 
 **headline:** "The Character Cell: Every Letter in Its Own Box"
 **year:** 1978
-**body:** CRT terminal text was organized in a fixed grid of identical rectangular cells — on the VT100, each character occupied exactly 10×12 pixels. This constraint wasn't limiting; it was generative. The monospaced grid made data tables readable without CSS, enabled ASCII art without graphics hardware, and gave every terminal application an inherent visual rhythm. When proportional fonts arrived with the GUI, typographic flexibility came at the cost of this structural discipline. The character cell is the reason terminal UIs still feel cleaner than most modern interfaces.
-**visual_artifact:** A zoomed diagram of a VT100 character cell grid — 10×12 pixel rectangles tiling the screen, with a few characters ("A", "R", "P") rendered inside their cells, showing the glyph within the bounding box. Amber pixel dots on black. The grid lines are visible at 1px amber opacity.
+**body:** CRT terminal text was organized in a fixed grid of identical rectangular cells — on the VT100, each character was drawn as a 7×9 dot matrix inside a fixed cell. This constraint wasn't limiting; it was generative. The monospaced grid made data tables readable without CSS, enabled ASCII art without graphics hardware, and gave every terminal application an inherent visual rhythm. When proportional fonts arrived with the GUI, typographic flexibility came at the cost of this structural discipline. The character cell is the reason terminal UIs still feel cleaner than most modern interfaces.
+**visual_artifact:** A zoomed diagram of a VT100 character cell grid — uniform rectangular cells tiling the screen, each holding a 7×9 dot-matrix glyph ("A", "R", "P" shown within the bounding box). Amber pixel dots on black. The grid lines are visible at 1px amber opacity.
 
 ---
 
