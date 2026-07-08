@@ -1,5 +1,31 @@
 # Engineering Log
 
+## 2026-07-07 (authenticity polish)
+
+### Fix ARPANET phosphor-glow: text was all-over blurry, not glowing (`src/chapters/arpanet/index.ts`)
+
+**Symptom (found live on dev server):** the ARPANET terminal read as a soft, hard-to-read blur — the amber text, cursor, and characters all looked out of focus, rather than sharp text with a CRT bloom.
+
+**Root cause:** the `#phosphor-glow` SVG filter's `feMerge` stacked the nodes in the wrong order. `feMerge` paints its first `feMergeNode` at the bottom and each later one on top. The filter had `SourceGraphic` (sharp) first and the blurred `glow` second — so the **blurred copy was composited on top of the sharp text**, blurring the whole surface instead of haloing it.
+
+**Fix:** swapped the order — blurred `glow` on the bottom, `SourceGraphic` on top. Now it's a soft phosphor halo *underneath* crisp, readable text (an amber CRT you can actually read). Also dropped `feGaussianBlur stdDeviation` `3 → 2` for a tighter halo. Verified live: text is sharp with a glow, exactly the P12-amber look the content docs describe.
+
+**Closes TODO-005** (phosphor sigma spike). The real problem wasn't the sigma value, it was the merge order; σ=2 with correct compositing hits the target. No further spike needed.
+
+**Commit:** _pending push_
+
+### Sound design pass: warmer keystroke click + deeper ARPANET hum (`src/engine/audio.ts`)
+
+**Motivation:** the synthesized ambience read as too digital/harsh on a first listen. Two taste-driven adjustments, no structural change to the audio graph or the lazy-load path.
+
+- **ARPANET machine-room hum (`buildArpanetLayer`):** lowpass `280 → 180 Hz`, level `-24 → -30 dB`. Pulls the brown-noise rumble down under the experience so it's felt, not heard. The `rampTo` target and `fullDb` were moved together so the crossfade fade-in (which reads `fullDb`) lands at the same new level.
+- **Teletype keystroke click (`onUnlock` synth):** `white → pink` noise (warmer, -3 dB/oct rolloff) + a new `1800 Hz` lowpass (`Q 1.2`) inserted before the volume node to strip the digital hiss, leaving a dull woody clack instead of a static burst. Level `-30 → -26 dB` to compensate for the energy the lowpass removes. Decay nudged `0.025 → 0.022 s`. New signal chain: `synth → clickFilter → clickVol → destination`.
+- Updated the stale file-header comment (was `280Hz LPF at -24dB`).
+
+**Verified:** manual listen on dev server (Kenny confirmed) — hum reads as felt-not-heard, keystroke is a woody clack not digital static. `tsc --noEmit` clean, `npm run build` clean (entry still 58.6 KB gzip — code-split intact), 6/6 Playwright pass.
+
+**Commit:** _pending push_
+
 ## 2026-07-07 (later)
 
 ### Bundle-size code-split: lazy-load Tone + html2canvas (initial JS 166→59 KB gzip)

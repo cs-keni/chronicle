@@ -2,7 +2,7 @@
 // All scheduling via Tone.now() — no per-frame callbacks (per PHASES.md constraint).
 // Ambient sounds are synthesized; no audio files required for Phase 1.
 //
-// ARPANET: brown noise through a 280Hz LPF at -24dB — machine room hum / fan noise.
+// ARPANET: brown noise through a 180Hz LPF at -30dB — machine room hum / fan noise.
 // Figma Era: two sine oscillators (C3 + G3 perfect fifth) at -32dB — near-silent drone.
 //
 // Unlock flow: AudioContext must be resumed via a user gesture (Web Audio policy).
@@ -39,7 +39,9 @@ let clickSynth: Tone.NoiseSynth | null = null;
 
 function buildArpanetLayer(Tone: ToneModule): AmbientLayer {
   const noise = new Tone.Noise('brown');
-  const filter = new Tone.Filter(280, 'lowpass');
+  // 180Hz lowpass (was 280) — deeper, less present rumble that sits UNDER the
+  // experience rather than on top of it.
+  const filter = new Tone.Filter(180, 'lowpass');
   const vol = new Tone.Volume(-Infinity);
 
   noise.connect(filter);
@@ -50,14 +52,15 @@ function buildArpanetLayer(Tone: ToneModule): AmbientLayer {
 
   return {
     vol,
-    fullDb: -24,
+    // -30dB (was -24) — the machine-room hum should be felt, not heard.
+    fullDb: -30,
     start() {
       if (!started) {
         noise.start();
         started = true;
       }
       vol.volume.cancelScheduledValues(Tone.now());
-      vol.volume.rampTo(-24, 1.5);
+      vol.volume.rampTo(-30, 1.5);
     },
     stop() {
       vol.volume.cancelScheduledValues(Tone.now());
@@ -113,14 +116,21 @@ export function initAudioEngine(): void {
     layers.set('arpanet', buildArpanetLayer(Tone));
     layers.set('figma-era', buildFigmaEraLayer(Tone));
 
-    // White noise burst — attack 1ms, decay 25ms, sustain 0. Approximates the
-    // mechanical thwack of a type bar hitting a platen on a Teletype Model 33.
+    // Keystroke click — the mechanical thwack of a type bar hitting a platen on
+    // a Teletype Model 33. Raw white noise reads as harsh digital static, so:
+    //   - pink noise (warmer, -3dB/oct rolloff) instead of white
+    //   - a 1800Hz lowpass (Q 1.2 for a little woody body) strips the hiss,
+    //     leaving a dull physical clack rather than a burst of static
     const synth = new Tone.NoiseSynth({
-      noise: { type: 'white' },
-      envelope: { attack: 0.001, decay: 0.025, sustain: 0, release: 0.005 },
+      noise: { type: 'pink' },
+      envelope: { attack: 0.001, decay: 0.022, sustain: 0, release: 0.005 },
     });
-    const clickVol = new Tone.Volume(-30);
-    synth.connect(clickVol);
+    const clickFilter = new Tone.Filter({ type: 'lowpass', frequency: 1800, Q: 1.2 });
+    // -26dB: the lowpass removes high-frequency energy, so lift the level a touch
+    // to keep the clack present without it being harsh.
+    const clickVol = new Tone.Volume(-26);
+    synth.connect(clickFilter);
+    clickFilter.connect(clickVol);
     clickVol.toDestination();
     clickSynth = synth;
 

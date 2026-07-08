@@ -109,10 +109,13 @@ function mountPhosphorFilter() {
           0    0    0.1  0    0
           0    0    0    1    0
         "/>
-        <feGaussianBlur stdDeviation="3" result="glow"/>
+        <feGaussianBlur stdDeviation="2" result="glow"/>
         <feMerge>
-          <feMergeNode in="SourceGraphic"/>
+          <!-- Blurred glow underneath, sharp source on top: a phosphor halo
+               around crisp text (a CRT you can still read), not an all-over
+               blur. Order matters — feMerge paints first node at the bottom. -->
           <feMergeNode in="glow"/>
+          <feMergeNode in="SourceGraphic"/>
         </feMerge>
       </filter>
     </defs>

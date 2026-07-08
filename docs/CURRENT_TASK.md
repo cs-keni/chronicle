@@ -11,14 +11,14 @@
    - `dwellFiredMap` refactor: dwell state is now resettable; `resetDwellState(toId)` called on backwards nav so next forward pass re-triggers dwell capture correctly
 
 2. **DONE** — Audio: Tone.js ambient + CRT crossfade (`src/engine/audio.ts`):
-   - ARPANET: brown noise → 280Hz LPF → −24dB (machine room hum)
+   - ARPANET: brown noise → 180Hz LPF → −30dB (machine room hum; deepened 2026-07-07 audio pass, was 280Hz/−24dB)
    - Figma Era: C3+G3 sine oscillators → −32dB (near-silent perfect-fifth drone)
    - CRT crossfade: all scheduled via `Tone.now()` at transition start — no per-frame callbacks
    - Web Audio unlock: `Tone.start()` on first `click`/`touchstart`; lobby card tap provides gesture
    - Backwards nav crossfade: `stopChapterAmbient(from)` + `startChapterAmbient(to)` in `fireBackwardsNav`
 
 3. **DONE** — Keystroke sounds:
-   - `Tone.NoiseSynth` white noise burst (~26ms envelope) per character typed
+   - `Tone.NoiseSynth` pink-noise burst (~22ms envelope) → 1800Hz LPF (Q 1.2) → −26dB per character typed (warmed 2026-07-07 audio pass, was white noise / −30dB / no filter — read as harsh digital static)
    - Velocity variation 50–100% prevents machine-gun uniformity of rapid-fire clicks
    - Fast-forward flushes without calling `typeChar` — no clicks during skip
 
@@ -33,5 +33,5 @@
 
 ## Deferred
 
-- TODO-005: phosphor glow sigma spike (σ=2, σ=3, σ=6 vs ThinkPad X61 BBS reference)
+- TODO-005: **DONE** — phosphor glow. Real issue was an inverted `feMerge` order (blur composited over sharp text → all-over blur, not a halo). Fixed by putting `glow` under `SourceGraphic`; σ=2. No sigma spike needed. See ENGINEERING_LOG 2026-07-07 authenticity polish.
 - Lobby visual polish (currently stub)
