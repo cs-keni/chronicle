@@ -14,7 +14,7 @@ First Phase 2 work. Behavior-preserving foundation for the Early Web chapter: co
 
 **Verification:** `tsc` clean · `vitest run` 7/7 · `npm run build` clean (entry JS still **59.97 KB gzip**, no bundle change) · Playwright **12/12** including the ARPANET→Figma e2e transition, deep-link `#figma-era`, and nav-latch guards — the behavior-preserving claim holds.
 
-**Commit:** _(logged in follow-up)_
+**Commit:** `e5fe1bc` feat: derive chapter order from a single manifest + add uResolution + Vitest
 
 ## 2026-07-08 (Phase 1 STRETCH: share nudge at the Figma closing beat)
 
