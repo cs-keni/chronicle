@@ -21,7 +21,7 @@ Built the "press S to share" nudge pitched (not built) in the last session — c
 
 **Closes** the "stretch follow-up idea" from the 2026-07-08 checkpoint (share nudge at the Figma closing beat).
 
-**Commit:** _(pending)_
+**Commit:** `640acfc` feat: one-time share nudge at the Figma closing beat
 
 ## 2026-07-08 (Phase 1 STRETCH: code overlay + share card)
 
