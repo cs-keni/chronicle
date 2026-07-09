@@ -61,3 +61,40 @@ test.describe('UI controls', () => {
     await expect(toast).not.toHaveClass(/toast--pending/, { timeout: 8000 });
   });
 });
+
+test.describe('Share nudge', () => {
+  const fireClosingBeat = (page: import('@playwright/test').Page) =>
+    page.evaluate(() =>
+      window.dispatchEvent(new CustomEvent('chronicle:closing-beat', { detail: { chapter: 'figma-era' } }))
+    );
+
+  test('closing beat surfaces the one-time nudge, click opens the share flow', async ({ page }) => {
+    await page.goto('/#arpanet');
+    await page.waitForSelector('.arpanet-terminal');
+
+    await fireClosingBeat(page);
+    const nudge = page.locator('.chronicle-nudge');
+    await expect(nudge).toHaveClass(/is-visible/); // appears after the ~1.2s beat delay
+    // The share button pulses to connect the hint to its target.
+    await expect(page.locator('.ctrl-btn.is-pulsing')).toBeVisible();
+
+    await nudge.locator('.nudge-action').click();
+    await expect(nudge).toHaveCount(0); // acting on the nudge dismisses it
+    await expect(page.locator('.chronicle-toast')).toBeVisible(); // share flow started
+  });
+
+  test('nudge shows at most once per session', async ({ page }) => {
+    await page.goto('/#arpanet');
+    await page.waitForSelector('.arpanet-terminal');
+
+    await fireClosingBeat(page);
+    await expect(page.locator('.chronicle-nudge')).toHaveClass(/is-visible/);
+    await page.locator('.nudge-dismiss').click();
+    await expect(page.locator('.chronicle-nudge')).toHaveCount(0);
+
+    // A second beat in the same session must not re-nag.
+    await fireClosingBeat(page);
+    await page.waitForTimeout(1500);
+    await expect(page.locator('.chronicle-nudge')).toHaveCount(0);
+  });
+});

@@ -25,6 +25,8 @@ const RESTACK_THRESHOLD = 0.33;
 
 let currentScene = 0;
 let cardEls: HTMLElement[] = [];
+// Latch so the closing-beat event fires once per chapter entry, not every tick.
+let closingBeatFired = false;
 
 export function initFigmaEra(container: HTMLElement) {
   const chapter = getChapter(CHAPTER_ID)!;
@@ -56,6 +58,7 @@ function onChapterInit(container: HTMLElement, chapter: ReturnType<typeof getCha
 
   const cardsContainer = document.getElementById('figma-cards')!;
   currentScene = 0;
+  closingBeatFired = false;
   cardEls = [];
 
   // Create all 4 cards upfront — fact3 starts off-screen
@@ -98,6 +101,15 @@ function updateChapter(progress: number, chapter: NonNullable<ReturnType<typeof 
 
   if (progress > 0.85) {
     document.getElementById('figma-end-state')?.classList.add('visible');
+    if (!closingBeatFired) {
+      closingBeatFired = true;
+      // The emotional payoff has landed. Tell the global UI layer so it can
+      // offer a one-time nudge to share — the chapter stays ignorant of the
+      // share affordance; controls.ts owns that discovery UX.
+      window.dispatchEvent(
+        new CustomEvent('chronicle:closing-beat', { detail: { chapter: CHAPTER_ID } })
+      );
+    }
   }
 }
 

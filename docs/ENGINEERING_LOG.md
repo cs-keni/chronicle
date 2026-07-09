@@ -1,5 +1,28 @@
 # Engineering Log
 
+## 2026-07-08 (Phase 1 STRETCH: share nudge at the Figma closing beat)
+
+Built the "press S to share" nudge pitched (not built) in the last session — connects the Figma Era emotional payoff to the share loop. When the closing beat lands, a one-time coach-mark offers the share affordance right when the visitor most wants to keep the moment.
+
+**How it's wired (clean ownership via an event bridge):**
+- `src/chapters/figma-era/index.ts` dispatches a `window` `chronicle:closing-beat` CustomEvent the first time `progress > 0.85` (the exact threshold that already reveals the end-state — proven in production). A module-level `closingBeatFired` latch, reset in `onChapterInit`, keeps it to one dispatch per entry. The chapter stays completely ignorant of sharing.
+- `src/ui/controls.ts` (already owns the `s` key + `doShare`) listens for the event and shows the nudge. Guards: at most once per browser session (`sessionStorage` `chronicle:share-nudge-seen`), and never if the user already shared this session (`hasShared`, set in `doShare`). 1.2s delay lets the beat breathe before the hint lands. Acting on the nudge (or pressing `s`, or navigating to the lobby) dismisses it; otherwise it auto-dismisses after 6s.
+
+**Design decisions:**
+- **Coach-mark bottom-right, not bottom-center.** The Figma progress pips are `position: fixed; bottom: 24px` (bottom-center) — a bottom-center toast would collide. Anchoring above the share button also makes it stronger UX: the hint sits next to the control it teaches.
+- **Share button pulses with the nudge** (`.ctrl-btn.is-pulsing`) so the eye connects "S" → the actual button. Uses a 2-iteration keyframe with **no** `animation-fill-mode` — deliberately, so it fully reverts and never pins `opacity` (respecting the cluster visibility invariant that bit us last session).
+- **Touch-aware copy:** desktop shows a styled `S` keycap ("Press S to share this"); touch has no S key, so it reads "Tap to share this chapter" and the pill itself is the tap target. Reuses `isTouchDevice` from `scroll.ts`.
+- **Reused, not duplicated:** the nudge lives in the eager `controls.ts` (it's tiny) rather than pulling in the lazy share-card chunk; it just calls the existing `doShare()`.
+
+**Verification:**
+- New behavior tests in `tests/ui-controls.spec.ts` (now 6): closing beat surfaces the nudge + pulses the share button + click starts the share flow; nudge shows at most once per session. All 6 pass. Full non-snapshot suite 9/9.
+- Screenshotted the live nudge on `#figma-era` in a real headless browser — glass pill, cyan `S` keycap, share icon, `×`, and the share-button pulse ring all render correctly, clear of the bottom-center pips.
+- `tsc` clean, `npm run build` clean. Entry JS 59.43 → **59.87 KB gzip** (+0.44 for the always-on nudge; overlay/share stay lazy).
+
+**Closes** the "stretch follow-up idea" from the 2026-07-08 checkpoint (share nudge at the Figma closing beat).
+
+**Commit:** _(pending)_
+
 ## 2026-07-08 (Phase 1 STRETCH: code overlay + share card)
 
 Shipped both Phase 1 stretch goals (E4, E5). New `src/ui/` module holds all global chrome. Design decisions confirmed with Kenny up front: real curated source, purpose-built share card, floating cluster + shortcuts.

@@ -41,6 +41,7 @@ Chronicle is a scroll-driven museum. Eight chapters. Seven GLSL transitions.
 | Code overlay (view source) | `src/ui/code-overlay.ts` | Complete (stretch) |
 | Share card | `src/ui/share-card.ts` | Complete (stretch) |
 | Syntax highlighter | `src/ui/highlight.ts` | Complete (stretch) |
+| Share nudge | `src/ui/controls.ts` (owns) ← `chronicle:closing-beat` from `figma-era` | Complete (stretch) |
 
 ## Global UI layer (`src/ui/`)
 
@@ -50,6 +51,7 @@ Chrome that sits above all chapters, wired once from `main.ts` via `initControls
 - **Cluster visibility invariant:** entrance is a `.is-ready` class-toggled transition, NOT a fill-mode keyframe. A `@keyframes … both` fill pins `opacity` above normal declarations and defeats `.is-hidden` — do not reintroduce one, or the cluster gets stuck visible on the lobby. `.is-hidden` is defined AFTER `.is-ready` so it wins at equal specificity.
 - **Code overlay:** imports real chapter source via Vite `?raw` — the panel is guaranteed to match what ships. To add a chapter, extend `REGISTRY` in `code-overlay.ts`.
 - **Share card:** purpose-built off-screen 1200×630 node, not a live screenshot — html2canvas cannot capture the ARPANET SVG phosphor filter, WebGL, or Figma's backdrop-filter. Reuses `loadHtml2canvas()` exported from `transition.ts` (one shared cached chunk). ARPANET glow uses `text-shadow` (capturable), not the SVG filter.
+- **Share nudge** (one-time coach-mark): when the Figma Era closing beat lands (`progress > 0.85`), the chapter dispatches a `window` `chronicle:closing-beat` CustomEvent. `controls.ts` (which already owns share) responds by showing a glass pill above the share button — "Press `S` to share this" (desktop) / "Tap to share this chapter" (touch), clickable → share, `×` to dismiss, auto-dismiss 6s. The share button pulses (`.ctrl-btn.is-pulsing`, a 2-iteration keyframe with **no** fill-mode — safe under the cluster visibility invariant) to connect hint → target. Shown at most **once per session** (`sessionStorage` `chronicle:share-nudge-seen`) and **never** if the user already shared this session (`hasShared`). The chapter stays ignorant of sharing; the event bridge keeps ownership clean. Positioned bottom-right (not bottom-center) specifically to avoid the fixed bottom-center Figma pips.
 - **Active chapter** for both features comes from `chapterManager.getActiveId()`.
 
 ## Key invariants

@@ -175,6 +175,7 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 - [x] Bundle-size code-split: lazy-load Tone + html2canvas (initial JS 167→59 KB gzip; ENGINEERING_LOG 2026-07-07)
 - [x] STRETCH: Code overlay (`?` key, slide-in panel 30% width) — real source via `?raw`, per-chapter curated tabs, custom highlighter. `src/ui/code-overlay.ts` (ENGINEERING_LOG 2026-07-08)
 - [x] STRETCH: Share card (html2canvas + Web Share API + clipboard fallback) — purpose-built branded 1200×630 card. `src/ui/share-card.ts` (ENGINEERING_LOG 2026-07-08)
+- [x] STRETCH: Share nudge — one-time "press S to share" coach-mark at the Figma Era closing beat, connecting the emotional payoff to the share loop. `chronicle:closing-beat` event → `src/ui/controls.ts` (ENGINEERING_LOG 2026-07-08)
 
 ---
 

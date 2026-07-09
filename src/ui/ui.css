@@ -299,6 +299,117 @@
 
 @keyframes toast-spin { to { transform: rotate(360deg); } }
 
+/* ── Share nudge (one-time coach-mark above the share button) ─────────────── */
+
+/* Anchored bottom-right, floating just above the 2-button cluster (bottom:20 +
+   ~94px tall). Sits by the control it teaches instead of colliding with the
+   Figma pips, which are fixed bottom-center. */
+.chronicle-nudge {
+  position: fixed;
+  right: 20px;
+  bottom: 122px;
+  z-index: 420;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 6px 6px 12px;
+  border-radius: 12px;
+  background: rgba(20, 20, 22, 0.62);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 212, 255, 0.28);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.42);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+  transform-origin: bottom right;
+  pointer-events: none;
+  transition: opacity 0.34s var(--ui-ease), transform 0.34s var(--ui-ease);
+}
+
+.chronicle-nudge.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.nudge-action {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
+  border-radius: 8px;
+  color: inherit;
+  font: inherit;
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.nudge-action svg { color: #7dd3fc; flex-shrink: 0; }
+.nudge-action:hover { color: #fff; }
+.nudge-action:hover svg { color: #00d4ff; }
+
+.nudge-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  margin: 0 2px;
+  font-family: 'Courier New', monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #e8f7ff;
+  background: rgba(0, 212, 255, 0.14);
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+}
+
+.nudge-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nudge-dismiss:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+
+.nudge-action:focus-visible,
+.nudge-dismiss:focus-visible {
+  outline: 2px solid rgba(125, 211, 252, 0.8);
+  outline-offset: 2px;
+}
+
+/* Share-button pulse — fires with the nudge to connect hint → target. Uses a
+   2-iteration animation with NO fill-mode, so it fully reverts on removal and
+   never pins opacity (see the cluster visibility invariant above). */
+@keyframes ctrl-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+  50%      { box-shadow: 0 0 0 6px rgba(0, 212, 255, 0.28); }
+}
+
+.ctrl-btn.is-pulsing {
+  animation: ctrl-pulse 1.4s var(--ui-ease) 2;
+  opacity: 1;
+  border-color: rgba(0, 212, 255, 0.5);
+}
+
 /* ── Reduced motion ───────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
@@ -308,7 +419,9 @@
   .code-overlay,
   .code-backdrop,
   .code-tab,
-  .chronicle-toast { transition-duration: 0.01ms; }
+  .chronicle-toast,
+  .chronicle-nudge { transition-duration: 0.01ms; }
   .ctrl-btn:hover { transform: none; }
+  .ctrl-btn.is-pulsing { animation: none; }
   .toast-spinner { animation-duration: 1.2s; }
 }
