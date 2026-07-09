@@ -62,7 +62,7 @@ confirms the Mosaic frame renders period-accurately.
 **Remaining in Slice 1:** T10 — extract `createChapter` from all three chapters (rule of
 three, now satisfiable). glass-shatter's live 60fps profile is a headed-Chrome manual step.
 
-**Commit:** _(logged in follow-up)_
+**Commit:** `ee342ef` feat: Early Web chapter + glass-shatter transition (Phase 2 Slice 1)
 
 ## 2026-07-09 (Phase 2 Slice 1 — Commit 1: manifest + uResolution + Vitest)
 
