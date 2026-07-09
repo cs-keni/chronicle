@@ -1,5 +1,21 @@
 # Engineering Log
 
+## 2026-07-09 (Phase 2 Slice 1 — Commit 1: manifest + uResolution + Vitest)
+
+First Phase 2 work. Behavior-preserving foundation for the Early Web chapter: collapse the duplicated chapter-order sources into one derived manifest, add the shader uniform every Phase 2 transition will want, and stand up a unit-test layer. No chapter, shader, or transition change yet — the external `arpanet → figma-era` flow is unchanged and verified.
+
+**T1 — `src/data/manifest.ts` is now the single source of chapter identity + ordering (A1).**
+- Promoted the lobby's inline 8-entry roadmap to `MANIFEST` (added an explicit `order` field so derivations never depend on array position). Identity/ordering only — content (facts, palette) stays in `chapters.ts`, keyed by the same id, for live chapters only.
+- `router.ts` derives `VALID_CHAPTERS` from `validChapterIds()`; `scroll.ts` derives `CHAPTER_ORDER` from `chapterOrder()` (both = the live subset sorted by `order`). `lobby/index.ts` iterates `MANIFEST` directly and its local `CardDef`/`CARDS` are retired. This kills the silent router↔scroll drift: the two lists were hand-maintained and could disagree with no test noticing.
+
+**T2 — `uResolution` uniform in `webgl.ts` (A2).** Added to compiled uniforms + set each `render()` to `canvas.width/height`. Null-safe: shaders that don't declare it (crt-power-off) get a null location and `uniform2f(null, …)` is a GL no-op — existing transition untouched. glass-shatter's voronoi cells will sample it next commit.
+
+**T3 — Vitest unit layer (Codex T3).** Added `vitest` devDep + `test:unit` script + `vitest.config.ts` (node env, scoped to `tests/unit/**`). `tests/unit/manifest.test.ts` (7 tests): derivation correctness, live-subset isolation, order integrity (unique + contiguous 1..N), and the **drift guard** — parses `index.html` spacer order and asserts it equals `chapterOrder()`, closing the one silent failure mode the manifest exists to prevent. Also pinned Playwright's `testMatch` to `**/*.spec.ts` so it stops grabbing `*.test.ts` and trying to run the Vitest suite (which errored on Vitest internal state).
+
+**Verification:** `tsc` clean · `vitest run` 7/7 · `npm run build` clean (entry JS still **59.97 KB gzip**, no bundle change) · Playwright **12/12** including the ARPANET→Figma e2e transition, deep-link `#figma-era`, and nav-latch guards — the behavior-preserving claim holds.
+
+**Commit:** _(logged in follow-up)_
+
 ## 2026-07-08 (Phase 1 STRETCH: share nudge at the Figma closing beat)
 
 Built the "press S to share" nudge pitched (not built) in the last session — connects the Figma Era emotional payoff to the share loop. When the closing beat lands, a one-time coach-mark offers the share affordance right when the visitor most wants to keep the moment.

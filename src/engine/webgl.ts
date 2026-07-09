@@ -93,9 +93,13 @@ class WebGLEngine {
     const compiled: CompiledShader = {
       program,
       uniforms: {
-        uFrom:     gl.getUniformLocation(program, 'uFrom'),
-        uTo:       gl.getUniformLocation(program, 'uTo'),
-        uProgress: gl.getUniformLocation(program, 'uProgress'),
+        uFrom:       gl.getUniformLocation(program, 'uFrom'),
+        uTo:         gl.getUniformLocation(program, 'uTo'),
+        uProgress:   gl.getUniformLocation(program, 'uProgress'),
+        // Fullscreen resolution in device px. Shaders that need aspect ratio
+        // (glass-shatter's voronoi cells) sample this; shaders that don't
+        // declare it get a null location, and uniform2f(null, …) is a GL no-op.
+        uResolution: gl.getUniformLocation(program, 'uResolution'),
       },
     };
     this.shaders.set(name, compiled);
@@ -172,6 +176,7 @@ class WebGLEngine {
     gl.uniform1i(compiled.uniforms.uTo, 1);
 
     gl.uniform1f(compiled.uniforms.uProgress, progress);
+    gl.uniform2f(compiled.uniforms.uResolution, this.canvas.width, this.canvas.height);
 
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }

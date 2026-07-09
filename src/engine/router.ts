@@ -5,8 +5,10 @@
 
 import { chapterManager } from './chapter';
 import { scrollToChapter, suppressTransitionRequests } from './scroll';
+import { validChapterIds } from '../data/manifest';
 
-const VALID_CHAPTERS = new Set(['arpanet', 'figma-era']);
+// Derived from the manifest's live subset — no longer hand-maintained here.
+const VALID_CHAPTERS = new Set(validChapterIds());
 const SCROLL_CONTAINER = document.getElementById('scroll-container')!;
 const OVERLAY = document.getElementById('transition-overlay')!;
 

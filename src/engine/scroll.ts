@@ -11,6 +11,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { chapterManager } from './chapter';
 import { startChapterAmbient, stopChapterAmbient } from './audio';
+import { chapterOrder } from '../data/manifest';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -95,8 +96,10 @@ export function beginNavLatch() {
   window.addEventListener('keydown', release);
 }
 
-// Spacer IDs in scroll order — used to determine next chapter
-const CHAPTER_ORDER = ['arpanet', 'figma-era'];
+// Spacer IDs in scroll order — used to determine next chapter.
+// Derived from the manifest's live subset (sorted by order); the DOM spacer
+// order in index.html must match this (drift-guarded by tests/unit/manifest.test.ts).
+const CHAPTER_ORDER = chapterOrder();
 
 export function initScrollEngine() {
   const spacers = document.querySelectorAll<HTMLElement>('.chapter-scroll-spacer');
