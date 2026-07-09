@@ -169,7 +169,7 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 - [x] Touch device detection: `ontouchstart in window || navigator.maxTouchPoints > 0` → disable GLSL shaders; transitions use fade-to-black (same path as reduced-motion). Chapters still render with full CSS visual fidelity. Resolves iOS ScrollTrigger quirk risk for Phase 1.
 - [x] Figma Era end state: closing beat at chapter bottom edge — glassmorphism-styled line "END OF KNOWN HISTORY. MORE CHAPTERS LOADING." in Figma Era typography + Geist. Below it: a minimal `Explore more →` pill (glassmorphism, `#00D4FF` border) that navigates to `#` (lobby). This closes the Phase 1 emotional arc and provides the shareability moment.
 - [x] Fix T9: enforce fixed chapter heights (`overflow: hidden` on containers)
-- [ ] Browser support smoke test: Chrome, Safari 15.4+, Firefox, iOS Safari, Windows Chrome
+- [~] Browser support smoke test — Chrome/Chromium verified. Safari/Firefox/iOS Safari **deferred out of Phase 1** (Kenny 2026-07-08): not the proof-of-concept audience; the share flow already has a share→clipboard→download fallback chain for engines that gate `ClipboardItem`/Web Share.
 - [x] Ship Phase 1 as proof-of-concept — deployed to Vercel (https://chronicle-topaz-ten.vercel.app/)
 - [x] Fix intermittent deep-link bug: `#figma-era` showed ARPANET (nav-latch race; ENGINEERING_LOG 2026-07-07)
 - [x] Bundle-size code-split: lazy-load Tone + html2canvas (initial JS 167→59 KB gzip; ENGINEERING_LOG 2026-07-07)
