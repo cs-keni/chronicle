@@ -11,6 +11,8 @@ import { highlight, type Lang } from './highlight';
 // Real source, inlined at build time — never goes stale.
 import arpanetIndexSrc from '../chapters/arpanet/index.ts?raw';
 import arpanetTerminalSrc from '../chapters/arpanet/terminal.ts?raw';
+import earlyWebIndexSrc from '../chapters/early-web/index.ts?raw';
+import earlyWebStyleSrc from '../chapters/early-web/style.css?raw';
 import figmaStyleSrc from '../chapters/figma-era/style.css?raw';
 import figmaIndexSrc from '../chapters/figma-era/index.ts?raw';
 
@@ -37,6 +39,22 @@ const REGISTRY: Record<string, SourceFile[]> = {
       lang: 'ts',
       caption: 'The typing scheduler: per-character delays, and a scroll gesture fast-forwards the whole queue.',
       code: arpanetTerminalSrc,
+    },
+  ],
+  'early-web': [
+    {
+      label: 'style.css',
+      path: 'src/chapters/early-web/style.css',
+      lang: 'css',
+      caption: 'The Netscape 1.0 window in pure CSS: outset/inset bevels from four-color borders, a web-safe palette, and a hazard-bar gradient — no images.',
+      code: earlyWebStyleSrc,
+    },
+    {
+      label: 'index.ts',
+      path: 'src/chapters/early-web/index.ts',
+      lang: 'ts',
+      caption: 'Facts reveal on scroll into the framed page, and the green odometer hit-counter ticks up as the visitor scrolls — the era’s own progress bar.',
+      code: earlyWebIndexSrc,
     },
   ],
   'figma-era': [

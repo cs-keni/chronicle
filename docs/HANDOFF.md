@@ -1,10 +1,19 @@
 # Handoff
 
-Last updated: 2026-07-08
+Last updated: 2026-07-09
 
 ## Architecture snapshot
 
-Chronicle is a scroll-driven museum. Eight chapters. Seven GLSL transitions.
+Chronicle is a scroll-driven museum. Eight chapters planned (three live: ARPANET,
+Early Web, Figma Era). Seven GLSL transitions planned (two live: CRT power-off,
+glass-shatter).
+
+**Chapter identity + ordering** is derived from one source: `src/data/manifest.ts`
+(Phase 2). The router's valid-hash set and the scroll engine's chapter order both
+derive from `manifest.filter(c => c.live)`; the lobby grid renders from the same
+array. Adding a chapter = flip `live` + author the chapter + add the DOM scene/spacer
+(order drift is caught by `tests/unit/manifest.test.ts`). `chapters.ts` stays
+content-only (facts/palette), keyed by id, for live chapters.
 
 **Stack:** Vanilla TypeScript + Vite, GSAP ScrollTrigger, WebGL 2 (transitions only), html2canvas, Tone.js.
 
@@ -18,12 +27,15 @@ Chronicle is a scroll-driven museum. Eight chapters. Seven GLSL transitions.
 
 **Transition engine:** `html2canvas` captures `from` and `to` chapter screenshots. `Promise.race([Promise.all([from, to]), 500ms timeout])` gates the WebGL shader. Touch devices use `fadeSwap` (no GLSL). The WebGL canvas is 1×1px at rest, resizes to fullscreen only during transitions.
 
-**Hash router:** `#arpanet` → ARPANET chapter, `#figma-era` → Figma Era chapter, `#` → lobby. Direct-link entry: 0.5s fade-from-black.
+**Hash router:** `#arpanet` → ARPANET, `#early-web` → Early Web, `#figma-era` → Figma Era, `#` → lobby. Valid hashes are derived from `manifest.filter(c => c.live)`, not hand-listed. Direct-link entry: 0.5s fade-from-black.
+
+**Transitions (live):** `arpanet → early-web` = **crt-power-off** (2500ms, now at its canonical position); `early-web → figma-era` = **glass-shatter** (2000ms). glass-shatter is authored source-agnostic (samples only `uFrom`/`uTo`/`uResolution`) so its later move to the canonical `flat → figma-era` is a registry-key change, no shader edit. The direct `arpanet → figma-era` transition no longer exists. Shader-missing guard: if a transition's shader isn't compiled, `transition.ts` skips straight to `fadeSwap` rather than holding the scroll lock on a blank canvas.
 
 ## Component ownership
 
 | Component | File | Status |
 |---|---|---|
+| Chapter manifest (identity + order) | `src/data/manifest.ts` | Complete (Phase 2) |
 | Chapter data model | `src/data/chapters.ts` | Complete |
 | Transition registry | `src/data/transitions.ts` | Complete |
 | Chapter manager | `src/engine/chapter.ts` | Complete |
@@ -35,8 +47,10 @@ Chronicle is a scroll-driven museum. Eight chapters. Seven GLSL transitions.
 | ARPANET index | `src/chapters/arpanet/index.ts` | Complete |
 | ARPANET terminal | `src/chapters/arpanet/terminal.ts` | Complete (audio deferred) |
 | ARPANET network map | `src/chapters/arpanet/network-map.ts` | Complete |
+| Early Web | `src/chapters/early-web/` | Complete (Phase 2 Slice 1) |
 | Figma Era | `src/chapters/figma-era/` | Complete (Week 2) |
 | CRT shader | `src/shaders/crt-power-off.frag` | Complete |
+| Glass-shatter shader | `src/shaders/glass-shatter.frag` | Complete (Phase 2) |
 | UI controls cluster | `src/ui/controls.ts` | Complete (stretch) |
 | Code overlay (view source) | `src/ui/code-overlay.ts` | Complete (stretch) |
 | Share card | `src/ui/share-card.ts` | Complete (stretch) |
@@ -63,7 +77,9 @@ Chrome that sits above all chapters, wired once from `main.ts` via `initControls
 - Figma Era accent: `#00D4FF` (electric blue) — do not drift to purple/indigo
 - Lobby background: `#0D0D0D` (not `#000000`)
 - ARPANET bg: `#000000`, amber: `#FF9500`
-- CRT shader phase assignment: ARPANET→Figma Era (Phase 1 temp). Phase 2: CRT moves to ARPANET→Early Web; Figma Era gets glass shatter.
+- CRT shader phase assignment: DONE (Phase 2 Slice 1). CRT is now ARPANET→Early Web (canonical); Figma Era's entry is glass-shatter (temp Early Web→Figma bridge until Flat ships).
+- Early Web palette (web-safe, do not drift): page `#C0C0C0`, navy `#000080`, links `#0000EE`/visited `#551A8B`, red `#CC0000`, teal `#008080`, shell `#0A0A0A`. Fonts: Times New Roman (body/headline), Courier New (year/counter), Arial (chrome only). See `docs/EARLY-WEB-BRIEF.md`.
+- Adding a chapter: flip `live` in `manifest.ts`, add the `#chapter-<id>` scene + `.chapter-scroll-spacer` in `index.html` (spacer order MUST match manifest order — drift-guarded), add content to `chapters.ts`, register the chapter module in `main.ts` BEFORE `initRouter()`.
 
 ## Dev server (WSL2)
 

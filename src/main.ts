@@ -7,27 +7,35 @@ import { initTransitionEngine } from './engine/transition';
 import { initAudioEngine } from './engine/audio';
 import { initLobby } from './chapters/lobby/index';
 import { initArpanet } from './chapters/arpanet/index';
+import { initEarlyWeb } from './chapters/early-web/index';
 import { initFigmaEra } from './chapters/figma-era/index';
 import { initControls } from './ui/controls';
 
-// Phase 1 shader sources — imported as raw strings via Vite's ?raw suffix
+// Shader sources — imported as raw strings via Vite's ?raw suffix
 import crtPowerOffFrag from './shaders/crt-power-off.frag?raw';
+import glassShatterFrag from './shaders/glass-shatter.frag?raw';
 
 // Module scripts are deferred — DOM is guaranteed ready. No DOMContentLoaded needed.
 const lobbyEl    = document.getElementById('chapter-lobby')!;
 const arpanetEl  = document.getElementById('chapter-arpanet')!;
+const earlyWebEl = document.getElementById('chapter-early-web')!;
 const figmaEraEl = document.getElementById('chapter-figma-era')!;
 
-// Init chapters (each registers itself with chapterManager internally)
+// Init chapters (each registers itself with chapterManager internally).
+// All register BEFORE initRouter() below — init order matters (GSAP position bug).
 initLobby(lobbyEl);
 initArpanet(arpanetEl);
+initEarlyWeb(earlyWebEl);
 initFigmaEra(figmaEraEl);
 
 // Register lobby with chapter manager (arpanet + figma-era register themselves via initX)
 chapterManager.register('lobby', lobbyEl);
 
 // Precompile shaders during idle time
-webgl.precompileAll({ 'crt-power-off': crtPowerOffFrag });
+webgl.precompileAll({
+  'crt-power-off': crtPowerOffFrag,
+  'glass-shatter': glassShatterFrag,
+});
 
 // Wire audio engine first — it sets up unlock listeners on document
 initAudioEngine();

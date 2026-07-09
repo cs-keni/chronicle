@@ -6,9 +6,13 @@ export interface TransitionDef {
 // Transitions are relationships between chapters, NOT properties of chapters (D5).
 // Key format: 'fromId->toId'
 const registry: Record<string, TransitionDef> = {
-  // Phase 1: ARPANET → Figma Era uses CRT power-off as temporary assignment.
-  // Phase 2: CRT moves to its canonical ARPANET → Early Web position.
-  'arpanet->figma-era': { shader: 'crt-power-off', duration: 2500 },
+  // CRT power-off now sits at its canonical ARPANET → Early Web position (the
+  // terminal collapses to a white line that resolves into the Mosaic page).
+  'arpanet->early-web': { shader: 'crt-power-off', duration: 2500 },
+  // glass-shatter debuts as a TEMPORARY early-web → figma-era bridge. Its
+  // canonical home is flat → figma-era (PHASES:197); the shader is authored
+  // source-agnostic so that later move is just a key change here, no shader edit.
+  'early-web->figma-era': { shader: 'glass-shatter', duration: 2000 },
 };
 
 export function getTransition(from: string, to: string): TransitionDef | null {

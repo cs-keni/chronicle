@@ -181,21 +181,25 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 
 ## Phase 2 — Full Chapter Build-Out (Weeks 5–14)
 
-- [ ] CRT shader moves from ARPANET→Figma Era (Phase 1 temp) to canonical ARPANET→Early Web position
-- [ ] Figma Era gets its canonical entry shader: glass shatter (from Flat/Material)
-- [ ] Early Web chapter (1983–1994): system gray, Navy/Red palette, Times New Roman, dithered gradients
+**Slice 1 (Early Web) — shipped 2026-07-09.** Plan: `docs/PHASE2-EARLY-WEB-PLAN.md`.
+Manifest foundation (Commit 1), then the Early Web chapter + glass-shatter debut
+(Commit 2). createChapter extraction (T10) is the remaining slice item.
+
+- [x] CRT shader moves from ARPANET→Figma Era (Phase 1 temp) to canonical ARPANET→Early Web position
+- [x] Figma Era gets its canonical entry shader: glass shatter (debuts as temp Early Web→Figma bridge until Flat exists)
+- [x] Early Web chapter (1983–1994): system gray, Navy/Red palette, Times New Roman, dithered gradients
 - [ ] Browser Wars chapter (1995–2001): gaudy palette, animated GIFs (real ones), tiled bg, hit counter
 - [ ] Post-Crash / Web 2.0 chapter (2002–2007): desaturated blues, Verdana, rational spacing, gloss
 - [ ] Mobile / Skeuomorphic chapter (2008–2012): leather textures, linen, embossed type, Helvetica Neue
 - [ ] Flat / Material chapter (2013–2018): Google 2014 palette, Roboto, long shadows, FABs
 - [ ] AI Web chapter (2024+): generative UI, LLM chat interfaces, spatial UI post-Vision Pro — visual brief to be authored in Phase 2
 - [ ] All 7 transition shaders authored (Phase 2 set):
-  - [ ] ARPANET → Early Web: CRT power-off (moved from Phase 1 temp assignment)
+  - [x] ARPANET → Early Web: CRT power-off (moved from Phase 1 temp assignment)
   - [ ] Early Web → Browser Wars: Windows 3.1 dialog box DOM overlay
   - [ ] Browser Wars → Post-Crash: BSOD wipe + dissolve
   - [ ] Post-Crash → Mobile: phone unlock swipe + perspective rotation
   - [ ] Mobile → Flat: progressive texture strip (leather, gradients, shadows)
-  - [ ] Flat → Figma Era: glass shatter (triangle fragment system + WebGL)
+  - [x] Flat → Figma Era: glass shatter (voronoi shard system + WebGL) — authored source-agnostic; live now as the temp Early Web→Figma bridge, relocates to Flat→Figma by key change when Flat ships
   - [ ] Figma Era → AI Web: TBD — speculative, authored during Phase 2
 - [ ] All shaders profiled (60fps on M3 target), documented in SHADER-PROFILES.md
 - [ ] Era-appropriate progress indicators for all Phase 2 chapters

@@ -82,6 +82,54 @@ export const chapters: Chapter[] = [
     ],
   },
   {
+    id: 'early-web',
+    name: 'Early Web',
+    yearRange: '1983–1994',
+    // Web-safe palette (EARLY-WEB-BRIEF.md): Mosaic system gray, navy headings,
+    // black Times body. Accent = navy for headings/rules.
+    palette: { bg: '#C0C0C0', text: '#000000', accent: '#000080' },
+    fontFamily: "'Times New Roman', Times, serif",
+    artifacts: ['browser-frame', 'hit-counter'],
+    facts: [
+      {
+        headline: 'The Web Was Born as Plain Text',
+        year: 1991,
+        body: 'On 6 August 1991, Tim Berners-Lee posted a short message to the alt.hypertext newsgroup linking to the first website, running on a NeXT machine at CERN. The page was plain text with a handful of blue underlined links — no images, no color, no layout. It explained what the World Wide Web was and how to build a browser. The first web page was a page about the web itself.',
+        visualArtifact: 'The info.cern.ch page recreated in system serif — a left-aligned column of black text on gray, a bold heading, and a few blue underlined links. No graphics. URL bar reading http://info.cern.ch/hypertext/WWW/TheProject.html',
+      },
+      {
+        headline: 'Mosaic Put Images Inline',
+        year: 1993,
+        body: 'NCSA Mosaic, released in 1993, was the browser that made the web look like something. Its key move was the <img> tag: earlier browsers opened images in a separate window, but Mosaic drew them inline, mixed with the text, on a default battleship-gray page. Suddenly a web page was a document you could design. Within a year the web stopped being a physicist’s tool and started being a medium.',
+        visualArtifact: 'A Mosaic window on #C0C0C0 gray — a heading, a paragraph of Times text, and a small dithered inline image sitting in the text flow, the way Mosaic first rendered <img>.',
+      },
+      {
+        headline: 'Blue Meant "Click Here"',
+        year: 1993,
+        body: 'Mosaic painted unvisited links blue and underlined, and turned them purple once you had followed them. Nobody legislated this — it was a default that became a law. For the next decade, blue-and-underlined was the universal signal for "this is a link," and the color change was the web’s first piece of memory: the page remembered where you had already been.',
+        visualArtifact: 'Two stacked links — one #0000EE blue underlined (unvisited), one #551A8B purple underlined (visited) — captioned that the color difference is the page remembering your history.',
+      },
+      {
+        headline: 'Designers Built Pages Out of Tables',
+        year: 1994,
+        body: 'HTML had no layout system, so designers took the <table> tag — meant for tabular data — and bent it into a page-layout grid. Invisible tables, nested tables, and single-pixel spacer GIFs stretched to prop columns apart. It was a hack that hardened into standard practice across 1994–96, and it ran design on the web until CSS was trusted years later. The most-used layout tool of the early web was never meant for layout at all.',
+        visualArtifact: 'A page skeleton with its invisible table borders switched on — nested rectangles holding a masthead, a narrow side column, and a body column, with a 1px spacer GIF called out where it wedges two cells apart.',
+      },
+      {
+        headline: '216 Colors Everyone Could Agree On',
+        year: 1994,
+        body: 'Most screens in 1994 showed only 256 colors, and browsers reserved some for the system, so a color you chose might dither into speckle on someone else’s monitor. Netscape rendered against a 6×6×6 cube — 216 colors that displayed cleanly on any 256-color screen. That "web-safe" palette became the box every early web designer worked inside: not a limit someone imposed, but the shared floor that let a page look the same on two different machines.',
+        visualArtifact: 'The 216 web-safe swatches as a 6×6×6 grid, a couple of hex values (#CC0000, #008080, #000080) labeled, with a dithered vs. clean patch showing what happened to an off-palette color on a 256-color display.',
+      },
+      {
+        headline: 'Everyone Got a Home Page',
+        year: 1994,
+        body: 'GeoCities started in 1994 and handed ordinary people a plot of web to build on. The result was gloriously loud: tiled backgrounds, animated "Under Construction" signs, spinning skulls, guestbooks, hit counters, and webrings linking one amateur page to the next. It was the first time the web belonged to non-experts, and it looked exactly like a medium being learned in public — earnest, ornamented, and alive.',
+        visualArtifact: 'A GeoCities-style page corner — a yellow-and-black "Under Construction" hazard bar, a green odometer hit-counter reading 000427, and a webring link strip, all on tiled gray.',
+      },
+    ],
+  },
+  {
     id: 'figma-era',
     name: 'Figma Era',
     yearRange: '2019–2023',

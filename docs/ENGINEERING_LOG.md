@@ -1,5 +1,69 @@
 # Engineering Log
 
+## 2026-07-09 (Phase 2 Slice 1 — Commit 2: Early Web chapter + glass-shatter)
+
+The third chapter is live. Chronicle now runs a three-chapter chain:
+**ARPANET → (CRT power-off) → Early Web → (glass-shatter) → Figma Era.** CRT moved to
+its canonical `arpanet → early-web` slot; the direct `arpanet → figma-era` transition is
+gone; glass-shatter debuts.
+
+**Content (T4):** `docs/EARLY-WEB-CONTENT.md` — 6 facts mirroring ARPANET's
+headline/year/body structure (CERN first page 1991, Mosaic inline images 1993, blue/
+purple links 1993, tables-for-layout 1994, 216 web-safe palette 1994, GeoCities 1994).
+Bodies written to stay historically honest where a single year oversimplifies (the year
+is the era anchor; table-layout and web-safe both say "hardened over 1994–96").
+
+**Chapter (T5):** `src/chapters/early-web/` renders a full NCSA Mosaic / Netscape 1.0
+window inside the dark museum shell — navy→blue title bar, beveled toolbar, location bar
+(`http://www.chronicle.net/early-web.html`), dithered navy→teal banner with a blinking
+`NEW!`, facts as titled sections (navy headline + red Courier year + Times body + groove
+`<hr>`) that reveal on scroll, an under-construction hazard bar + webring footer, and a
+green odometer hit-counter that ticks `000000 → 000427` with scroll (Early Web's era-
+styled progress indicator, per `era-artifact-as-progress-indicator`). The Mosaic
+page-load assembly (banner → text → counter, <1.2s) is the arrival beat; reduced-motion
+collapses it to an instant paint. All CSS, no sourced GIFs — web-safe palette only
+(`EARLY-WEB-BRIEF.md`). Verified by eye in a headed screenshot: reads as a real 1993 page.
+`index.html` gains the scene + spacer (spacer order matches manifest, drift-guarded);
+`manifest.ts` flips early-web `live: true`; `chapters.ts` gets the content entry;
+`main.ts` registers `initEarlyWeb` before `initRouter()`.
+
+**Shader (T6):** `src/shaders/glass-shatter.frag` — a source-agnostic voronoi shatter.
+`uFrom` cracks into ~11-across shards (bounded 3×3 = 9-tap voronoi, F1/F2 for edge
+cracks) that break on a staggered delay, slide out under gravity, and fade to reveal
+`uTo`; `uResolution` aspect-corrects the cells. Samples only uFrom/uTo/uResolution — no
+chapter assumptions — so the later move to canonical `flat → figma-era` is a key change,
+no shader edit. Registered in `main.ts` `precompileAll`. Cost is constant per fragment
+(bounded loop) — 60fps rationale + the pending headed-GPU verify documented in
+`SHADER-PROFILES.md`. **Shader-missing guard (fold #4):** `transition.ts` now checks
+`webgl.getShader()` and skips straight to `fadeSwap` if a shader isn't compiled, instead
+of holding the scroll lock for the full duration on a blank canvas.
+
+**Transitions (T7):** `transitions.ts` now `arpanet→early-web: crt-power-off` +
+`early-web→figma-era: glass-shatter`; `arpanet→figma-era` removed.
+
+**UI (T8/T9):** code overlay gains an `early-web` REGISTRY entry (real `style.css` +
+`index.ts` tabs — the `</>` button showed an empty panel without it). Share card gains a
+period-correct Early Web branch: a framed Netscape mini-window in web-safe grays with the
+green hit-counter, instead of falling through to the Figma glass card.
+
+**Tests (T11 + T12):** rewrote the e2e for the new chain — `ARPANET → Early Web → Figma
+Era` (R1: the old direct transition is gone). Added `#early-web` deep-link (R2: the
+inserted middle chapter lands correctly) and an Early Web render test; updated the
+nav-latch test (ARPANET's onward target is now Early Web). Unit test order updated to the
+3-chapter live set. Added `maxDiffPixelRatio: 0.02` to `playwright.config.ts` (T12) to
+absorb the known idle-snapshot AA drift; regenerated the lobby baseline (Early Web card
+is now live: "Explore →" not "Coming Soon").
+
+**Verification:** `tsc` clean · `vitest` 7/7 · `npm run build` clean (entry JS 59.97 →
+**64.02 KB gzip**, +4 for the eager chapter + shader) · Playwright **14/14** (full chain,
+both deep-links, nav-latch, Early Web render). Headed screenshot of `#early-web`
+confirms the Mosaic frame renders period-accurately.
+
+**Remaining in Slice 1:** T10 — extract `createChapter` from all three chapters (rule of
+three, now satisfiable). glass-shatter's live 60fps profile is a headed-Chrome manual step.
+
+**Commit:** _(logged in follow-up)_
+
 ## 2026-07-09 (Phase 2 Slice 1 — Commit 1: manifest + uResolution + Vitest)
 
 First Phase 2 work. Behavior-preserving foundation for the Early Web chapter: collapse the duplicated chapter-order sources into one derived manifest, add the shader uniform every Phase 2 transition will want, and stand up a unit-test layer. No chapter, shader, or transition change yet — the external `arpanet → figma-era` flow is unchanged and verified.

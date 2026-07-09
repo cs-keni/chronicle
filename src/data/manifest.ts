@@ -22,7 +22,7 @@ export interface ChapterMeta {
 // array position. Flip `live` to true (and ship the chapter) to add an era.
 export const MANIFEST: ChapterMeta[] = [
   { id: 'arpanet',      eraName: 'ARPANET',            years: '1969–1982', cssClass: 'card-arpanet',      live: true,  order: 1 },
-  { id: 'early-web',    eraName: 'Early Web',          years: '1983–1994', cssClass: 'card-early-web',    live: false, order: 2 },
+  { id: 'early-web',    eraName: 'Early Web',          years: '1983–1994', cssClass: 'card-early-web',    live: true,  order: 2 },
   { id: 'browser-wars', eraName: 'Browser Wars',       years: '1995–2001', cssClass: 'card-browser-wars', live: false, order: 3 },
   { id: 'post-crash',   eraName: 'Post-Crash / Web 2', years: '2002–2007', cssClass: 'card-post-crash',   live: false, order: 4 },
   { id: 'mobile',       eraName: 'Mobile / Skeuo',     years: '2008–2012', cssClass: 'card-mobile',       live: false, order: 5 },

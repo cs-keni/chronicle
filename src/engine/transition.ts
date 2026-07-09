@@ -91,6 +91,14 @@ async function handleTransitionRequest(fromId: string, toId: string) {
       return;
     }
 
+    // Shader-missing guard (fold #4): if the shader failed to compile (or hasn't
+    // yet), runShader would render nothing and hold the scroll lock for the full
+    // duration on a blank canvas. Skip straight to a clean fade instead.
+    if (!webgl.getShader(transitionDef.shader)) {
+      await fadeSwap(fromId, toId);
+      return;
+    }
+
     const fromEl = chapterManager.getElement(fromId)!;
     const toEl = chapterManager.getElement(toId)!;
 

@@ -14,6 +14,13 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     screenshot: 'only-on-failure',
   },
+  // Tolerate sub-2% environmental anti-aliasing drift on idle snapshots (the
+  // known ARPANET/lobby AA flake that failed on a clean tree). Real content
+  // regressions move far more than 2% of pixels; this only absorbs GPU/font AA
+  // noise between environments. (T12)
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02 },
+  },
   projects: [
     {
       name: 'chromium',

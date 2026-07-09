@@ -42,24 +42,41 @@ function buildCard(chapter: Chapter): HTMLElement {
   });
 
   const accent = palette.accent ?? palette.text;
-  const isArpanet = chapter.id === 'arpanet';
 
   // A chapter-flavored centerpiece. ARPANET: amber terminal lines with a CSS glow
-  // (text-shadow DOES capture, unlike the SVG filter). Figma: a glass-ish card.
-  const centerpiece = isArpanet
-    ? `
+  // (text-shadow DOES capture, unlike the SVG filter). Early Web: a Mosaic window in
+  // web-safe grays. Figma: a glass-ish card.
+  let centerpiece: string;
+  if (chapter.id === 'arpanet') {
+    centerpiece = `
       <div style="font-family:${chapter.fontFamily};color:${palette.text};text-shadow:0 0 8px rgba(255,149,0,0.55);font-size:26px;line-height:1.7;letter-spacing:0.02em;">
         <div style="opacity:0.65;">CONNECTED TO IMP NODE 1 — UCLA</div>
         <div style="margin-top:18px;">[${fact.year}] ${fact.headline.toUpperCase()}</div>
         <div style="font-size:19px;opacity:0.85;margin-top:14px;max-width:900px;line-height:1.6;">${truncate(fact.body, 180)}</div>
         <div style="margin-top:16px;">&gt;<span style="display:inline-block;width:11px;height:22px;background:${palette.text};margin-left:8px;vertical-align:middle;box-shadow:0 0 8px rgba(255,149,0,0.7);"></span></div>
-      </div>`
-    : `
+      </div>`;
+  } else if (chapter.id === 'early-web') {
+    // A framed Netscape window: navy title bar, dithered banner, a fact section, and
+    // the green odometer hit-counter. Web-safe palette, beveled borders — no images.
+    centerpiece = `
+      <div style="background:#C0C0C0;border:2px solid;border-color:#FFFFFF #808080 #808080 #FFFFFF;max-width:980px;box-shadow:0 6px 24px rgba(0,0,0,0.35);">
+        <div style="background:linear-gradient(90deg,#000080,#1084D0);color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;padding:5px 12px;">Chronicle — The Early Web — Netscape</div>
+        <div style="padding:26px 30px;">
+          <div style="display:inline-block;background-image:linear-gradient(90deg,#000080,#008080);color:#FFFFFF;font-family:'Times New Roman',Times,serif;font-size:30px;font-weight:700;padding:8px 18px;text-shadow:1px 1px 0 rgba(0,0,0,0.5);">The Early Web</div>
+          <div style="font-family:'Times New Roman',Times,serif;font-size:27px;font-weight:700;color:#000080;line-height:1.2;margin-top:22px;">${fact.headline}</div>
+          <div style="font-family:'Courier New',Courier,monospace;font-size:15px;font-weight:700;color:#CC0000;margin-top:4px;">${fact.year}</div>
+          <div style="font-family:'Times New Roman',Times,serif;font-size:18px;line-height:1.45;color:#000000;margin-top:12px;max-width:840px;">${truncate(fact.body, 190)}</div>
+          <div style="margin-top:22px;font-family:'Courier New',Courier,monospace;font-size:18px;font-weight:700;letter-spacing:0.14em;color:#00FF00;background:#000000;padding:3px 10px;display:inline-block;border:2px solid;border-color:#808080 #FFFFFF #FFFFFF #808080;">000427</div>
+        </div>
+      </div>`;
+  } else {
+    centerpiece = `
       <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);border-radius:20px;padding:40px 44px;max-width:920px;">
         <span style="display:inline-block;padding:6px 16px;border-radius:100px;font-size:16px;font-weight:500;color:${accent};background:rgba(0,212,255,0.10);border:1px solid rgba(0,212,255,0.25);letter-spacing:0.04em;">${fact.year}</span>
         <div style="font-size:34px;font-weight:600;line-height:1.25;margin-top:20px;color:${palette.text};">${fact.headline}</div>
         <div style="font-size:19px;line-height:1.6;margin-top:16px;color:rgba(255,255,255,0.62);">${truncate(fact.body, 200)}</div>
       </div>`;
+  }
 
   card.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;">

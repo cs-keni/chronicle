@@ -10,18 +10,18 @@ import {
 
 describe('manifest derivation', () => {
   it('derives the router valid-hash set from live chapters only', () => {
-    expect(validChapterIds()).toEqual(['arpanet', 'figma-era']);
+    expect(validChapterIds()).toEqual(['arpanet', 'early-web', 'figma-era']);
   });
 
   it('derives scroll order from live chapters sorted by order', () => {
-    expect(chapterOrder()).toEqual(['arpanet', 'figma-era']);
+    expect(chapterOrder()).toEqual(['arpanet', 'early-web', 'figma-era']);
   });
 
   it('liveChapters excludes every non-live era', () => {
     const live = liveChapters();
     expect(live.every((c) => c.live)).toBe(true);
-    // Nothing not-live leaks in.
-    expect(live.map((c) => c.id)).not.toContain('early-web');
+    // A known not-live era stays out of the derived set.
+    expect(live.map((c) => c.id)).not.toContain('browser-wars');
   });
 
   it('sorts by order, not array position', () => {

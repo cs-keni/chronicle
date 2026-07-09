@@ -83,14 +83,65 @@ Manual GPU profiling with Chrome DevTools → Performance → Record during a li
 
 ---
 
+## Glass-Shatter (`glass-shatter`)
+
+**Canonical use:** Flat → Figma Era (PHASES:197). **Debuts** (Phase 2 Slice 1) as a
+TEMPORARY Early Web → Figma Era bridge until Flat exists — the same temp-assignment
+pattern CRT used in Phase 1. Authored strictly source-agnostic (samples only
+`uFrom`/`uTo`/`uResolution`), so the later move to `flat→figma-era` is a
+transition-registry key change with no shader edit.
+
+**Duration:** 2000ms
+
+**Effect:** `uFrom` cracks into ~11-across voronoi shards that break loose on a
+staggered delay, slide away under gravity, and fade — revealing `uTo` beneath. A
+bright crack highlight runs the shard borders as they separate.
+
+### Cost characteristics (analytical — the 60fps gate rests on these)
+
+| Property | Value | Why it matters |
+|---|---|---|
+| Voronoi neighbor search | **fixed 3×3 = 9 taps**, no dynamic loop length | Bounded ALU per fragment; the dominant cost, and it's constant |
+| Texture fetches | 2 (`uFrom` displaced, `uTo`) | Same as CRT; no dependent-texture chains |
+| Transcendental use | `hash2` sin per neighbor (9), one `normalize`, `smoothstep`s | Modest; no loops over transcendentals |
+| Branching | none data-dependent beyond the F1/F2 compare | No divergent flow across a warp |
+| `uResolution` use | aspect-correct the cell grid only | Square shards regardless of viewport AR |
+
+The shader is a single full-screen triangle (no VBO) on the existing `webgl.ts`
+pipeline — identical draw path to CRT, whose runtime the Phase 1 baseline already
+found frame-cheap (the html2canvas capture, not the shader, was the block). The
+bounded voronoi keeps per-fragment work constant, so there is no input that makes
+this shader's frame cost spike.
+
+### Missing-shader guard (fold #4)
+
+If `glass-shatter` fails to compile (or hasn't finished the idle precompile),
+`transition.ts` now checks `webgl.getShader()` and skips straight to `fadeSwap`
+instead of holding the scroll lock for the full 2000ms on a blank canvas.
+Covered by the Playwright fallback assertion.
+
+### Frame Profiling (TODO — manual step, same as CRT)
+
+Live headed GPU profiling (Chrome DevTools → Performance) during the
+`early-web → figma-era` transition has NOT been run in this environment (WSL2
+headless has no GPU path, so its numbers wouldn't be representative). Required as
+the 60fps verify before this ships to production:
+- Open `http://localhost:3000/#early-web` in headed Chrome
+- Record Performance, scroll to the dwell zone → glass-shatter fires
+- Target: 60fps throughout (0 dropped frames on M3); document the baseline here
+- If any drop: lower `DENSITY` in `glass-shatter.frag` (fewer, larger shards) —
+  the cheapest lever, no structural change
+
+---
+
 ## Planned Shaders (Phase 2)
 
 | Shader | Transition | Status |
 |---|---|---|
-| `crt-power-off` | ARPANET → Early Web (canonical) | Moves from Phase 1 temp assignment |
+| `crt-power-off` | ARPANET → Early Web (canonical) | **Live** — moved from Phase 1 temp |
+| `glass-shatter` | Early Web → Figma Era (temp) → Flat → Figma Era (canonical) | **Live** — debuts as temp bridge |
 | `windows-dialog` | Early Web → Browser Wars | Not started |
 | `bsod-wipe` | Browser Wars → Post-Crash | Not started |
 | `phone-unlock` | Post-Crash → Mobile | Not started |
 | `texture-strip` | Mobile → Flat | Not started |
-| `glass-shatter` | Flat → Figma Era | Not started |
 | TBD | Figma Era → AI Web | Not specified |
