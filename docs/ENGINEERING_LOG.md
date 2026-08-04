@@ -39,7 +39,7 @@ Docs updated: `AI_CONTEXT.md` (new), `HANDOFF.md` (degradation section + a new i
 nothing constructed at module-eval time may throw), `CURRENT_TASK.md`, and the plan's
 deferred list.
 
-Commit: _(hash logged in the follow-up commit)_
+Commit: `61c7d9d`
 
 ## 2026-08-03 (Phase 2 Slice 1 — Commit 3: extract `createChapter`)
 
