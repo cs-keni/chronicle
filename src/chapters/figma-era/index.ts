@@ -1,14 +1,12 @@
 // Figma Era chapter — 2019–2023.
 // Card restack at 1/3 progress: A exits, B→A, C→B, fact3 enters as new C.
 // GSAP drives all card positioning (removes nth-child CSS dependency).
+// Phase 2 T10: wiring comes from the shared createChapter scaffold.
 
 import './style.css';
 import { gsap } from 'gsap';
-import { chapterManager } from '../../engine/chapter';
-import { onChapterProgress } from '../../engine/scroll';
+import { createChapter } from '../../engine/create-chapter';
 import { navigateTo } from '../../engine/router';
-import { getChapter } from '../../data/chapters';
-import { startChapterAmbient } from '../../engine/audio';
 
 const CHAPTER_ID = 'figma-era';
 const TOTAL_PIPS = 7;
@@ -28,10 +26,10 @@ let cardEls: HTMLElement[] = [];
 // Latch so the closing-beat event fires once per chapter entry, not every tick.
 let closingBeatFired = false;
 
-export function initFigmaEra(container: HTMLElement) {
-  const chapter = getChapter(CHAPTER_ID)!;
+export const initFigmaEra = createChapter({
+  id: CHAPTER_ID,
 
-  container.innerHTML = `
+  render: () => `
     <div class="figma-cards-container" id="figma-cards"></div>
     <div class="figma-progress" id="figma-progress" aria-hidden="true">
       ${Array.from({ length: TOTAL_PIPS }, (_, i) =>
@@ -42,51 +40,49 @@ export function initFigmaEra(container: HTMLElement) {
       <span class="figma-end-text">End of Known History. More Chapters Loading.</span>
       <a class="figma-back-pill" role="button" tabindex="0">Explore more →</a>
     </div>
-  `;
+  `,
 
-  container.querySelector('.figma-back-pill')?.addEventListener('click', () => navigateTo(''));
+  onMount: ({ container }) => {
+    container.querySelector('.figma-back-pill')?.addEventListener('click', () => navigateTo(''));
+  },
 
-  chapterManager.register(CHAPTER_ID, container, () => onChapterInit(container, chapter));
+  onInit: ({ container, chapter }) => {
+    const cardsContainer = document.getElementById('figma-cards')!;
+    currentScene = 0;
+    closingBeatFired = false;
+    cardEls = [];
 
-  container.addEventListener('dwell-enter', () => {
+    // Create all 4 cards upfront — fact3 starts off-screen
+    for (const fact of chapter.facts) {
+      const card = document.createElement('div');
+      card.className = 'figma-card';
+      card.innerHTML = `
+        <div class="figma-card-year">${fact.year}</div>
+        <div class="figma-card-headline">${fact.headline}</div>
+        <div class="figma-card-body">${fact.body}</div>
+      `;
+      cardsContainer.appendChild(card);
+      cardEls.push(card);
+    }
+
+    // Place cards at initial positions (instant, no animation)
+    gsap.set(cardEls[0], POS_A);
+    gsap.set(cardEls[1], { ...POS_B });
+    gsap.set(cardEls[2], POS_C);
+    gsap.set(cardEls[3], POS_OFF);
+
+    // Card B starts with accent border
+    cardEls[1].classList.add('figma-card--accent');
+
+    playBootAnimation(container);
+  },
+
+  onProgress: (progress) => updateChapter(progress),
+
+  onDwellEnter: () => {
     document.getElementById('figma-progress')?.style.setProperty('opacity', '0.5');
-  });
-}
-
-function onChapterInit(container: HTMLElement, chapter: ReturnType<typeof getChapter>) {
-  if (!chapter) return;
-
-  const cardsContainer = document.getElementById('figma-cards')!;
-  currentScene = 0;
-  closingBeatFired = false;
-  cardEls = [];
-
-  // Create all 4 cards upfront — fact3 starts off-screen
-  for (const fact of chapter.facts) {
-    const card = document.createElement('div');
-    card.className = 'figma-card';
-    card.innerHTML = `
-      <div class="figma-card-year">${fact.year}</div>
-      <div class="figma-card-headline">${fact.headline}</div>
-      <div class="figma-card-body">${fact.body}</div>
-    `;
-    cardsContainer.appendChild(card);
-    cardEls.push(card);
-  }
-
-  // Place cards at initial positions (instant, no animation)
-  gsap.set(cardEls[0], POS_A);
-  gsap.set(cardEls[1], { ...POS_B });
-  gsap.set(cardEls[2], POS_C);
-  gsap.set(cardEls[3], POS_OFF);
-
-  // Card B starts with accent border
-  cardEls[1].classList.add('figma-card--accent');
-
-  startChapterAmbient('figma-era');
-  playBootAnimation(container);
-  onChapterProgress(CHAPTER_ID, (progress) => updateChapter(progress, chapter));
-}
+  },
+});
 
 function playBootAnimation(container: HTMLElement) {
   const pixel = document.createElement('div');
@@ -95,7 +91,7 @@ function playBootAnimation(container: HTMLElement) {
   pixel.addEventListener('animationend', () => pixel.remove(), { once: true });
 }
 
-function updateChapter(progress: number, chapter: NonNullable<ReturnType<typeof getChapter>>) {
+function updateChapter(progress: number) {
   updatePips(progress);
   updateCards(progress);
 

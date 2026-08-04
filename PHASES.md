@@ -181,10 +181,14 @@ Goal: lobby + ARPANET + Figma Era + CRT transition + hash routing — proving th
 
 ## Phase 2 — Full Chapter Build-Out (Weeks 5–14)
 
-**Slice 1 (Early Web) — shipped 2026-07-09.** Plan: `docs/PHASE2-EARLY-WEB-PLAN.md`.
-Manifest foundation (Commit 1), then the Early Web chapter + glass-shatter debut
-(Commit 2). createChapter extraction (T10) is the remaining slice item.
+**Slice 1 (Early Web) — code complete 2026-08-03.** Plan: `docs/PHASE2-EARLY-WEB-PLAN.md`.
+Manifest foundation (Commit 1), the Early Web chapter + glass-shatter debut (Commit 2),
+then the `createChapter` extraction (Commit 3 / T10). One manual item remains: the headed-
+Chrome 60fps profile of glass-shatter (needs a real GPU path — not runnable under WSL2
+headless), to be recorded in `docs/SHADER-PROFILES.md`.
 
+- [x] `createChapter` scaffold extracted (`src/engine/create-chapter.ts`); ARPANET + Early Web + Figma Era refactored onto it
+- [ ] glass-shatter profiled at 60fps in headed Chrome + documented (manual)
 - [x] CRT shader moves from ARPANET→Figma Era (Phase 1 temp) to canonical ARPANET→Early Web position
 - [x] Figma Era gets its canonical entry shader: glass shatter (debuts as temp Early Web→Figma bridge until Flat exists)
 - [x] Early Web chapter (1983–1994): system gray, Navy/Red palette, Times New Roman, dithered gradients

@@ -9,14 +9,11 @@
 // The hit-counter doubles as the scroll-progress indicator — Early Web's equivalent
 // of ARPANET's amber ASCII bar.
 //
-// NOTE: built following the existing ARPANET/Figma chapter pattern by hand. The
-// shared createChapter helper is extracted AFTER this exists (T10, rule of three).
+// Phase 2 T10: built by hand on the ARPANET/Figma pattern, then refactored onto the
+// shared createChapter scaffold once it existed as the third real example.
 
 import './style.css';
-import { chapterManager } from '../../engine/chapter';
-import { onChapterProgress } from '../../engine/scroll';
-import { getChapter } from '../../data/chapters';
-import { startChapterAmbient } from '../../engine/audio';
+import { createChapter } from '../../engine/create-chapter';
 
 const CHAPTER_ID = 'early-web';
 
@@ -33,24 +30,26 @@ const prefersReducedMotion = () =>
 let pageEl: HTMLElement | null = null;
 let counterEl: HTMLElement | null = null;
 let revealed = new Set<number>();
-let lastProgress = 0;
 
-export function initEarlyWeb(container: HTMLElement) {
-  const chapter = getChapter(CHAPTER_ID)!;
+export const initEarlyWeb = createChapter({
+  id: CHAPTER_ID,
+  // No ambient bed authored for this era yet — the scaffold's startChapterAmbient
+  // call is a no-op today, and keeping it wired means the bed lands for free.
 
-  const factsHtml = chapter.facts
-    .map(
-      (fact, i) => `
+  render: ({ chapter }) => {
+    const factsHtml = chapter.facts
+      .map(
+        (fact, i) => `
       <section class="ew-fact" data-fact="${i}">
         <h2 class="ew-fact-headline">${fact.headline}</h2>
         <span class="ew-fact-year">${fact.year}</span>
         <p class="ew-fact-body">${linkifyTags(fact.body)}</p>
         <hr class="ew-rule" />
-      </section>`
-    )
-    .join('');
+      </section>`,
+      )
+      .join('');
 
-  container.innerHTML = `
+    return `
     <div class="ew-shell">
       <div class="ew-browser is-booting" id="ew-browser">
         <div class="ew-titlebar">
@@ -93,53 +92,43 @@ export function initEarlyWeb(container: HTMLElement) {
       </div>
     </div>
   `;
+  },
 
-  chapterManager.register(CHAPTER_ID, container, () => onChapterInit(container));
+  onInit: ({ container }) => {
+    pageEl = container.querySelector('#ew-page');
+    counterEl = container.querySelector('#ew-counter-digits');
+    revealed = new Set();
 
-  container.addEventListener('dwell-enter', () => {
-    document.getElementById('ew-counter')?.classList.add('is-pulsing');
-  });
-}
+    const browser = container.querySelector('#ew-browser');
+    if (prefersReducedMotion()) {
+      // Assembly collapses to an instant paint (brief: reduced-motion → instant).
+      browser?.classList.remove('is-booting');
+      revealFact(0);
+    } else {
+      // Mosaic page-load assembly: banner paints, text streams, counter pops —
+      // driven by staggered CSS reveal off `.is-booting` removal. Fact 0 lands as
+      // the "text streams in" beat. Whole assembly under ~1.2s (brief P7.3).
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => browser?.classList.remove('is-booting'));
+      });
+      setTimeout(() => revealFact(0), 520);
+    }
 
-function onChapterInit(container: HTMLElement) {
-  const chapter = getChapter(CHAPTER_ID)!;
-  pageEl = container.querySelector('#ew-page');
-  counterEl = container.querySelector('#ew-counter-digits');
-  revealed = new Set();
-  lastProgress = 0;
+    updateCounter(0);
+  },
 
-  startChapterAmbient(CHAPTER_ID); // no-op today (no ambient layer) — keeps the pattern
-
-  const browser = container.querySelector('#ew-browser');
-  if (prefersReducedMotion()) {
-    // Assembly collapses to an instant paint (brief: reduced-motion → instant).
-    browser?.classList.remove('is-booting');
-    revealFact(0);
-  } else {
-    // Mosaic page-load assembly: banner paints, text streams, counter pops —
-    // driven by staggered CSS reveal off `.is-booting` removal. Fact 0 lands as
-    // the "text streams in" beat. Whole assembly under ~1.2s (brief P7.3).
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => browser?.classList.remove('is-booting'));
-    });
-    setTimeout(() => revealFact(0), 520);
-  }
-
-  updateCounter(0);
-
-  onChapterProgress(CHAPTER_ID, (progress) => {
+  onProgress: (progress) => {
     // Reveal facts as their scroll thresholds are crossed.
     FACT_THRESHOLDS.forEach((threshold, i) => {
       if (progress >= threshold) revealFact(i);
     });
     updateCounter(progress);
-    lastProgress = progress;
-  });
+  },
 
-  // Keep the reveal deterministic for the initial fact even if progress never
-  // ticks (e.g. a very short viewport): fact 0 shown above covers it.
-  void chapter;
-}
+  onDwellEnter: () => {
+    document.getElementById('ew-counter')?.classList.add('is-pulsing');
+  },
+});
 
 // Reveal fact i and scroll it into view within the page (mirrors ARPANET's
 // auto-scroll to the newest revealed line). Idempotent per fact.

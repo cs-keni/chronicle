@@ -1,14 +1,13 @@
 // ARPANET chapter — 1969–1982.
 // Week 2: terminal.ts typing scheduler + scroll-triggered facts.
 // Week 2: network-map.ts SVG node diagram (initNetworkMap stub below).
+// Phase 2 T10: wiring (register / ambient / progress / dwell) now comes from
+// the shared createChapter scaffold — this file is chapter-specific behavior only.
 
 import './style.css';
-import { chapterManager } from '../../engine/chapter';
-import { onChapterProgress } from '../../engine/scroll';
-import { getChapter } from '../../data/chapters';
+import { createChapter } from '../../engine/create-chapter';
 import { ArpanetTerminal } from './terminal';
 import { initNetworkMap } from './network-map';
-import { startChapterAmbient } from '../../engine/audio';
 
 const CHAPTER_ID = 'arpanet';
 
@@ -19,10 +18,10 @@ const FACT_THRESHOLDS = [0, 0.12, 0.24, 0.36, 0.48, 0.60, 0.72, 0.84];
 let terminal: ArpanetTerminal | null = null;
 let lastProgress = 0;
 
-export function initArpanet(container: HTMLElement) {
-  mountPhosphorFilter();
+export const initArpanet = createChapter({
+  id: CHAPTER_ID,
 
-  container.innerHTML = `
+  render: () => `
     <div class="arpanet-terminal">
       <div class="arpanet-terminal-output" id="arpanet-output"></div>
       <span class="arpanet-cursor" id="arpanet-cursor"></span>
@@ -31,29 +30,31 @@ export function initArpanet(container: HTMLElement) {
       <!-- network-map.ts mounts content in Week 2 -->
     </svg>
     <div class="arpanet-progress" id="arpanet-progress">▓▓▓▓▒▒░░░░ 0%</div>
-  `;
+  `,
 
-  chapterManager.register(CHAPTER_ID, container, () => onChapterInit(container));
+  onMount: () => mountPhosphorFilter(),
 
-  container.addEventListener('dwell-enter', () => {
-    document.getElementById('arpanet-progress')?.classList.add('pulsing');
-  });
-}
+  onInit: ({ chapter }) => {
+    const outputEl = document.getElementById('arpanet-output')!;
+    const cursorEl = document.getElementById('arpanet-cursor')!;
 
-function onChapterInit(container: HTMLElement) {
-  const chapter = getChapter(CHAPTER_ID)!;
-  const outputEl = document.getElementById('arpanet-output')!;
-  const cursorEl = document.getElementById('arpanet-cursor')!;
+    terminal = new ArpanetTerminal(outputEl, cursorEl);
+    terminal.start(chapter.facts);
 
-  terminal = new ArpanetTerminal(outputEl, cursorEl);
-  terminal.start(chapter.facts);
-  startChapterAmbient('arpanet');
+    // Reveal fact 0 immediately on chapter activate
+    terminal.revealFact(chapter.facts[0], 0);
+    lastProgress = 0;
 
-  // Reveal fact 0 immediately on chapter activate
-  terminal.revealFact(chapter.facts[0], 0);
-  lastProgress = 0;
+    // Network map: inject content first (getTotalLength needs element in DOM),
+    // fade parent in at 1s, then start line-draw animation at 2s.
+    const mapEl = document.getElementById('arpanet-network-map') as SVGSVGElement | null;
+    if (mapEl) {
+      initNetworkMap(mapEl, 1.0); // 1.0s matches setTimeout below
+      setTimeout(() => mapEl.classList.add('visible'), 1000);
+    }
+  },
 
-  onChapterProgress(CHAPTER_ID, (progress) => {
+  onProgress: (progress, { chapter }) => {
     // Fast-forward any active typing when user is scrolling forward
     if (progress > lastProgress && terminal) {
       terminal.fastForward();
@@ -62,23 +63,19 @@ function onChapterInit(container: HTMLElement) {
 
     // Trigger remaining facts at scroll thresholds
     FACT_THRESHOLDS.forEach((threshold, i) => {
-      if (i === 0) return; // already revealed above
+      if (i === 0) return; // already revealed on init
       if (progress >= threshold && terminal) {
         terminal.revealFact(chapter.facts[i], i);
       }
     });
 
     updateProgress(progress);
-  });
+  },
 
-  // Network map: inject content first (getTotalLength needs element in DOM),
-  // fade parent in at 1s, then start line-draw animation at 2s.
-  const mapEl = document.getElementById('arpanet-network-map') as SVGSVGElement | null;
-  if (mapEl) {
-    initNetworkMap(mapEl, 1.0); // 1.0s matches setTimeout below
-    setTimeout(() => mapEl.classList.add('visible'), 1000);
-  }
-}
+  onDwellEnter: () => {
+    document.getElementById('arpanet-progress')?.classList.add('pulsing');
+  },
+});
 
 function updateProgress(progress: number) {
   const el = document.getElementById('arpanet-progress');

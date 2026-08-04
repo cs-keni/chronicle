@@ -1,5 +1,48 @@
 # Engineering Log
 
+## 2026-08-03 (Phase 2 Slice 1 — Commit 3: extract `createChapter`)
+
+**T10 — the last code task in Slice 1.** All three chapters repeated the same wiring
+spine by hand: `getChapter(id)!`, write a template into the container,
+`chapterManager.register(id, container, () => onChapterInit(container))`, then inside
+that init callback `startChapterAmbient(id)` and `onChapterProgress(id, cb)`, plus a
+`container.addEventListener('dwell-enter', …)` at mount. Three real examples is the rule
+of three CQ1/Codex T2 asked for, so the abstraction is now extracted from evidence rather
+than guessed from two text-reveal chapters.
+
+**New:** `src/engine/create-chapter.ts`. A chapter is a spec —
+`createChapter({ id, render, onMount?, onInit?, onProgress?, onDwellEnter?, ambient? })`
+— and the returned `init(container)` is what `main.ts` calls. Lifecycle is
+`render` → `onMount` (same tick) → [lazy, on first activate/intersect] ambient →
+`onInit` → progress subscription. Two deliberate ordering choices, both matching what all
+three chapters already did: progress is subscribed *inside* the init callback (every
+progress handler assumes `onInit` built its elements first), and `dwell-enter` is wired at
+mount (the transition engine can dispatch it against a chapter whose init hasn't run).
+`ambient: false` is the opt-out; the default keeps the audio call uniform so a bed authored
+later lands for free. A chapter flipped `live` in the manifest without a `chapters.ts`
+content record now throws a named error at mount instead of failing deep inside `render`.
+
+**Refactored:** `arpanet`, `early-web`, and `figma-era` `index.ts` onto the scaffold. Each
+file is now chapter-specific behavior only — no `register`, no `onChapterProgress`, no
+`startChapterAmbient`. Behavior-preserving except for three intentional cleanups:
+ARPANET's `mountPhosphorFilter()` moved from before the `innerHTML` write to `onMount`
+just after it (same synchronous task, no paint between, so the filter is resolvable before
+first paint); Early Web lost a `lastProgress` that was assigned and never read plus a
+`void chapter` no-op; Figma Era's `updateChapter` lost an unused `chapter` parameter.
+
+**New tests:** `tests/unit/create-chapter.test.ts` — 10 cases covering render output,
+context passing, `onMount` timing, lazy deferral of init/ambient/progress, ambient-before-init
+ordering, the `ambient: false` opt-out, progress forwarding with context, `dwell-enter`
+wiring at mount, no-op when hooks are omitted, and the missing-content error. Runs in the
+node env with `vi.mock`ed engine modules and a two-field container stub — the scaffold only
+touches `innerHTML` and `addEventListener`, so no jsdom dependency was needed.
+
+**Verification:** tsc clean; vitest **17/17** (was 7/7); Playwright **14/14** including the
+full `ARPANET → Early Web → Figma Era` chain, both deep-links, and the nav latch; build
+clean, entry **64.18 KB gzip** (was 64.02 — +0.16 KB for the scaffold indirection).
+
+Commit: _(hash logged in the follow-up commit, matching the pattern used for Commits 1+2)_
+
 ## 2026-07-09 (Phase 2 Slice 1 — Commit 2: Early Web chapter + glass-shatter)
 
 The third chapter is live. Chronicle now runs a three-chapter chain:

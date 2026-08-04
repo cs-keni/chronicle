@@ -231,10 +231,11 @@ Synthesized from this review's findings (Claude sections + Codex outside voice).
   - Surfaced by: Codex #8 — share assumes ARPANET/Figma styling
   - Files: `src/ui/share-card.ts`
   - Verify: share on #early-web renders the Early Web card
-- [ ] **T10 (P1, human: ~3h / CC: ~20min)** — engine — extract `createChapter` from all THREE chapters; refactor onto it
+- [x] **T10 (P1, human: ~3h / CC: ~20min)** — engine — extract `createChapter` from all THREE chapters; refactor onto it
   - Surfaced by: CQ1 + Codex T2 — rule of three, after Early Web exists
   - Files: `src/engine/create-chapter.ts` (new), `src/chapters/{arpanet,figma-era,early-web}/index.ts`
   - Verify: all three render + transition unchanged
+  - **DONE 2026-08-03** — spec-object scaffold (`render` / `onMount` / `onInit` / `onProgress` / `onDwellEnter` / `ambient`). All three chapters refactored; 10 Vitest cases in `tests/unit/create-chapter.test.ts`. tsc clean, vitest 17/17, Playwright 14/14 (full chain + both deep-links + nav latch), build clean.
 - [ ] **T11 (P1, human: ~2h / CC: ~15min)** — tests — **R1** rewrite `visual.spec.ts` e2e for arpanet→early-web→figma + **R2** nav-latch guards with 3 chapters
   - Surfaced by: Test review IRON RULE
   - Files: `tests/visual.spec.ts`

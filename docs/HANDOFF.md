@@ -1,6 +1,6 @@
 # Handoff
 
-Last updated: 2026-07-09
+Last updated: 2026-08-03
 
 ## Architecture snapshot
 
@@ -14,6 +14,18 @@ derive from `manifest.filter(c => c.live)`; the lobby grid renders from the same
 array. Adding a chapter = flip `live` + author the chapter + add the DOM scene/spacer
 (order drift is caught by `tests/unit/manifest.test.ts`). `chapters.ts` stays
 content-only (facts/palette), keyed by id, for live chapters.
+
+**Chapter scaffold** is `src/engine/create-chapter.ts` (Phase 2 T10, extracted once all
+three chapters existed — rule of three). Every chapter is now a declarative spec passed
+to `createChapter({ id, render, onMount?, onInit?, onProgress?, onDwellEnter?, ambient? })`,
+which returns the `init(container)` function `main.ts` calls. The scaffold owns the
+repeated spine: content lookup (`getChapter`), writing the template, `chapterManager.register`,
+`startChapterAmbient`, the `onChapterProgress` subscription, and the `dwell-enter` listener.
+Lifecycle: `render` → `onMount` (same tick, static listeners / one-time DOM setup) →
+[lazily, on first activation or intersection] ambient → `onInit` → progress subscription.
+Progress is deliberately subscribed *inside* the init callback, since every chapter's
+progress handler assumes `onInit` already built its elements. A chapter marked `live` in
+the manifest with no `chapters.ts` content record throws a named error at mount.
 
 **Stack:** Vanilla TypeScript + Vite, GSAP ScrollTrigger, WebGL 2 (transitions only), html2canvas, Tone.js.
 
@@ -39,6 +51,7 @@ content-only (facts/palette), keyed by id, for live chapters.
 | Chapter data model | `src/data/chapters.ts` | Complete |
 | Transition registry | `src/data/transitions.ts` | Complete |
 | Chapter manager | `src/engine/chapter.ts` | Complete |
+| Chapter scaffold (`createChapter`) | `src/engine/create-chapter.ts` | Complete (Phase 2 T10) |
 | Scroll engine | `src/engine/scroll.ts` | Complete |
 | Hash router | `src/engine/router.ts` | Complete |
 | WebGL engine | `src/engine/webgl.ts` | Complete |
@@ -79,7 +92,8 @@ Chrome that sits above all chapters, wired once from `main.ts` via `initControls
 - ARPANET bg: `#000000`, amber: `#FF9500`
 - CRT shader phase assignment: DONE (Phase 2 Slice 1). CRT is now ARPANET→Early Web (canonical); Figma Era's entry is glass-shatter (temp Early Web→Figma bridge until Flat ships).
 - Early Web palette (web-safe, do not drift): page `#C0C0C0`, navy `#000080`, links `#0000EE`/visited `#551A8B`, red `#CC0000`, teal `#008080`, shell `#0A0A0A`. Fonts: Times New Roman (body/headline), Courier New (year/counter), Arial (chrome only). See `docs/EARLY-WEB-BRIEF.md`.
-- Adding a chapter: flip `live` in `manifest.ts`, add the `#chapter-<id>` scene + `.chapter-scroll-spacer` in `index.html` (spacer order MUST match manifest order — drift-guarded), add content to `chapters.ts`, register the chapter module in `main.ts` BEFORE `initRouter()`.
+- Adding a chapter: flip `live` in `manifest.ts`, add the `#chapter-<id>` scene + `.chapter-scroll-spacer` in `index.html` (spacer order MUST match manifest order — drift-guarded), add content to `chapters.ts`, author the module with `createChapter({ … })`, and register it in `main.ts` BEFORE `initRouter()`.
+- Chapter modules must not call `chapterManager.register`, `onChapterProgress`, or `startChapterAmbient` directly — `createChapter` owns that wiring. Bypassing it is how the three chapters drifted apart in Phase 1.
 
 ## Dev server (WSL2)
 
