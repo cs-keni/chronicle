@@ -1,6 +1,15 @@
 // Persistent WebGL2 canvas — 1×1px at rest, fullscreen during transitions (D1, D9/D10/D15).
 // One context lives from page load to close. All shaders compiled into this same context
 // so GL programs remain valid across the resize lifecycle.
+//
+// WebGL2-absent hardening (TODO-006): this module builds its engine eagerly at module
+// scope and main.ts imports it, so a throw in the constructor happens during module
+// *evaluation* and takes down the whole module graph — the user gets a blank page, not a
+// degraded one. WebGL2 is genuinely absent on Safari < 15, on browsers where the user
+// disabled WebGL, on blocklisted GPUs, and inside many VMs and remote desktops. So the
+// engine never throws: `supported` goes false and every GL method becomes a no-op.
+// transition.ts already routes to `fadeSwap` when a shader isn't available, which is the
+// same degraded path touch devices and reduced-motion users get.
 
 const VERT_SRC = /* glsl */`#version 300 es
 precision highp float;
@@ -23,29 +32,48 @@ interface CompiledShader {
 }
 
 class WebGLEngine {
-  canvas: HTMLCanvasElement;
-  gl: WebGL2RenderingContext;
+  readonly canvas: HTMLCanvasElement | null;
+  readonly gl: WebGL2RenderingContext | null;
+  /** False when WebGL2 is unavailable — callers should take the fadeSwap path. */
+  readonly supported: boolean;
   private shaders: Map<string, CompiledShader> = new Map();
   private textures: [WebGLTexture | null, WebGLTexture | null] = [null, null];
 
   constructor() {
-    this.canvas = document.getElementById('gl-canvas') as HTMLCanvasElement;
-    const gl = this.canvas.getContext('webgl2', {
-      alpha: false,
-      antialias: false,
-      depth: false,
-      stencil: false,
-      premultipliedAlpha: false,
-    });
-    if (!gl) throw new Error('WebGL2 not available');
+    this.canvas = document.getElementById('gl-canvas') as HTMLCanvasElement | null;
+    // getContext itself can throw in hardened//privacy-patched browsers, not just
+    // return null — so the whole probe is guarded, not only its result.
+    let gl: WebGL2RenderingContext | null = null;
+    try {
+      gl =
+        this.canvas?.getContext('webgl2', {
+          alpha: false,
+          antialias: false,
+          depth: false,
+          stencil: false,
+          premultipliedAlpha: false,
+        }) ?? null;
+    } catch {
+      gl = null;
+    }
+
     this.gl = gl;
+    this.supported = gl !== null;
+
+    if (!this.supported) {
+      // Never throw: this runs at module evaluation time (see header). A blank
+      // page is a far worse outcome than transitions falling back to a fade.
+      console.warn('[webgl] WebGL2 unavailable — transitions will fall back to fadeSwap.');
+      return;
+    }
 
     // 1×1 pixel at rest
-    this.canvas.width = 1;
-    this.canvas.height = 1;
+    this.canvas!.width = 1;
+    this.canvas!.height = 1;
   }
 
   resizeForTransition() {
+    if (!this.gl || !this.canvas) return;
     const dpr = Math.min(window.devicePixelRatio, 2);
     this.canvas.width = Math.round(window.innerWidth * dpr);
     this.canvas.height = Math.round(window.innerHeight * dpr);
@@ -54,16 +82,19 @@ class WebGLEngine {
   }
 
   resetAfterTransition() {
-    this.canvas.classList.remove('active');
+    const { canvas } = this;
+    if (!canvas) return;
+    canvas.classList.remove('active');
     // Defer resize to avoid flash
     requestAnimationFrame(() => {
-      this.canvas.width = 1;
-      this.canvas.height = 1;
+      canvas.width = 1;
+      canvas.height = 1;
     });
   }
 
-  compileShader(name: string, fragSrc: string): CompiledShader {
+  compileShader(name: string, fragSrc: string): CompiledShader | null {
     const { gl } = this;
+    if (!gl) return null;
 
     const vert = gl.createShader(gl.VERTEX_SHADER)!;
     gl.shaderSource(vert, VERT_SRC);
@@ -107,8 +138,13 @@ class WebGLEngine {
   }
 
   precompileAll(shaderSources: Record<string, string>) {
+    const { gl } = this;
+    // No GL: nothing to precompile. The shaders map stays empty, so getShader()
+    // returns undefined and transition.ts takes the fadeSwap path.
+    if (!gl) return;
+
     // Use KHR_parallel_shader_compile if available, via requestIdleCallback
-    const ext = this.gl.getExtension('KHR_parallel_shader_compile');
+    const ext = gl.getExtension('KHR_parallel_shader_compile');
 
     const names = Object.keys(shaderSources);
     let i = 0;
@@ -122,7 +158,7 @@ class WebGLEngine {
           if (ext) {
             // Poll for completion asynchronously
             const shader = this.shaders.get(name)!;
-            const status = this.gl.getProgramParameter(shader.program, (ext as any).COMPLETION_STATUS_KHR);
+            const status = gl.getProgramParameter(shader.program, (ext as any).COMPLETION_STATUS_KHR);
             if (!status) {
               // Not done yet — will resolve on next idle
               i--;
@@ -144,6 +180,7 @@ class WebGLEngine {
 
   uploadTexture(slot: 0 | 1, imageData: HTMLCanvasElement) {
     const { gl } = this;
+    if (!gl) return;
     if (this.textures[slot]) gl.deleteTexture(this.textures[slot]);
 
     const tex = gl.createTexture()!;
@@ -158,7 +195,8 @@ class WebGLEngine {
   }
 
   render(shaderName: string, progress: number) {
-    const { gl } = this;
+    const { gl, canvas } = this;
+    if (!gl || !canvas) return;
     const compiled = this.shaders.get(shaderName);
     if (!compiled) {
       console.warn(`[webgl] Shader '${shaderName}' not compiled`);
@@ -176,7 +214,7 @@ class WebGLEngine {
     gl.uniform1i(compiled.uniforms.uTo, 1);
 
     gl.uniform1f(compiled.uniforms.uProgress, progress);
-    gl.uniform2f(compiled.uniforms.uResolution, this.canvas.width, this.canvas.height);
+    gl.uniform2f(compiled.uniforms.uResolution, canvas.width, canvas.height);
 
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }

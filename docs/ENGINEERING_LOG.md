@@ -1,5 +1,46 @@
 # Engineering Log
 
+## 2026-08-03 (docs: AI_CONTEXT.md created + TODO-006 WebGL2-absent hardening)
+
+**`docs/AI_CONTEXT.md` now exists.** It had been listed in the doc-hygiene table since
+Phase 1 and carried forward unwritten through three slices. Written as the *why* doc, to
+sit alongside HANDOFF's *what*: the four systems (chapter identity/ordering, chapter
+lifecycle, scroll+dwell+transition pipeline, audio), how they interlock, the bundle shape
+that must not regress, the sharp edges, and a decision table of the calls with teeth.
+Sourced by re-reading `webgl.ts`, `transition.ts`, `scroll.ts`, `router.ts`, `audio.ts`,
+`manifest.ts`, and `transitions.ts` rather than from memory.
+
+**TODO-006 — WebGL2-absent hardening (real production bug, now fixed).** `webgl.ts`
+constructs its engine at module scope (`export const webgl = new WebGLEngine()`) and
+`main.ts` imports it, so the old `throw new Error('WebGL2 not available')` fired during
+module *evaluation* and killed the entire module graph. The user didn't lose transitions,
+they lost the site: a blank page. This is reachable on Safari before 15, browsers with
+WebGL disabled, blocklisted GPUs, and VMs / remote desktops.
+
+Written test-first. `tests/webgl-fallback.spec.ts` nulls the `webgl`/`webgl2` contexts via
+`addInitScript` before the app evaluates (2d is left alone — html2canvas needs it), then
+asserts the lobby renders, a chapter deep-link renders, no `pageerror` fires, and the
+`arpanet → early-web` transition still completes with the scroll lock released. **All
+three failed before the fix** — confirming the blank page, not a theory.
+
+Fix: the engine never throws. `webgl.supported` is false when WebGL2 is unavailable; every
+GL method early-returns; `precompileAll` leaves the shader map empty so `getShader()`
+returns undefined. `transition.ts` gained `!webgl.supported` alongside the existing touch
+and reduced-motion conditions, so all three "no shader path" cases share one clean fade.
+The `getContext` probe is wrapped in try/catch rather than only null-checked — hardened and
+privacy-patched browsers throw from the probe instead of returning null. `canvas` and `gl`
+are now nullable on the engine; nothing outside the module read either, so the change is
+contained.
+
+**Verification:** tsc clean; vitest 17/17; Playwright **17/17** (14 existing + 3 new);
+build clean, entry **64.31 KB gzip** (was 64.18 — +0.13 for the guards).
+
+Docs updated: `AI_CONTEXT.md` (new), `HANDOFF.md` (degradation section + a new invariant:
+nothing constructed at module-eval time may throw), `CURRENT_TASK.md`, and the plan's
+deferred list.
+
+Commit: _(hash logged in the follow-up commit)_
+
 ## 2026-08-03 (Phase 2 Slice 1 — Commit 3: extract `createChapter`)
 
 **T10 — the last code task in Slice 1.** All three chapters repeated the same wiring

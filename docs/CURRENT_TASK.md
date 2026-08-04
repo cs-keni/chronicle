@@ -5,7 +5,9 @@
 
 **Only remaining Slice 1 item — manual, needs headed Chrome (cannot run in WSL2 headless, no GPU path):** profile glass-shatter at 60fps. Open `#early-web`, DevTools Performance record through the `early-web → figma-era` transition, document the result in `docs/SHADER-PROFILES.md` (section + pending-verify note already written). Cheapest lever if frames drop: lower `DENSITY` in `src/shaders/glass-shatter.frag`.
 
-**After Slice 1:** the remaining 5 Phase 2 chapters + their transitions are separate slices. Open TODOs still standing: TODO-006 (WebGL2-absent hardening), TODO-007 (generate chapter DOM from manifest — A1 option B, deferred), TODO-008 (validate Early Web mobile horizontal-scroll on a real device). `docs/AI_CONTEXT.md` still does not exist (known carry-over; the doc-hygiene table lists it).
+**After Slice 1:** the remaining 5 Phase 2 chapters + their transitions are separate slices. Open TODOs: TODO-007 (generate chapter DOM from manifest — A1 option B, deferred by choice), TODO-008 (validate Early Web mobile horizontal-scroll on a real device — needs hardware).
+
+**Closed 2026-08-03:** TODO-006 (WebGL2-absent hardening) — `webgl.ts` threw at module-evaluation time, which blanked the whole site on any browser without WebGL2. Now degrades via `webgl.supported` → `fadeSwap`; guarded by `tests/webgl-fallback.spec.ts`. `docs/AI_CONTEXT.md` created (was a carry-over gap since Phase 1).
 
 **Phase 1:** shipped + deployed (https://chronicle-topaz-ten.vercel.app/). Lobby + ARPANET + Figma Era + CRT + code overlay + share card + share nudge. Chrome/Chromium verified; Safari/Firefox smoke test deferred out of Phase 1 scope per Kenny 2026-07-08.
 

@@ -161,7 +161,11 @@ Visual: add `maxDiffPixelRatio` to `playwright.config.ts`, then a reliable early
   source-agnostic authoring makes the later move a key change.
 - **Generating chapter DOM from the manifest** (A1 option B) — HTML stays hand-authored;
   captured as a TODO.
-- **WebGL2-absent hardening** (`webgl.ts:40` throw) — pre-existing; captured as a TODO.
+- ~~**WebGL2-absent hardening** (`webgl.ts:40` throw) — pre-existing; captured as a TODO.~~
+  **RESOLVED 2026-08-03** (post-slice). The throw ran at module-evaluation time, so it
+  blanked the entire site rather than degrading transitions. Engine now exposes
+  `webgl.supported` and no-ops without GL; `transition.ts` routes to `fadeSwap`. Guarded by
+  `tests/webgl-fallback.spec.ts` (3 tests, all failing before the fix).
 
 ## Failure modes (per new codepath)
 

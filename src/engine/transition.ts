@@ -85,8 +85,14 @@ async function handleTransitionRequest(fromId: string, toId: string) {
   lockScroll();
 
   try {
-    // Touch devices: skip shader, use fade-to-black (Pass 6A decision)
-    if (isTouchDevice || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // No shader path available: touch devices (Pass 6A decision), reduced-motion
+    // users, and browsers without WebGL2 (TODO-006 — Safari < 15, disabled WebGL,
+    // blocklisted GPUs, VMs). All three get the same clean fade.
+    if (
+      isTouchDevice ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      !webgl.supported
+    ) {
       await fadeSwap(fromId, toId);
       return;
     }

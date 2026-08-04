@@ -39,6 +39,8 @@ the manifest with no `chapters.ts` content record throws a named error at mount.
 
 **Transition engine:** `html2canvas` captures `from` and `to` chapter screenshots. `Promise.race([Promise.all([from, to]), 500ms timeout])` gates the WebGL shader. Touch devices use `fadeSwap` (no GLSL). The WebGL canvas is 1×1px at rest, resizes to fullscreen only during transitions.
 
+**WebGL2-absent degradation (TODO-006, resolved 2026-08-03):** `webgl.ts` is constructed eagerly at module scope and imported by `main.ts`, so its old `throw new Error('WebGL2 not available')` killed the entire module graph — a blank page on Safari < 15, disabled-WebGL browsers, blocklisted GPUs, VMs and remote desktops. It now exposes `webgl.supported`; when false every GL method no-ops, `precompileAll` leaves the shader map empty, and `transition.ts` routes to `fadeSwap` alongside the touch and reduced-motion cases. The `getContext` probe is wrapped in try/catch, not just null-checked (hardened browsers throw from it). Guarded by `tests/webgl-fallback.spec.ts`, which nulls the webgl/webgl2 contexts via `addInitScript`.
+
 **Hash router:** `#arpanet` → ARPANET, `#early-web` → Early Web, `#figma-era` → Figma Era, `#` → lobby. Valid hashes are derived from `manifest.filter(c => c.live)`, not hand-listed. Direct-link entry: 0.5s fade-from-black.
 
 **Transitions (live):** `arpanet → early-web` = **crt-power-off** (2500ms, now at its canonical position); `early-web → figma-era` = **glass-shatter** (2000ms). glass-shatter is authored source-agnostic (samples only `uFrom`/`uTo`/`uResolution`) so its later move to the canonical `flat → figma-era` is a registry-key change, no shader edit. The direct `arpanet → figma-era` transition no longer exists. Shader-missing guard: if a transition's shader isn't compiled, `transition.ts` skips straight to `fadeSwap` rather than holding the scroll lock on a blank canvas.
@@ -84,6 +86,7 @@ Chrome that sits above all chapters, wired once from `main.ts` via `initControls
 ## Key invariants
 
 - `IntersectionObserver` rootMargin must use `px` or `%` — `vh` causes a silent SyntaxError that kills the entire module graph
+- Nothing constructed at module-evaluation time may throw. `webgl.ts`, `router.ts`, and `scroll.ts` all run work at import; a throw there blanks the site rather than degrading a feature. Degrade with a capability flag instead (see `webgl.supported`).
 - Off-screen chapters use `translateX(-100vw)`, not `display:none`
 - WebGL canvas: `this.container.scrollTop = this.container.scrollHeight` scrolls the `.arpanet-terminal` parent, not `#arpanet-output` (the inner div has no overflow)
 - Figma Era `backdrop-filter: blur(20px)` — do not change this value
