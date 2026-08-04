@@ -208,6 +208,14 @@ in `transitions.ts` with no shader edit. Phase 1 used the same temp-bridge patte
 
 ### Transitions are relationships
 
+> **Changing in Slice 2 (planned, not shipped):** the registry becomes a discriminated
+> union — `{ kind:'shader' }` or `{ kind:'dom', runner, enterMs, shader? }` — so a
+> transition can be a DOM overlay rather than a fragment shader. The first one is
+> user-gated (a Windows 3.1 dialog you click through), which is why a user-gated
+> transition needs `body.transition-paused` and **must not** reuse `lockScroll()`:
+> `body.scroll-locked` sets `pointer-events: none`, so anything interactive inside it is
+> dead. See `docs/PHASE2-BROWSER-WARS-PLAN.md`.
+
 `data/transitions.ts` keys on `'fromId->toId'`, not on a chapter property. A transition
 belongs to the *pair*, not to either chapter — which is what lets a shader be relocated
 without touching a chapter, and what makes an unmapped pair a clean no-op rather than an
@@ -256,6 +264,15 @@ gzip. This has been measured; don't undo it.
 
 ## Sharp edges
 
+- **`body.scroll-locked` sets `pointer-events: none` and `touch-action: none`**
+  (`global.css:90`), not just `overflow: hidden`. That is correct for an automatic shader
+  transition — the user must not poke a frozen frame — and fatal for anything
+  interactive. Any UI that expects a click cannot live under `lockScroll()`. This was
+  caught one review before it shipped a dead button.
+- **`chapterManager.isInitialized()` exists (`chapter.ts:70`) but is called from
+  nowhere.** The Slice 1 plan described a target-initialized check before html2canvas
+  capture; it was never implemented. Do not cite it as an existing mitigation — it is
+  scheduled as T2c in the Slice 2 plan.
 - **`IntersectionObserver` rootMargin must use `px` or `%`.** A `vh` value throws a
   silent SyntaxError that kills the entire module graph — blank page, no obvious cause.
 - **html2canvas cannot resolve SVG filter URL references** (`filter: url(#phosphor-glow)`).
@@ -303,6 +320,9 @@ gzip. This has been measured; don't undo it.
 - `docs/CURRENT_TASK.md` — what's actively in flight right now.
 - `docs/HANDOFF.md` — current-state architecture, ownership table, invariants.
 - `docs/ENGINEERING_LOG.md` — dated record of every change and its reasoning.
-- `docs/PHASE2-EARLY-WEB-PLAN.md` — the locked plan for the current phase slice.
+- `docs/PHASE2-BROWSER-WARS-PLAN.md` — the **current** locked slice plan (Slice 2, not yet
+  implemented). Read this before touching `transition.ts` or `transitions.ts`: it changes
+  the registry to a discriminated union and adds a second kind of transition.
+- `docs/PHASE2-EARLY-WEB-PLAN.md` — the previous slice plan (Slice 1, shipped).
 - `docs/*-BRIEF.md` — per-era visual specs. Authoritative for that chapter's design.
 - `docs/SHADER-PROFILES.md` — shader cost analysis and 60fps verification status.

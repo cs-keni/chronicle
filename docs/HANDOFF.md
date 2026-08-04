@@ -86,6 +86,8 @@ Chrome that sits above all chapters, wired once from `main.ts` via `initControls
 ## Key invariants
 
 - `IntersectionObserver` rootMargin must use `px` or `%` — `vh` causes a silent SyntaxError that kills the entire module graph
+- `body.scroll-locked` (`src/styles/global.css:90`) sets `pointer-events: none` + `touch-action: none`, not just `overflow: hidden`. Correct for automatic shader transitions; fatal for anything the user must click. Interactive transitions need their own body state — do not reuse `lockScroll()`.
+- `chapterManager.isInitialized()` (`chapter.ts:70`) is defined but **called from nowhere**. The Slice 1 plan claimed a target-initialized capture check that was never implemented; it is scheduled as T2c in the Slice 2 plan. Don't cite it as existing.
 - Nothing constructed at module-evaluation time may throw. `webgl.ts`, `router.ts`, and `scroll.ts` all run work at import; a throw there blanks the site rather than degrading a feature. Degrade with a capability flag instead (see `webgl.supported`).
 - Off-screen chapters use `translateX(-100vw)`, not `display:none`
 - WebGL canvas: `this.container.scrollTop = this.container.scrollHeight` scrolls the `.arpanet-terminal` parent, not `#arpanet-output` (the inner div has no overflow)

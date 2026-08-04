@@ -37,6 +37,15 @@ updated four other docs but missed the formal tracker.
 
 Commit: `ad90d4e`
 
+**Doc follow-up (same day):** propagated the slice into the docs that a future session
+actually reads first. `PHASES.md` gains a Slice 2 block and the Browser Wars / transition
+rows now say what was decided. `AI_CONTEXT.md` points at the current slice plan (was still
+pointing only at Slice 1) and carries the planned registry change inline in the transitions
+section. Two durable gotchas discovered during the review were promoted out of the plan
+into the permanent sharp-edges lists in both `AI_CONTEXT.md` and `HANDOFF.md`:
+`body.scroll-locked` disables pointer events, and `isInitialized()` is defined but never
+called. Those two are the kind of fact that costs a whole review cycle to rediscover.
+
 ## 2026-08-03 (docs: AI_CONTEXT.md created + TODO-006 WebGL2-absent hardening)
 
 **`docs/AI_CONTEXT.md` now exists.** It had been listed in the doc-hygiene table since
