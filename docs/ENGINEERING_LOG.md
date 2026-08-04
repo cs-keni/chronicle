@@ -35,7 +35,7 @@ in one slice is how `nav-latch-race` happened).
 **Also closed:** `TODOS.md` TODO-006 marked done — I had closed it in `61c7d9d` and
 updated four other docs but missed the formal tracker.
 
-Commit: _(hash logged in the follow-up commit)_
+Commit: `ad90d4e`
 
 ## 2026-08-03 (docs: AI_CONTEXT.md created + TODO-006 WebGL2-absent hardening)
 
