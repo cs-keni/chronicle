@@ -41,7 +41,7 @@ touches `innerHTML` and `addEventListener`, so no jsdom dependency was needed.
 full `ARPANET → Early Web → Figma Era` chain, both deep-links, and the nav latch; build
 clean, entry **64.18 KB gzip** (was 64.02 — +0.16 KB for the scaffold indirection).
 
-Commit: _(hash logged in the follow-up commit, matching the pattern used for Commits 1+2)_
+Commit: `ac5ce05`
 
 ## 2026-07-09 (Phase 2 Slice 1 — Commit 2: Early Web chapter + glass-shatter)
 
