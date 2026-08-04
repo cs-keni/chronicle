@@ -1,5 +1,42 @@
 # Engineering Log
 
+## 2026-08-03 (planning: Phase 2 Slice 2 — Browser Wars plan locked)
+
+No code. `docs/PHASE2-BROWSER-WARS-PLAN.md` written and locked through the full review
+pipeline: `/plan-ceo-review` (SELECTIVE EXPANSION) → Codex outside voice →
+`/plan-eng-review`.
+
+**The slice's central problem** is that `SPEC.md:71` specs the Early Web → Browser Wars
+transition as a Windows 3.1 dialog whose **OK button launches the next chapter**. Every
+Chronicle transition to date runs automatically on a timer under a scroll lock. A
+user-gated one holds that lock indefinitely.
+
+**Three review passes, three disjoint problem classes.** The CEO review designed the trap
+out (forward-scroll intent also advances) rather than timing it out. **Codex then found
+that the whole design sat on an unverified assumption:** `body.scroll-locked` sets
+`pointer-events: none` (`global.css:90`), so the dialog would have rendered perfectly and
+accepted no clicks. It also caught that the "existing target-initialized assert" the plan
+cited does not exist — `isInitialized()` (`chapter.ts:70`) is called from nowhere, so a
+mitigation the Slice 1 plan described as intent was never implemented. 12 findings, all
+applied. **The eng review then found a missing platform built-in** (native `<dialog>` +
+`showModal()` gives top layer, `::backdrop`, inert background, and Esc for free), an
+**audio lifecycle gap** neither prior pass caught (`crossfadeForTransition` fires before
+the transition runs, so cancelling would leave Browser Wars' bed playing over an on-screen
+Early Web), and a **test regression** — `scrollChapterToEnd()` assumes auto-completing
+transitions and will hang on the dialog. 5 findings, all folded.
+
+**Locked decisions:** `kind` discriminator with `shader?` optional on the dom variant (not
+mutually exclusive — SPEC's remaining catalog is mostly hybrids); `RunnerId` literal union
+rather than `string`; three-valued settlement (`advance`/`cancel`/`abort`) with
+`AbortSignal`; `enterMs` not `duration`; no auto-advance; a separate
+`body.transition-paused` state. TODO-007 deferred again to Slice 3 (two boot-path changes
+in one slice is how `nav-latch-race` happened).
+
+**Also closed:** `TODOS.md` TODO-006 marked done — I had closed it in `61c7d9d` and
+updated four other docs but missed the formal tracker.
+
+Commit: _(hash logged in the follow-up commit)_
+
 ## 2026-08-03 (docs: AI_CONTEXT.md created + TODO-006 WebGL2-absent hardening)
 
 **`docs/AI_CONTEXT.md` now exists.** It had been listed in the doc-hygiene table since

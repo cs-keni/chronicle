@@ -137,7 +137,20 @@ Should be done BEFORE Phase 1 ARPANET chapter implementation.
 
 ---
 
-## TODO-006: WebGL2-absent hardening — degrade instead of throw
+## ~~TODO-006: WebGL2-absent hardening — degrade instead of throw~~ ✓ DONE 2026-08-03 (`61c7d9d`)
+
+**Resolution:** `webgl.ts` no longer throws. `webgl.supported` is false when WebGL2 is
+absent; every GL method no-ops; `precompileAll` leaves the shader map empty so
+`getShader()` returns undefined. `transition.ts` routes `!webgl.supported` to `fadeSwap`
+alongside the touch and reduced-motion cases. The `getContext` probe is wrapped in
+try/catch, not merely null-checked — hardened browsers throw from the probe. Guarded by
+`tests/webgl-fallback.spec.ts` (3 tests, all failing before the fix, confirming the blank
+page was real and not theoretical).
+
+Original entry preserved below for context.
+
+---
+
 
 **What:** Wrap WebGL2 context creation in `src/engine/webgl.ts` (line ~40, throws
 `'WebGL2 not available'` at module construction) so an absent context degrades to the
@@ -198,6 +211,15 @@ chapters to create `#chapter-{id}` scenes + `data-chapter-id` spacers before
 Playwright e2e + nav-latch tests.
 
 **Depends on:** Phase 2 Slice 1 manifest (`src/data/manifest.ts`) landing first.
+
+**Update 2026-08-03 (Slice 2 CEO review):** re-evaluated for folding into Slice 2 and
+**deferred again, to Slice 3**. Slice 2 already changes the transition engine
+(`kind` discriminator + a DOM runner + a new `transition-paused` body state). Stacking a
+second boot-path change into the same slice is precisely how `nav-latch-race` happened —
+an intermittent bug that only reproduced under real network latency and never on
+localhost. Additional evidence for doing it eventually: the Slice 2 review had to add
+**T2b**, a wiring-completeness test, purely because chapter scenes, spacers, and
+`main.ts` registration are still hand-wired. TODO-007 would delete the need for that test.
 
 ---
 
