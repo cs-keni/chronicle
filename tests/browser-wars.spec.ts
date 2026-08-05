@@ -124,6 +124,34 @@ test.describe('Win 3.1 dialog — the user-gated transition', () => {
       document.body.classList.contains('transition-paused'))).toBe(false);
   });
 
+  test('the dialog sits over the chapter you are LEAVING, centred', async ({ page }) => {
+    await openDialog(page);
+    await page.waitForTimeout(300);
+
+    // The whole emotional beat is being asked whether to leave a place you can still
+    // SEE. The scroll that fires the transition has already crossed into the next
+    // chapter's spacer, so without the guards in scroll.ts/transition.ts onEnter
+    // activates the destination behind the dialog and the beat is destroyed.
+    const active = await page.evaluate(() =>
+      ['arpanet', 'early-web', 'browser-wars', 'figma-era'].filter((i) =>
+        (document.getElementById('chapter-' + i)?.style.transform ?? '').startsWith(
+          'translateX(0',
+        ),
+      ),
+    );
+    expect(active, 'the destination chapter is showing behind the dialog').toEqual([
+      'early-web',
+    ]);
+
+    // <dialog> centres via the UA's `margin: auto`, which the global reset zeroes.
+    const { box, vw, vh } = await page.evaluate(() => {
+      const r = document.querySelector('dialog.win31')!.getBoundingClientRect();
+      return { box: { x: r.x, y: r.y, w: r.width, h: r.height }, vw: innerWidth, vh: innerHeight };
+    });
+    expect(Math.abs(box.x + box.w / 2 - vw / 2), 'dialog is not horizontally centred').toBeLessThan(24);
+    expect(Math.abs(box.y + box.h / 2 - vh / 2), 'dialog is not vertically centred').toBeLessThan(24);
+  });
+
   test('title bar is SOLID #000080 — the Win95 gradient would be an era error', async ({ page }) => {
     await openDialog(page);
     const bg = await page.evaluate(() => {

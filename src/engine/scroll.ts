@@ -72,6 +72,23 @@ export function isNavSuppressed(): boolean {
   return _navLatch;
 }
 
+// A user-gated (dom) transition is on screen. The scroll that FIRED it has usually
+// already crossed into the next chapter's spacer — and with a real momentum scroll it
+// certainly has — so without this guard onEnter activates the destination chapter
+// behind the dialog. That destroys the entire point of the beat: the dialog asks
+// whether to leave a place you are supposed to still be able to SEE.
+// Set by transition.ts around runDomTransition; the 'advance' path activates the
+// destination explicitly once the user consents.
+let _domTransitionOpen = false;
+
+export function setDomTransitionOpen(open: boolean) {
+  _domTransitionOpen = open;
+}
+
+export function isDomTransitionOpen(): boolean {
+  return _domTransitionOpen;
+}
+
 // Kept for API compatibility with the router. Duration is ignored — see below.
 export function suppressTransitionRequests(_durationMs?: number) {
   beginNavLatch();
@@ -122,6 +139,10 @@ export function initScrollEngine() {
         // past; without this guard it would call activate() and flip the active
         // chapter away from the router's target (the #figma-era → ARPANET bug).
         if (isNavSuppressed()) return;
+        // Guard 2b: a user-gated dialog is open. The scroll that fired it has already
+        // crossed this trigger; activating here would swap the chapter out from
+        // behind the dialog.
+        if (isDomTransitionOpen()) return;
         // Guard 3: GSAP fires onEnter during initial state-reconciliation even
         // when the scroll is already past the trigger's end (progress≈1). Real
         // forward entry always starts at progress≈0. Skip spurious init calls.

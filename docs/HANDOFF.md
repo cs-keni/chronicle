@@ -1,12 +1,13 @@
 # Handoff
 
-Last updated: 2026-08-03
+Last updated: 2026-08-04
 
 ## Architecture snapshot
 
-Chronicle is a scroll-driven museum. Eight chapters planned (three live: ARPANET,
-Early Web, Figma Era). Seven GLSL transitions planned (two live: CRT power-off,
-glass-shatter).
+Chronicle is a scroll-driven museum. Eight chapters planned (**four live**: ARPANET,
+Early Web, Browser Wars, Figma Era). Seven transitions planned (**three live**: CRT
+power-off, the Win 3.1 dialog, glass-shatter) — and as of Slice 2 they come in two
+KINDS, not one: timer-driven shaders and user-gated DOM runners.
 
 **Chapter identity + ordering** is derived from one source: `src/data/manifest.ts`
 (Phase 2). The router's valid-hash set and the scroll engine's chapter order both
@@ -41,9 +42,9 @@ the manifest with no `chapters.ts` content record throws a named error at mount.
 
 **WebGL2-absent degradation (TODO-006, resolved 2026-08-03):** `webgl.ts` is constructed eagerly at module scope and imported by `main.ts`, so its old `throw new Error('WebGL2 not available')` killed the entire module graph — a blank page on Safari < 15, disabled-WebGL browsers, blocklisted GPUs, VMs and remote desktops. It now exposes `webgl.supported`; when false every GL method no-ops, `precompileAll` leaves the shader map empty, and `transition.ts` routes to `fadeSwap` alongside the touch and reduced-motion cases. The `getContext` probe is wrapped in try/catch, not just null-checked (hardened browsers throw from it). Guarded by `tests/webgl-fallback.spec.ts`, which nulls the webgl/webgl2 contexts via `addInitScript`.
 
-**Hash router:** `#arpanet` → ARPANET, `#early-web` → Early Web, `#figma-era` → Figma Era, `#` → lobby. Valid hashes are derived from `manifest.filter(c => c.live)`, not hand-listed. Direct-link entry: 0.5s fade-from-black.
+**Hash router:** `#arpanet` → ARPANET, `#early-web` → Early Web, `#browser-wars` → Browser Wars, `#figma-era` → Figma Era, `#` → lobby. Valid hashes are derived from `manifest.filter(c => c.live)`, not hand-listed. Direct-link entry: 0.5s fade-from-black.
 
-**Transitions (live):** `arpanet → early-web` = **crt-power-off** (2500ms, now at its canonical position); `early-web → figma-era` = **glass-shatter** (2000ms). glass-shatter is authored source-agnostic (samples only `uFrom`/`uTo`/`uResolution`) so its later move to the canonical `flat → figma-era` is a registry-key change, no shader edit. The direct `arpanet → figma-era` transition no longer exists. Shader-missing guard: if a transition's shader isn't compiled, `transition.ts` skips straight to `fadeSwap` rather than holding the scroll lock on a blank canvas.
+**Transitions (live):** `arpanet → early-web` = **crt-power-off** (shader, 2500ms); `early-web → browser-wars` = **win31-dialog** (dom, user-gated, `enterMs` 1200 — ends when a human acts, not on a timer); `browser-wars → figma-era` = **glass-shatter** (shader, 2000ms, relocated here by Slice 2 T7). glass-shatter is authored source-agnostic (samples only `uFrom`/`uTo`/`uResolution`) so its later move to the canonical `flat → figma-era` is a registry-key change, no shader edit. The direct `arpanet → figma-era` transition no longer exists. Shader-missing guard: if a transition's shader isn't compiled, `transition.ts` skips straight to `fadeSwap` rather than holding the scroll lock on a blank canvas.
 
 ## Component ownership
 
@@ -63,6 +64,8 @@ the manifest with no `chapters.ts` content record throws a named error at mount.
 | ARPANET terminal | `src/chapters/arpanet/terminal.ts` | Complete (audio deferred) |
 | ARPANET network map | `src/chapters/arpanet/network-map.ts` | Complete |
 | Early Web | `src/chapters/early-web/` | Complete (Phase 2 Slice 1) |
+| Browser Wars | `src/chapters/browser-wars/` | Complete (Phase 2 Slice 2) |
+| Win 3.1 dialog runner | `src/transitions/win31-dialog.ts` | Complete (Phase 2 Slice 2) |
 | Figma Era | `src/chapters/figma-era/` | Complete (Week 2) |
 | CRT shader | `src/shaders/crt-power-off.frag` | Complete |
 | Glass-shatter shader | `src/shaders/glass-shatter.frag` | Complete (Phase 2) |
@@ -104,6 +107,9 @@ Chrome that sits above all chapters, wired once from `main.ts` via `initControls
 - **`build.assetsInlineLimit: 0`** (`vite.config.ts`). Vite inlines assets under 4 KB as base64 into the entry chunk; Browser Wars' artwork is all under that, and inlining cost +8.5 KB gzip paid at first paint by visitors who may never reach chapter 3. Do not remove this without re-measuring.
 - **Two kinds of transition.** `shader` (timer-driven, takes `lockScroll()`) and `dom` (user-gated, takes `body.transition-paused`). The dom branch in `transition.ts` runs BEFORE the scroll lock and before the touch/reduced-motion/WebGL fallbacks — a DOM transition has no `fadeSwap` downgrade on touch, which makes it the only transition mobile users get in full.
 - Settlement for dom transitions is **three-valued**: `advance` (swap + audio crossfade), `cancel` (`returnToChapter` at 85%), `abort` (teardown only — the router owns the active chapter, so swapping or restoring would fight it).
+- **A user-gated dialog must sit over the chapter being LEFT.** The triggering scroll has already crossed into the destination spacer, so `onEnter` would activate the destination behind the dialog. Guarded by `setDomTransitionOpen()` in `scroll.ts` plus a re-assert of the origin in `runDomTransition`. Breaking this doesn't fail loudly — it just quietly destroys the beat.
+- **`<dialog>` needs an explicit `margin: auto`.** The global reset zeroes the UA's, which is what centres a modal dialog; without it the dialog pins to the top-left.
+- **Restart the dev server after editing `src/engine/`.** Vite does not reliably HMR these modules mid-session, and Playwright will silently test stale code. If a `console.log` you just added prints nothing at all, suspect staleness first.
 - **`returnToChapter` guards the `onLeaveBack` its own scroll causes.** The instant scrollTo crosses a spacer boundary backwards; without the guard a second return queues on top of the first and re-locks the body for another 150ms.
 - **Period font stacks must not end at a bare generic.** `lobby/style.css:182` ships `'Comic Sans MS', 'Chalkboard SE', cursive` — Chalkboard SE is macOS-only, so Linux/Android miss both and land on the system default with **no error anywhere**. An era whose typography IS the design must self-host a metric-compatible open face (Comic Relief, SIL OFL, for Comic Sans). Applies to every future chapter that leans on a non-web-safe face. Papyrus has no free metric clone — don't specify it.
 - **WordArt is an SVG asset, never a typeface.** It always was a rendered picture. Shipping it as SVG is both more period-accurate and removes a font dependency.

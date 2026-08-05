@@ -15,7 +15,7 @@
 import type html2canvasType from 'html2canvas';
 import { webgl } from './webgl';
 import { chapterManager } from './chapter';
-import { lockScroll, unlockScroll, isTouchDevice, onDwellEnter, onTransitionRequest } from './scroll';
+import { lockScroll, unlockScroll, isTouchDevice, onDwellEnter, onTransitionRequest, setDomTransitionOpen } from './scroll';
 import { getTransition, type TransitionDef } from '../data/transitions';
 import { crossfadeForTransition } from './audio';
 
@@ -218,6 +218,12 @@ async function runDomTransition(
   const controller = new AbortController();
   const onHashChange = () => controller.abort();
   window.addEventListener('hashchange', onHashChange);
+  setDomTransitionOpen(true);
+
+  // The triggering scroll has usually already crossed into the destination spacer, so
+  // onEnter may have activated the destination before we got here. Re-assert the
+  // ORIGIN as active: the dialog must sit over the chapter the user is leaving.
+  chapterManager.activate(fromId);
 
   try {
     const { runWin31Dialog, returnFromDialog } = await import('../transitions/win31-dialog');
@@ -260,6 +266,7 @@ async function runDomTransition(
     document.body.classList.remove('transition-paused');
     await fadeSwap(fromId, toId);
   } finally {
+    setDomTransitionOpen(false);
     window.removeEventListener('hashchange', onHashChange);
   }
 }

@@ -19,6 +19,9 @@
   width: 372px;
   max-width: min(372px, calc(100vw - 48px));
   padding: 0;
+  /* <dialog> centres itself via the UA's `margin: auto`, which the project's global
+     reset zeroes out. Without this the dialog pins to the top-left corner. */
+  margin: auto;
   border: 1px solid var(--win31-ink);
   background: var(--win31-face);
   color: var(--win31-ink);

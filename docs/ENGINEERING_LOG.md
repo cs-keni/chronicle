@@ -1,5 +1,38 @@
 # Engineering Log
 
+## 2026-08-04 (Slice 2 follow-up — two bugs only a screenshot caught)
+
+The 36-test suite was green and the chapter still had two visible defects. Both were
+found by actually looking at it, which is the argument for looking at it.
+
+**1. The dialog was pinned to the top-left corner.** `<dialog>` centres itself via the
+UA stylesheet's `margin: auto`, and the project's global reset zeroes it. No test caught
+this because every assertion was about behaviour, not position.
+
+**2. Browser Wars was already showing behind the dialog.** This one destroyed the beat
+outright. The dialog's whole emotional job is asking whether to leave a place you can
+still SEE — and the scroll that fires the transition has, by then, already crossed into
+the destination chapter's spacer, so ScrollTrigger's `onEnter` activated Browser Wars
+underneath it. With a real momentum scroll it always would. Fixed in two places: a
+`setDomTransitionOpen` guard so `onEnter` cannot activate while a user-gated dialog is
+open, and a re-assert of the origin chapter when the runner starts, which covers the
+case where `onEnter` won the ordering race.
+
+Both are now guarded by a test that asserts the active chapter behind the dialog *and*
+that the dialog is optically centred.
+
+**Operational lesson that cost real time:** the Vite dev server did **not** pick up edits
+to engine modules mid-session. Three diagnostic rounds produced contradictory evidence
+(guards provably present in source, provably not running; `console.warn` inside
+`chapterManager.activate` printing nothing at all, not even at boot) purely because
+Playwright was hitting stale modules. **Restart the dev server before trusting any
+Playwright result taken after editing `src/engine/`.** If a trace you just added prints
+nothing whatsoever, suspect staleness before suspecting your model of the code.
+
+Verified: tsc clean, vitest 22/22, Playwright **37/37**, build clean.
+
+Commit: `PENDING-C4`.
+
 ## 2026-08-04 (Slice 2 Commit 3 — Browser Wars is LIVE)
 
 T6 + T7 (atomic), T8, T10, T11, T11b, T12. Chronicle now runs a **four-chapter chain**:
