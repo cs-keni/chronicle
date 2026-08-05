@@ -59,7 +59,7 @@ not 44 — measure after animations settle.
 Verified: tsc clean, vitest **22/22**, Playwright **36/36** (15 new), build clean,
 entry **69.20 KB gzip**.
 
-Commit: `PENDING-C3`.
+Commit: `60487ce`.
 
 ## 2026-08-04 (Slice 2 Commit 2 — engine, behavior-preserving)
 
