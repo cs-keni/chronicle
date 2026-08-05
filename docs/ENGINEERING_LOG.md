@@ -56,7 +56,7 @@ entirely**, which is what that budget was actually protecting. Entry 66.45 → 6
 
 Verified: tsc clean, vitest **22/22** (5 new), Playwright **21/21** (4 new), build clean.
 
-Commit: `PENDING-C2`.
+Commit: `b2e419f`.
 
 ## 2026-08-04 (Slice 2 Commit 1 — content + assets, no chapter code)
 
