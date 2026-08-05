@@ -316,6 +316,11 @@ gzip. This has been measured; don't undo it.
 | WordArt ships as SVG, not a font | It was always a rendered picture; SVG is both more period-accurate and dependency-free |
 | Motion budgeted at design time, not measured after | 2 Hz/element + 3 concurrent max keeps WCAG 2.3.1 satisfied by construction. A ceiling you verify afterwards is a bug report |
 | Decoration may be period-ugly; fact text holds AA | The chapter's content is what the project calls its soul. Real 90s pages put body copy in a white table cell, so authenticity and accessibility point the same way |
+| Transition registry is a discriminated union | `shader` runs on a timer under `scroll-locked`; `dom` is user-gated under `transition-paused`. `shader?` stays optional on the dom variant because most of SPEC's remaining catalog is hybrids |
+| `enterMs` on dom transitions, never `duration` | A user-gated transition ends when a human acts. A field named `duration` invites a timer, which is how the rejected auto-advance would creep back |
+| Settlement is three-valued | `advance \| cancel` cannot express a hashchange: the router already owns the active chapter, so both would stomp its target. `abort` = teardown only |
+| Scroll spacers are `pointer-events: none` | They sit above every fixed chapter scene in hit-testing order. Silent for two years until a chapter had something clickable |
+| Chapter assets are emitted files, not inlined | Vite's 4 KB inline default put Browser Wars' artwork in the entry chunk, +8.5 KB gzip at first paint for a chapter most visitors never reach |
 
 ---
 
