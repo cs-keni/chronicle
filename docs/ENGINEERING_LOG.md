@@ -40,7 +40,7 @@ alone before a line of chapter code exists.
 Verified: tsc clean, vitest 17/17, build clean. `browser-wars` stays `live: false` — the
 chapter is not wired until Commit 3, so nothing reads this content record yet.
 
-Commit: `PENDING-C1`.
+Commit: `80581e9`.
 
 ## 2026-08-04 (planning: Phase 2 Slice 2 — design review, 4/10 → 9/10)
 
