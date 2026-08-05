@@ -44,7 +44,7 @@ element, 3 concurrent max, two-thirds of the WCAG 2.3.1 threshold by constructio
 T9b added. T6/T8/T10/T11 all widened. TODO-009 (frame morphs Netscape 4 → IE4 across the
 scroll) and TODO-010 (design the exit contrast into Figma Era) logged.
 
-Commit: see below.
+Commit: `5713feb`.
 
 ## 2026-08-03 (planning: Phase 2 Slice 2 — Browser Wars plan locked)
 
