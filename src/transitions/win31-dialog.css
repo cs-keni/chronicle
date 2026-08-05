@@ -1,0 +1,214 @@
+/* Win 3.1 dialog — exact period anatomy.
+   Spec: docs/BROWSER-WARS-BRIEF.md, "The Windows 3.1 dialog — exact spec".
+
+   Two era-correctness notes that are easy to get wrong:
+   - The title bar is SOLID #000080. The #000080→#1084D0 gradient is Windows 95;
+     using it here would be a four-year era error on the one element the whole
+     slice is built around.
+   - The shadow is a HARD offset, never a soft blur. Blur is a modern artifact. */
+
+.win31 {
+  --win31-face: #C0C0C0;
+  --win31-title: #000080;
+  --win31-title-ink: #FFFFFF;
+  --win31-ink: #000000;
+  --win31-hi: #FFFFFF;
+  --win31-lo: #808080;
+  --win31-enter-ms: 1200ms;
+
+  width: 372px;
+  max-width: min(372px, calc(100vw - 48px));
+  padding: 0;
+  border: 1px solid var(--win31-ink);
+  background: var(--win31-face);
+  color: var(--win31-ink);
+  font: 12px/1.35 "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Verdana, sans-serif;
+  box-shadow:
+    inset 1px 1px 0 var(--win31-hi),
+    inset -1px -1px 0 var(--win31-lo),
+    6px 6px 0 rgba(0, 0, 0, 0.55);
+}
+
+/* 4px, deliberately NOT one of the values already in the codebase (Figma Era uses
+   20px and 8px, the lobby 8px and 12px). Early Web must stay LEGIBLE behind the
+   dialog: the beat is being asked whether to leave a place you can still see.
+   A 20px blur throws that away. */
+.win31::backdrop {
+  background: rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.win31[open] {
+  animation: win31-appear var(--win31-enter-ms) cubic-bezier(0.16, 1, 0.3, 1);
+}
+.win31[open]::backdrop {
+  animation: win31-backdrop var(--win31-enter-ms) ease-out;
+}
+
+@keyframes win31-appear {
+  from { transform: translateY(-8px) scale(0.96); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+@keyframes win31-backdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Set by the runner when prefers-reduced-motion is on, or enterMs <= 0. */
+.win31.is-instant,
+.win31.is-instant::backdrop {
+  animation: none;
+}
+
+/* ── title bar ─────────────────────────────────────────────────────────── */
+.win31-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 3px;
+  background: var(--win31-title);
+  color: var(--win31-title-ink);
+  font-weight: 700;
+}
+
+.win31-sysbox {
+  width: 17px;
+  height: 15px;
+  display: grid;
+  place-items: center;
+  background: var(--win31-face);
+  border: 1px solid var(--win31-ink);
+  box-shadow: inset 1px 1px 0 var(--win31-hi), inset -1px -1px 0 var(--win31-lo);
+}
+.win31-sysbox i {
+  display: block;
+  width: 9px;
+  height: 2px;
+  background: var(--win31-ink);
+}
+
+/* Win 3.1 centred its dialog titles. The right padding compensates for the
+   sysbox so the text is optically centred, not flex-centred. */
+.win31-title-text {
+  flex: 1;
+  text-align: center;
+  padding-right: 17px;
+}
+
+/* ── body ──────────────────────────────────────────────────────────────── */
+.win31-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 18px 14px;
+}
+
+.win31-icon {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--win31-ink);
+  background: var(--win31-face);
+  display: grid;
+  place-items: center;
+  font: 700 22px/1 Georgia, "Times New Roman", serif;
+  color: var(--win31-title);
+}
+
+.win31-msg {
+  margin: 0;
+  padding-top: 5px;
+  font-size: 13px;
+}
+
+/* ── buttons ───────────────────────────────────────────────────────────── */
+.win31-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 0 18px 16px;
+}
+
+.win31-btn {
+  min-width: 76px;
+  padding: 5px 12px;
+  background: var(--win31-face);
+  color: var(--win31-ink);
+  border: 1px solid var(--win31-ink);
+  box-shadow: inset 1px 1px 0 var(--win31-hi), inset -1px -1px 0 var(--win31-lo);
+  font: 12px/1 "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Verdana, sans-serif;
+  cursor: pointer;
+}
+
+/* The default-button ring. Win 3.1 drew a heavier border around the default action. */
+.win31-default {
+  margin: 2px;
+  font-weight: 700;
+  box-shadow:
+    inset 1px 1px 0 var(--win31-hi),
+    inset -1px -1px 0 var(--win31-lo),
+    0 0 0 2px var(--win31-ink);
+}
+
+/* Period pressed state: the bevel inverts. Without this the OK button feels dead
+   on click — on the one interaction the entire slice is built around. */
+.win31-btn:active:not(:disabled) {
+  box-shadow: inset -1px -1px 0 var(--win31-hi), inset 1px 1px 0 var(--win31-lo);
+  padding: 6px 11px 4px 13px;
+}
+.win31-default:active:not(:disabled) {
+  box-shadow:
+    inset -1px -1px 0 var(--win31-hi),
+    inset 1px 1px 0 var(--win31-lo),
+    0 0 0 2px var(--win31-ink);
+}
+
+.win31-btn:disabled {
+  color: var(--win31-lo);
+  text-shadow: 1px 1px 0 var(--win31-hi);
+  cursor: default;
+}
+
+/* The period focus rect is a 1px dotted black inset on #C0C0C0 — historically right
+   and genuinely hard to see. Keep it, and add a real focus-visible ring on top so
+   keyboard users are not relying on the weaker of the two. */
+.win31-btn:focus-visible {
+  outline: 2px solid #000080;
+  outline-offset: 2px;
+}
+.win31-btn:focus::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px dotted var(--win31-ink);
+  pointer-events: none;
+}
+.win31-btn {
+  position: relative;
+}
+
+/* ── touch ─────────────────────────────────────────────────────────────── */
+/* The one place period accuracy yields. A 23px Win 3.1 button is not tappable, and
+   this transition has NO fadeSwap downgrade on touch (it is DOM, not WebGL) — it is
+   the only path mobile users get, so it has to work. 44px minimum. */
+@media (pointer: coarse) {
+  .win31-btn {
+    min-width: 88px;
+    min-height: 44px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  .win31-btns {
+    gap: 12px;
+    padding: 0 16px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win31[open],
+  .win31[open]::backdrop {
+    animation: none;
+  }
+}

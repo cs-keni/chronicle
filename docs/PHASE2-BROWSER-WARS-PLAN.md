@@ -472,27 +472,27 @@ commit**.
 
 ### Commit 2 — engine (behavior-preserving for existing transitions)
 
-- [ ] **T1 (P1, human: ~2h / CC: ~15min)** — data — `kind` discriminator; `RunnerId` literal union; optional `shader?` on the dom variant
+- [x] **T1 (P1, human: ~2h / CC: ~15min)** — data — `kind` discriminator; `RunnerId` literal union; optional `shader?` on the dom variant
   - Surfaced by: D1; Codex #3 (hybrids must stay representable), #4 (`string` admits invalid state)
   - Files: `src/data/transitions.ts`
   - Verify: `tsc` clean; existing shader transitions byte-identical in behavior
-- [ ] **T2 (P1, human: ~1h / CC: ~10min)** — tests — transition adjacency drift guard
+- [x] **T2 (P1, human: ~1h / CC: ~10min)** — tests — transition adjacency drift guard
   - Surfaced by: Section 2 — CRITICAL GAP (silent dead-end chapter)
   - Files: `tests/unit/transitions.test.ts` (new)
-- [ ] **T2b (P1, human: ~1.5h / CC: ~15min)** — tests — live-chapter wiring completeness (scene + spacer + registration)
+- [x] **T2b (P1, human: ~1.5h / CC: ~15min)** — tests — live-chapter wiring completeness (scene + spacer + registration)
   - Surfaced by: Codex #10 — adjacency alone checks registry keys, not DOM/`main.ts` wiring
   - Files: `tests/browser-wars.spec.ts` (new)
-- [ ] **T2c (P1, human: ~1h / CC: ~10min)** — engine — actually implement the target-initialized check before capture
+- [x] **T2c (P1, human: ~1h / CC: ~10min)** — engine — actually implement the target-initialized check before capture
   - Surfaced by: Codex #9 — Slice 1 claimed this mitigation; `isInitialized()` is called from nowhere
   - Files: `src/engine/transition.ts`
   - Verify: capture waits for / asserts `chapterManager.isInitialized(toId)`
-- [ ] **T3a (P1, human: ~3h / CC: ~20min)** — engine — **pure refactor**: extract `returnToChapter(id, pct)` from `fireBackwardsNav`
+- [x] **T3a (P1, human: ~3h / CC: ~20min)** — engine — **pure refactor**: extract `returnToChapter(id, pct)` from `fireBackwardsNav`
   - Surfaced by: Eng review — Beck's "make the change easy, then make the easy change".
     The first draft bundled this structural change with the new behavior; split so each
     is independently revertible.
   - Files: `src/engine/scroll.ts`
   - Verify: **zero behavior change** — full existing suite green before any new code lands
-- [ ] **T3b (P1, human: ~1.5d / CC: ~55min)** — engine — `win31-dialog` runner on native `<dialog>` + `transition-paused` state
+- [x] **T3b (P1, human: ~1.5d / CC: ~55min)** — engine — `win31-dialog` runner on native `<dialog>` + `transition-paused` state
   - Surfaced by: D1, D4; Codex #2/#1/#6; eng review (native `<dialog>`, `enterMs`, audio)
   - Files: `src/transitions/win31-dialog.ts` + `.css` (new), `src/engine/transition.ts`, `src/styles/global.css`
   - **Includes:** native `<dialog>` + `showModal()` (top layer, `::backdrop`, inert, Esc

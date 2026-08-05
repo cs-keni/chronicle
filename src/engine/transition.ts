@@ -16,7 +16,7 @@ import type html2canvasType from 'html2canvas';
 import { webgl } from './webgl';
 import { chapterManager } from './chapter';
 import { lockScroll, unlockScroll, isTouchDevice, onDwellEnter, onTransitionRequest } from './scroll';
-import { getTransition } from '../data/transitions';
+import { getTransition, type TransitionDef } from '../data/transitions';
 import { crossfadeForTransition } from './audio';
 
 const CAPTURE_TIMEOUT_MS = 500; // max extra scroll lock if capture is slow
@@ -79,6 +79,22 @@ async function handleTransitionRequest(fromId: string, toId: string) {
   const transitionDef = getTransition(fromId, toId);
   if (!transitionDef) return;
 
+  // ── DOM (user-gated) transitions branch BEFORE the scroll lock ────────────
+  // They must not take lockScroll() at all: it sets pointer-events:none, which
+  // would render a perfect dialog that accepts no clicks (global.css:90). The
+  // runner owns its own body.transition-paused state instead.
+  if (transitionDef.kind === 'dom') {
+    transitionInFlight = true;
+    try {
+      await runDomTransition(fromId, toId, transitionDef);
+    } finally {
+      pendingCaptures.delete(fromId);
+      pendingCaptures.delete(toId);
+      transitionInFlight = false;
+    }
+    return;
+  }
+
   // Set guard and lock scroll before any async work — prevents double-fire on both
   // WebGL and touch/reduced-motion paths.
   transitionInFlight = true;
@@ -107,6 +123,26 @@ async function handleTransitionRequest(fromId: string, toId: string) {
 
     const fromEl = chapterManager.getElement(fromId)!;
     const toEl = chapterManager.getElement(toId)!;
+
+    // T2c — the target-initialized check, ACTUALLY implemented this time.
+    // The Slice 1 plan described this mitigation as intent and it was never built:
+    // isInitialized() (chapter.ts:70) was defined and called from nowhere, so
+    // capturing an uninitialized chapter yielded a blank destination texture.
+    // Codex #9 caught that the Slice 2 plan had inherited the claim without
+    // verifying it. It matters more here than it did in Slice 1: Browser Wars is
+    // the first chapter whose visual identity depends on image assets.
+    if (!chapterManager.isInitialized(toId)) {
+      // activate() runs the lazy init synchronously, then a frame lets layout and
+      // any decoded images land before html2canvas reads the DOM.
+      chapterManager.activate(toId);
+      chapterManager.deactivate(toId);
+      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      if (!chapterManager.isInitialized(toId)) {
+        console.warn(`[transition] ${toId} still uninitialized before capture — fading instead of risking a blank texture`);
+        await fadeSwap(fromId, toId);
+        return;
+      }
+    }
 
     // Bring toId into viewport (hidden) so html2canvas can capture its rendered state
     toEl.style.visibility = 'hidden';
@@ -159,6 +195,72 @@ async function handleTransitionRequest(fromId: string, toId: string) {
     pendingCaptures.delete(toId);
     transitionInFlight = false;
     unlockScroll();
+  }
+}
+
+/**
+ * User-gated DOM transition. Unlike the shader path this has NO fixed duration —
+ * it ends when a human acts, or when the router navigates away.
+ *
+ * Three-valued settlement, because 'advance' | 'cancel' alone cannot express a
+ * hashchange: the router already owns the active chapter by then, so both values
+ * would stomp its target (the nav-latch-race class of bug).
+ *
+ * The runner is imported dynamically so its DOM + CSS stay out of the entry chunk —
+ * it cannot be needed until the user has scrolled a full chapter, and the chunk is
+ * warmed on dwell entry the same way html2canvas is.
+ */
+async function runDomTransition(
+  fromId: string,
+  toId: string,
+  def: Extract<TransitionDef, { kind: 'dom' }>,
+): Promise<void> {
+  const controller = new AbortController();
+  const onHashChange = () => controller.abort();
+  window.addEventListener('hashchange', onHashChange);
+
+  try {
+    const { runWin31Dialog, returnFromDialog } = await import('../transitions/win31-dialog');
+
+    // Only one runner exists (rule of three — no plugin architecture until a second
+    // DOM transition does). The switch is here so adding BSOD is a visible edit.
+    if (def.runner !== 'win31-dialog') {
+      throw new Error(`runDomTransition: unknown runner "${def.runner}"`);
+    }
+
+    const settlement = await runWin31Dialog({
+      fromId,
+      toId,
+      enterMs: def.enterMs,
+      signal: controller.signal,
+    });
+
+    if (settlement === 'advance') {
+      // Audio crossfade fires HERE, on 'advance' only — never at dialog open.
+      // Firing it at open (as transition.ts:143 does for shaders) would leave the
+      // destination chapter's ambient bed playing over an on-screen origin chapter
+      // when the user cancels. Eng review finding 3, which neither the CEO review
+      // nor Codex caught.
+      crossfadeForTransition(fromId, toId, def.enterMs);
+      chapterManager.activate(toId);
+      chapterManager.deactivate(fromId);
+    } else if (settlement === 'cancel') {
+      // Put the user back where they were, clear of the dwell zone so the dialog
+      // does not immediately re-fire. Ambient bed for fromId is untouched — it
+      // never faded, because the crossfade above never ran.
+      await returnFromDialog(fromId);
+    }
+    // settlement === 'abort': teardown only. No swap, no restore — the router
+    // already owns the active chapter and touching it here would fight it.
+  } catch (err) {
+    // Any throw — mount failure, bad runner id, chunk load failure — falls through
+    // to a clean fade. The pause state is never applied on the mount-failure path,
+    // so the page is still fully interactive when we get here.
+    console.warn('[transition] DOM runner failed, falling back to fadeSwap', err);
+    document.body.classList.remove('transition-paused');
+    await fadeSwap(fromId, toId);
+  } finally {
+    window.removeEventListener('hashchange', onHashChange);
   }
 }
 

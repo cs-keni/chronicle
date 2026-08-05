@@ -1,5 +1,63 @@
 # Engineering Log
 
+## 2026-08-04 (Slice 2 Commit 2 — engine, behavior-preserving)
+
+T1, T2, T2b, T2c, T3a, T3b. The transition engine now knows two KINDS of transition
+instead of one. Nothing routes to the new kind yet — the registry move (T7) lands with
+the chapter in Commit 3, so this commit is provably behavior-preserving.
+
+**T1 — discriminated union.** `RunnerId` is a literal union, not `string`: a typo must
+not type-check when there is no resolver to catch it. `shader?` stays **optional on the
+dom variant**, because three of the four remaining transitions in SPEC's catalog are
+hybrids and an exclusive union would forbid the exact future it was justified by.
+`enterMs`, never `duration` — a field named duration on a user-gated transition invites
+a timer, which is how the rejected auto-advance would creep back.
+
+**T2 / T2b — two guards, deliberately in different files.** The Vitest adjacency guard
+checks registry keys. Codex #10 was right that keys alone miss the DOM and `main.ts`
+wiring, so T2b is a Playwright guard covering scene element, spacer order, real
+registration, render output, and lobby-card liveness. **Filed as `tests/wiring.spec.ts`,
+not the `tests/browser-wars.spec.ts` the plan proposed** — the invariant is generic and
+must run for chapters 5, 6 and 7 too. A generic guard filed under one chapter's name is
+one nobody re-runs.
+
+**T2c — the mitigation that never existed now exists.** `isInitialized()` (`chapter.ts:70`)
+was defined and called from nowhere; the Slice 1 plan described the check as intent and
+this plan inherited the claim without verifying it. `transition.ts` now initializes the
+target and waits a frame before capture, falling back to `fadeSwap` if it still is not
+initialized. Matters more here than in Slice 1: Browser Wars is the first chapter whose
+identity depends on image assets that may not have decoded.
+
+**T3a — pure refactor, zero behavior change.** `returnToChapter(id, pct)` extracted from
+the private `fireBackwardsNav`, which owns its own in-flight guard and bakes in the 0.85
+landing (Codex #5 — there was nothing to "reuse verbatim"). **The in-flight guard stayed
+with the caller on purpose**: backwards nav guards against ScrollTrigger re-entrancy while
+the dialog has its own settlement latch, and one shared guard would let either path block
+the other. Verified by running the full existing Playwright suite green before any new
+behavior landed.
+
+**T3b — the runner.** Native `<dialog>` + `showModal()` buys the top layer, `::backdrop`,
+an inert background, Esc, and focus management. Three things are load-bearing:
+`body.transition-paused` (never `lockScroll()`, which sets `pointer-events:none`); the
+**three-valued** settlement, because `advance | cancel` cannot express a hashchange when
+the router already owns the active chapter; and a **single-settlement latch**, since
+`transitionInFlight` guards a second transition *request* and does nothing about two
+callbacks racing inside a running dialog. Pause state is applied only after the dialog is
+confirmed mounted, so a mount failure can never pause a page with nothing to un-pause it.
+
+**Audio crossfade moved to `'advance'` only** (eng review finding 3). For shaders it fires
+before the transition runs (`transition.ts`); on a cancellable transition that would leave
+Browser Wars' ambient bed playing over an on-screen Early Web.
+
+**Bundle:** the runner is a lazy chunk — `win31-dialog` JS 1.11 KB gzip + CSS 1.06 KB gzip
+= **2.17 KB**, marginally over the plan's ~2 KB figure but **outside the entry chunk
+entirely**, which is what that budget was actually protecting. Entry 66.45 → 67.00 KB gzip
+(+0.55 KB for the engine branch itself).
+
+Verified: tsc clean, vitest **22/22** (5 new), Playwright **21/21** (4 new), build clean.
+
+Commit: `PENDING-C2`.
+
 ## 2026-08-04 (Slice 2 Commit 1 — content + assets, no chapter code)
 
 T4, T9, T9b. Content before animation, per the project rule and Codex #11's re-sequencing.

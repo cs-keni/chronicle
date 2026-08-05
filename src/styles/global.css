@@ -86,11 +86,25 @@ body { scrollbar-width: none; }
   transition: opacity 0.5s ease-in;
 }
 
-/* Scroll lock: applied to body during transitions */
+/* Scroll lock: applied to body during AUTOMATIC (shader) transitions.
+   pointer-events:none is correct here — the user must not be able to interact with
+   a frozen frame while a shader plays on a timer.
+   It is FATAL for a user-gated transition: the dialog would render perfectly and
+   accept no clicks. Do not reuse lockScroll() for anything the user must touch. */
 body.scroll-locked {
   overflow: hidden;
   pointer-events: none;
   touch-action: none;
+}
+
+/* Pause state for USER-GATED (DOM) transitions — Slice 2 T3b.
+   Deliberately NOT a variant of scroll-locked: the page must stop scrolling past
+   the chapter boundary, but the transition IS an interaction, so pointer events
+   and touch must keep working. Applied by the runner only AFTER the dialog is
+   confirmed mounted, so a mount failure can never pause a page with nothing on
+   screen to un-pause it. */
+body.transition-paused {
+  overflow: hidden;
 }
 
 /* Reduced motion: override all transitions */

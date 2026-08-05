@@ -166,49 +166,75 @@ export function initScrollEngine() {
 
 let backwardsNavInFlight = false;
 
+/**
+ * Fade out, swap to `toId`, land the scroll at `pct` through it, fade back in.
+ *
+ * Extracted from `fireBackwardsNav` in Slice 2 T3a as a PURE refactor — no behavior
+ * change — so that the Win 3.1 dialog's Cancel path and scroll-driven backwards nav
+ * cannot drift apart. The Slice 2 plan originally said Cancel would "reuse
+ * fireBackwardsNav verbatim"; Codex #5 caught that it is private, owns its own
+ * in-flight guard, and bakes in the 0.85 landing — so there was nothing to reuse.
+ *
+ * The in-flight guard stays with the CALLER, not here: `fireBackwardsNav` guards
+ * against ScrollTrigger re-entrancy, while the dialog runner has its own
+ * single-settlement latch. Sharing one guard would let either path block the other.
+ */
+export function returnToChapter(toId: string, pct: number): Promise<void> {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('transition-overlay')!;
+    lockScroll();
+
+    overlay.style.transition = 'opacity 0.15s ease-in';
+    overlay.style.opacity = '1';
+
+    setTimeout(() => {
+      chapterManager.activate(toId);
+      startChapterAmbient(toId); // begin fading in as overlay clears
+
+      const spacer = document.querySelector<HTMLElement>(
+        `.chapter-scroll-spacer[data-chapter-id="${toId}"]`
+      );
+      if (spacer) {
+        window.scrollTo({
+          top: spacer.offsetTop + spacer.offsetHeight * pct,
+          behavior: 'instant',
+        });
+      }
+
+      // Reset dwell so the next forward pass re-triggers capture at dwell entry.
+      // Without this, scrolling forward again skips the dwell capture (dwellFiredMap
+      // stays true from the previous pass, since onEnter only fires at the top boundary).
+      resetDwellState(toId);
+
+      overlay.style.transition = 'opacity 0.15s ease-out';
+      overlay.style.opacity = '0';
+      unlockScroll();
+
+      resolve();
+    }, 150);
+  });
+}
+
+/**
+ * Land at 85% through the previous chapter — near the end but clear of the dwell
+ * zone (which starts at ~99.8%). Gives the user room to re-explore before the
+ * forward transition re-triggers. Shared by backwards nav and dialog Cancel.
+ */
+export const RETURN_LANDING_PCT = 0.85;
+
 function fireBackwardsNav(fromId: string, toId: string) {
   // Guard: the instant scrollTo during this function can re-trigger onLeaveBack
   // for the chapter we're leaving, causing a second call before the first completes.
   if (backwardsNavInFlight) return;
   backwardsNavInFlight = true;
 
-  const overlay = document.getElementById('transition-overlay')!;
-  lockScroll();
   stopChapterAmbient(fromId); // begin fading out alongside the overlay
 
-  overlay.style.transition = 'opacity 0.15s ease-in';
-  overlay.style.opacity = '1';
-
-  setTimeout(() => {
-    chapterManager.activate(toId);
-    startChapterAmbient(toId); // begin fading in as overlay clears
-
-    // Land at 85% through the previous chapter — near the end but clear of the
-    // dwell zone (which starts at ~99.8%). Gives the user room to re-explore
-    // before the forward transition re-triggers.
-    const prevSpacer = document.querySelector<HTMLElement>(
-      `.chapter-scroll-spacer[data-chapter-id="${toId}"]`
-    );
-    if (prevSpacer) {
-      window.scrollTo({
-        top: prevSpacer.offsetTop + prevSpacer.offsetHeight * 0.85,
-        behavior: 'instant',
-      });
-    }
-
-    // Reset dwell so the next forward pass re-triggers capture at dwell entry.
-    // Without this, scrolling forward again skips the dwell capture (dwellFiredMap
-    // stays true from the previous pass, since onEnter only fires at the top boundary).
-    resetDwellState(toId);
-
-    overlay.style.transition = 'opacity 0.15s ease-out';
-    overlay.style.opacity = '0';
-    unlockScroll();
-
+  void returnToChapter(toId, RETURN_LANDING_PCT).then(() => {
     setTimeout(() => {
       backwardsNavInFlight = false;
     }, 150);
-  }, 150);
+  });
 }
 
 export function lockScroll() {
