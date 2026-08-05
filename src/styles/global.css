@@ -43,6 +43,19 @@ body { scrollbar-width: none; }
   padding-bottom: 100vh;
 }
 
+/* #scroll-container and its spacers exist ONLY to create scroll height. They sit
+   later in the DOM than the fixed .chapter-scene elements, so with z-index:auto they
+   win hit-testing over EVERY chapter — invisible until now because no chapter had
+   anything clickable inside a scene. Browser Wars' visitor counter is the first, and
+   its clicks were landing on the container.
+   Scrolling is unaffected: wheel/touch over a pointer-events:none element still
+   scrolls the document, because scrolling is handled by the scrolling box, not by
+   hit-testing the element under the cursor. */
+#scroll-container,
+.chapter-scroll-spacer {
+  pointer-events: none;
+}
+
 #scroll-container.active {
   display: block;
 }

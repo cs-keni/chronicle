@@ -1,5 +1,66 @@
 # Engineering Log
 
+## 2026-08-04 (Slice 2 Commit 3 — Browser Wars is LIVE)
+
+T6 + T7 (atomic), T8, T10, T11, T11b, T12. Chronicle now runs a **four-chapter chain**:
+`ARPANET → (CRT) → Early Web → (Win 3.1 dialog, USER-GATED) → Browser Wars →
+(glass-shatter) → Figma Era`. Built against `docs/BROWSER-WARS-BRIEF.md`.
+
+**Two real bugs the new tests found, both pre-existing and both invisible until now.**
+
+1. **`#scroll-container` was eating clicks on every chapter.** It sits later in the DOM
+   than the `position: fixed` `.chapter-scene` elements and both are `z-index: auto`, so
+   the container won hit-testing over all chapter content. Nobody noticed for two years
+   because no chapter had anything clickable inside a scene. Browser Wars' visitor
+   counter is the first, and its clicks were landing on the container. Fixed with
+   `pointer-events: none` on the container and its spacers — scrolling is unaffected,
+   because the scrolling box handles that, not hit-testing.
+2. **`returnToChapter`'s own scroll re-triggered backwards nav.** The instant scrollTo
+   crosses a spacer boundary backwards, firing `onLeaveBack` for the chapter just left,
+   which queued a *second* return on top of the first and re-locked the body for another
+   150ms. `fireBackwardsNav` always had a guard for its own scrollTo; the guard belongs
+   with the **scroll**, so it moved into `returnToChapter` and now covers the dialog's
+   Cancel path too.
+
+**One invariant I broke and had to undo.** The arrival beat was first written as
+staggered `animation: … both` keyframes. That violates the project's standing rule
+(`docs/HANDOFF.md`: visibility is a class toggle, never a fill-mode keyframe) and it
+made the motion budget unmeasurable — a `both`-filled animation leaves `animationName`
+set forever, so every arrived element still counted as "animating" (7 against a budget
+of 3). Rewritten as JS-driven class toggles on a stagger. The budget test passes on the
+merits now, not by loosening the threshold.
+
+**Bundle: `assetsInlineLimit: 0`.** Browser Wars is the first chapter with real image
+assets, and every one is under Vite's 4 KB inline default — inlining them as base64 cost
+**+8.5 KB gzip on the entry chunk**, paid at first paint by every visitor including
+those who never reach chapter 3. As emitted files the browser fetches them only when the
+chapter renders. Entry: 75.54 → **69.20 KB gzip** (vs 67.00 before this commit, so the
+chapter itself costs ~2.2 KB of entry weight).
+
+**T10 a11y as built:** 44px touch targets on the dialog (period accuracy yields here —
+this transition has no `fadeSwap` downgrade on touch, so it is the only path mobile
+gets); `<marquee>` `aria-hidden` with a visually-hidden static text sibling; the counter
+is a real `<button>` with an accessible name and `aria-live="polite"`; decorative links
+are inert spans, never anchors; every GIF swaps to its authored static first frame in JS
+under reduced motion, because CSS cannot pause a GIF.
+
+**T11b** repaired `scrollChapterToEnd` before it broke: it now detects a gated
+transition and drives the dialog, so the pre-existing chain test — which has nothing to
+do with this chapter — keeps passing. Without it that test would have hung on the dialog
+until timeout the moment T6/T7 landed.
+
+**Test-side lessons worth keeping:** `test.use({ reducedMotion })` does not take effect
+under this project config (verified — `matchMedia` stayed false); use
+`page.emulateMedia`. Scrolling to a spacer boundary *exactly* leaves progress a hair
+under 1 under mobile visual-viewport emulation, so helpers must scroll past it. And a
+`boundingBox` taken while the 1200ms appear animation is mid-`scale(0.96)` reads ~42.7px,
+not 44 — measure after animations settle.
+
+Verified: tsc clean, vitest **22/22**, Playwright **36/36** (15 new), build clean,
+entry **69.20 KB gzip**.
+
+Commit: `PENDING-C3`.
+
 ## 2026-08-04 (Slice 2 Commit 2 — engine, behavior-preserving)
 
 T1, T2, T2b, T2c, T3a, T3b. The transition engine now knows two KINDS of transition

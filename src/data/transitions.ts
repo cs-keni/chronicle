@@ -42,15 +42,15 @@ const registry: Record<string, TransitionDef> = {
   // CRT power-off sits at its canonical ARPANET → Early Web position (the terminal
   // collapses to a white line that resolves into the Mosaic page).
   'arpanet->early-web': { kind: 'shader', shader: 'crt-power-off', duration: 2500 },
-  // glass-shatter is currently a TEMPORARY early-web → figma-era bridge. Its canonical
-  // home is flat → figma-era (PHASES:197); the shader is authored source-agnostic so
-  // that move is a key change here, no shader edit.
-  //
-  // Slice 2 Commit 3 (T7) relocates this to 'browser-wars->figma-era' and adds
-  // 'early-web->browser-wars'. Both edits MUST land in the same commit as the chapter
-  // going live — flipping the chapter without the registry move leaves a dead-end
-  // chapter that fails silently (see the adjacency guard in tests/unit/transitions.test.ts).
-  'early-web->figma-era': { kind: 'shader', shader: 'glass-shatter', duration: 2000 },
+  // THE user-gated transition (SPEC.md:71). enterMs is the appear animation only —
+  // this transition has no duration, it ends when a human acts.
+  'early-web->browser-wars': { kind: 'dom', runner: 'win31-dialog', enterMs: 1200 },
+  // glass-shatter relocated here from 'early-web->figma-era' by T7, in the same
+  // commit that flipped browser-wars live — splitting them would have left a
+  // dead-end chapter that fails silently. Still a TEMPORARY bridge: the canonical
+  // home is flat → figma-era (PHASES:197), and the shader is authored
+  // source-agnostic so that move stays a key change with no shader edit.
+  'browser-wars->figma-era': { kind: 'shader', shader: 'glass-shatter', duration: 2000 },
 };
 
 export function getTransition(from: string, to: string): TransitionDef | null {

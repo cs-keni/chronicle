@@ -208,7 +208,7 @@ fall through to the system default with no error. Self-host Comic Relief (SIL OF
 - [x] CRT shader moves from ARPANET→Figma Era (Phase 1 temp) to canonical ARPANET→Early Web position
 - [x] Figma Era gets its canonical entry shader: glass shatter (debuts as temp Early Web→Figma bridge until Flat exists)
 - [x] Early Web chapter (1983–1994): system gray, Navy/Red palette, Times New Roman, dithered gradients
-- [ ] Browser Wars chapter (1995–2001): gaudy palette, animated GIFs (authored originals, not archived — provenance), tiled bg, **IE4 frame + IE4 throbber** (D3.1's Netscape throbber reversed by design review — an IE4 window cannot carry an N-comet; Netscape demotes to a badge), 56k arrival beat, click-to-inflate counter — plan + brief locked, see `docs/BROWSER-WARS-BRIEF.md`
+- [x] Browser Wars chapter (1995–2001): gaudy palette, animated GIFs (authored originals, not archived — provenance), tiled bg, **IE4 frame + IE4 throbber** (D3.1's Netscape throbber reversed by design review — an IE4 window cannot carry an N-comet; Netscape demotes to a badge), 56k arrival beat, click-to-inflate counter — plan + brief locked, see `docs/BROWSER-WARS-BRIEF.md`
   - [x] T5 design brief — done in-review 2026-08-04
   - [x] T9b self-host a comic face (Comic Neue, SIL OFL, 23 KB) — fixes a silent font fallback already live in `main`
   - [x] T4 content doc + 6-fact record · [x] T9 assets authored (19.0 KB / 220 KB budget)
@@ -218,7 +218,7 @@ fall through to the system default with no error. Self-host Comic Relief (SIL OF
 - [ ] AI Web chapter (2024+): generative UI, LLM chat interfaces, spatial UI post-Vision Pro — visual brief to be authored in Phase 2
 - [ ] All 7 transition shaders authored (Phase 2 set):
   - [x] ARPANET → Early Web: CRT power-off (moved from Phase 1 temp assignment)
-  - [ ] Early Web → Browser Wars: Windows 3.1 dialog box DOM overlay — **user-gated** (OK button advances); first non-shader transition; plan locked
+  - [x] Early Web → Browser Wars: Windows 3.1 dialog box DOM overlay — **user-gated** (OK button advances); first non-shader transition; SHIPPED 2026-08-04
   - [ ] Browser Wars → Post-Crash: BSOD wipe + dissolve
   - [ ] Post-Crash → Mobile: phone unlock swipe + perspective rotation
   - [ ] Mobile → Flat: progressive texture strip (leather, gradients, shadows)
@@ -227,7 +227,7 @@ fall through to the system default with no error. Self-host Comic Relief (SIL OF
 - [ ] All shaders profiled (60fps on M3 target), documented in SHADER-PROFILES.md
 - [ ] Era-appropriate progress indicators for all Phase 2 chapters — **system rule** (3 chapters deep): each chapter's scroll-progress indicator is a period-native artifact of its own era, never a generic bar. ARPANET = amber ASCII block bar · Early Web = green odometer · Browser Wars = IE4 throbber
 - [ ] Interactive artifacts:
-  - [ ] Visitor counter (Browser Wars): **click to inflate it** — each click bumps the number, teaching the historical fact by letting the visitor commit the fraud 90s page owners committed. Real `<button>`, `aria-live="polite"`, red `#FF2400` LED (not Early Web's green odometer). Spec: `docs/BROWSER-WARS-BRIEF.md`
+  - [x] Visitor counter (Browser Wars): **click to inflate it** — each click bumps the number, teaching the historical fact by letting the visitor commit the fraud 90s page owners committed. Real `<button>`, `aria-live="polite"`, red `#FF2400` LED (not Early Web's green odometer). Spec: `docs/BROWSER-WARS-BRIEF.md`
   - [ ] Dark mode toggle (Figma Era): was introduced in 2019, live toggle in that chapter
 - [ ] Variable font axes wired to scroll position within each chapter
 - [ ] Ambient audio per chapter (Creative Commons or original — see TODOS.md)

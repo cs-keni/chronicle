@@ -45,7 +45,12 @@ function buildCard(chapter: Chapter): HTMLElement {
 
   // A chapter-flavored centerpiece. ARPANET: amber terminal lines with a CSS glow
   // (text-shadow DOES capture, unlike the SVG filter). Early Web: a Mosaic window in
-  // web-safe grays. Figma: a glass-ish card.
+  // web-safe grays. Browser Wars: an IE4 window whose loud frame wraps a calm,
+  // readable cell. Figma: a glass-ish card.
+  //
+  // Adding a chapter REQUIRES a branch here AND a code-overlay REGISTRY entry --
+  // without them `s` renders the wrong era's card and `?` opens an empty panel.
+  // See the chronicle-global-ui-per-chapter pitfall in docs/HANDOFF.md.
   let centerpiece: string;
   if (chapter.id === 'arpanet') {
     centerpiece = `
@@ -67,6 +72,27 @@ function buildCard(chapter: Chapter): HTMLElement {
           <div style="font-family:'Courier New',Courier,monospace;font-size:15px;font-weight:700;color:#CC0000;margin-top:4px;">${fact.year}</div>
           <div style="font-family:'Times New Roman',Times,serif;font-size:18px;line-height:1.45;color:#000000;margin-top:12px;max-width:840px;">${truncate(fact.body, 190)}</div>
           <div style="margin-top:22px;font-family:'Courier New',Courier,monospace;font-size:18px;font-weight:700;letter-spacing:0.14em;color:#00FF00;background:#000000;padding:3px 10px;display:inline-block;border:2px solid;border-color:#808080 #FFFFFF #FFFFFF #808080;">000427</div>
+        </div>
+      </div>`;
+  } else if (chapter.id === 'browser-wars') {
+    // An IE4 window holding the chapter's one calm object: the loud magenta table
+    // frame around a white cell at 17.4:1. Decoration is period-ugly, fact text
+    // holds AA — the card has to carry BOTH or it misrepresents the chapter.
+    // Counter is red #FF2400, deliberately not Early Web's green odometer.
+    centerpiece = `
+      <div style="background:#C0C0C0;border:2px solid;border-color:#FFFFFF #808080 #808080 #FFFFFF;max-width:980px;box-shadow:0 6px 24px rgba(0,0,0,0.35);">
+        <div style="background:linear-gradient(90deg,#000080,#1084D0);color:#FFFFFF;font-family:Tahoma,Verdana,sans-serif;font-size:15px;font-weight:700;padding:5px 12px;">Browser Wars \u2014 Microsoft Internet Explorer</div>
+        <div style="background:#FFFFFF;padding:24px 28px;">
+          <div style="background:#000000;color:#00FF00;font-family:Verdana,sans-serif;font-size:15px;font-weight:700;padding:6px 12px;margin:-24px -28px 20px;">\u2605 \u2605 \u2605 WELCOME TO MY HOMEPAGE \u2605 \u2605 \u2605 BEST VIEWED IN 800\u00d7600 \u2605 \u2605 \u2605</div>
+          <div style="font-family:'Arial Black',Arial,sans-serif;font-style:italic;font-size:46px;font-weight:900;color:#FF00FF;text-shadow:3px 3px 0 #008080,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;">BROWSER WARS</div>
+          <div style="border:4px solid #FF00FF;background:#FFFFFF;padding:3px;margin-top:20px;">
+            <div style="border:1px solid #000000;padding:18px 20px;">
+              <div style="font-family:Verdana,Geneva,sans-serif;font-size:25px;font-weight:700;color:#1A1A1A;line-height:1.25;">${fact.headline}</div>
+              <div style="font-family:'Courier New',Courier,monospace;font-size:15px;font-weight:700;letter-spacing:0.08em;color:#C71585;margin-top:6px;">${fact.year}</div>
+              <div style="font-family:Verdana,Geneva,sans-serif;font-size:18px;line-height:1.6;color:#1A1A1A;margin-top:12px;max-width:840px;">${truncate(fact.body, 190)}</div>
+            </div>
+          </div>
+          <div style="margin-top:20px;font-family:'Courier New',Courier,monospace;font-size:18px;font-weight:700;letter-spacing:0.14em;color:#FF2400;background:#000000;padding:4px 11px;display:inline-block;border:2px solid #000000;">001482</div>
         </div>
       </div>`;
   } else {

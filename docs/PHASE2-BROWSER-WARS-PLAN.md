@@ -1,6 +1,7 @@
 # Phase 2 Slice 2 — Browser Wars (1995–2001)
 
-Status: **PLAN LOCKED** via `/plan-ceo-review` (SELECTIVE EXPANSION) 2026-08-03.
+Status: **SHIPPED 2026-08-04.** Plan locked via `/plan-ceo-review` 2026-08-03, design
+locked via `/plan-design-review` 2026-08-04, implemented in 3 commits the same day.
 Predecessor: `docs/PHASE2-EARLY-WEB-PLAN.md` (Slice 1, shipped).
 
 Kenny stepped away mid-review with explicit authority: *"choose whatever you'd
@@ -445,12 +446,12 @@ commit**.
   - **DONE 2026-08-04** via `/plan-design-review`. 31 hex tokens, type table, layout diagram,
     fact-rendering pattern, arrival beat, motion budget, dialog spec, responsive + a11y.
     Mockup published: `claude.ai/code/artifact/c060c5e0-f3df-4768-97ab-77aefc932cb2`
-- [ ] **T4 (P1, human: ~2h / CC: ~20min)** — content — `docs/BROWSER-WARS-CONTENT.md`, **6** facts
+- [x] **T4 (P1, human: ~2h / CC: ~20min)** — content — `docs/BROWSER-WARS-CONTENT.md`, **6** facts
   - Surfaced by: project rule — content before animation
   - **Count narrowed 6–8 → 6** by design review (matches Early Web; keeps the well scrollable
     rather than a wall of text)
   - Verify: visual/design-history scope; years accurate; mirrors ARPANET's content-doc shape
-- [ ] **T9 (P1, human: ~5h / CC: ~40min)** — assets — full authored asset inventory, **≤220 KB**
+- [x] **T9 (P1, human: ~5h / CC: ~40min)** — assets — full authored asset inventory, **≤220 KB**
   - Surfaced by: D3.2. **Raised P2 → P1** per Codex #11. **Scope and budget both widened by
     design review** — the original list covered GIFs only and omitted the badges (now
     load-bearing narrative: Netscape demoted from browser to button), the IE4 toolbar icons,
@@ -505,7 +506,7 @@ commit**.
 
 ### Commit 3 — chapter + registry move (atomic; tree never red)
 
-- [ ] **T6 (P1, human: ~2d / CC: ~70min)** — chapter — `src/chapters/browser-wars/` via `createChapter`
+- [x] **T6 (P1, human: ~2d / CC: ~70min)** — chapter — `src/chapters/browser-wars/` via `createChapter`
   - Files: chapter dir; `src/data/chapters.ts`; `src/data/manifest.ts`; `index.html`; `src/main.ts`
   - **Build to `docs/BROWSER-WARS-BRIEF.md`, not to this plan.** Includes, per design review:
     the IE4 frame + **IE4 throbber** (D3.1 reversed); the asymmetric `172px / 1fr / 148px`
@@ -514,10 +515,10 @@ commit**.
     jank in timing never layout); the **click-to-inflate visitor counter** as a real
     `<button>`; decorative links inert + `aria-hidden`
   - Verify: zero `border-radius` in the chapter; every image has explicit width/height
-- [ ] **T7 (P1, human: ~1h / CC: ~10min)** — data — glass-shatter → `browser-wars->figma-era`; remove `early-web->figma-era`
+- [x] **T7 (P1, human: ~1h / CC: ~10min)** — data — glass-shatter → `browser-wars->figma-era`; remove `early-web->figma-era`
   - **Must land in the same commit as T6** (Codex #11) — flipping the chapter live
     without the registry move leaves a dead-end chapter
-- [ ] **T8 (P1, human: ~2.5h / CC: ~20min)** — ui — code-overlay REGISTRY entry + share-card branch + **lobby card live state**
+- [x] **T8 (P1, human: ~2.5h / CC: ~20min)** — ui — code-overlay REGISTRY entry + share-card branch + **lobby card live state**
   - Surfaced by: `chronicle-global-ui-per-chapter` pitfall (9/10) — definition of done
   - **Lobby card added by design review.** `manifest.ts:26` flipping to `live: true` changes
     the card from `role="presentation"` to `role="button"` and swaps "Coming Soon" for
@@ -527,7 +528,7 @@ commit**.
     and `outline: 3px solid #00FFFF; outline-offset: 2px` for focus — `outline` renders
     outside `border-image` so it cannot be swallowed.
   - Files: `src/ui/code-overlay.ts`, `src/ui/share-card.ts`, `src/chapters/lobby/style.css`
-- [ ] **T10 (P1, human: ~1.5d / CC: ~55min)** — a11y — flash budget, reduced-motion, AA, touch targets
+- [x] **T10 (P1, human: ~1.5d / CC: ~55min)** — a11y — flash budget, reduced-motion, AA, touch targets
   - Surfaced by: D5, D6; **rescoped twice** — per Codex #8 (CSS cannot pause a GIF or control
     a native `<marquee>`; needs JS plus static first-frame alternatives) and again by design
     review (touch targets, marquee AT handling, counter semantics)
@@ -542,8 +543,8 @@ commit**.
     `#C0C0C0`
   - Verify: flash rate ≤2 Hz per element and ≤3 concurrent animated elements; marquee stops;
     GIFs swap to stills; fact text 17.4:1; `#00FF00`/`#FFFF00`/`#FF00FF` carry no text on white
-- [ ] **T11 (P1, human: ~3h / CC: ~25min)** — tests — full Playwright suite per the test plan
-- [ ] **T11b (P1 — CRITICAL REGRESSION, human: ~1h / CC: ~10min)** — tests — repair `scrollChapterToEnd` for gated transitions
+- [x] **T11 (P1, human: ~3h / CC: ~25min)** — tests — full Playwright suite per the test plan
+- [x] **T11b (P1 — CRITICAL REGRESSION, human: ~1h / CC: ~10min)** — tests — repair `scrollChapterToEnd` for gated transitions
   - Surfaced by: Eng review test diagram — **mandatory under the regression iron rule, no
     approval needed**. `tests/visual.spec.ts:52` `scrollChapterToEnd()` assumes every
     transition completes on its own. Once Browser Wars is inserted, the existing
@@ -552,7 +553,7 @@ commit**.
   - Files: `tests/visual.spec.ts`
   - Verify: helper detects a gated transition, drives the dialog, and the 4-chapter chain
     passes; the existing 3-chapter assertions still hold for the ungated legs
-- [ ] **T12 (P2, human: ~30min / CC: ~10min)** — docs — ENGINEERING_LOG / HANDOFF / AI_CONTEXT / CURRENT_TASK / PHASES / TODOS
+- [x] **T12 (P2, human: ~30min / CC: ~10min)** — docs — ENGINEERING_LOG / HANDOFF / AI_CONTEXT / CURRENT_TASK / PHASES / TODOS
   - Includes the TODO-006 closure owed to `TODOS.md`
 
 ---

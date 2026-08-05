@@ -49,6 +49,18 @@ test.describe('e2e flow', () => {
   // Scroll a chapter's spacer to its end to fire its onward transition, then wait
   // for `toId` to become the truly-active chapter (transform=translateX(0) AND not
   // the temporary visibility=hidden capture position the transition engine uses).
+  // T11b — CRITICAL REGRESSION REPAIR (Slice 2).
+  //
+  // This helper assumed every transition completes on its own. That held while every
+  // transition was a shader on a timer. The moment Browser Wars landed, the
+  // early-web → browser-wars leg became USER-GATED: a Win 3.1 dialog that waits
+  // indefinitely for a click. Without the drive step below, this helper scrolls Early
+  // Web to its end and then hangs on the dialog until the 8s timeout — breaking the
+  // pre-existing 3-chapter chain test, which had nothing to do with the new chapter.
+  //
+  // Mandatory under the regression iron rule. The helper now DETECTS a gated
+  // transition and drives it, so gated and ungated legs are both exercised by the
+  // same call and neither needs a special-case caller.
   async function scrollChapterToEnd(page: import('@playwright/test').Page, fromId: string, toId: string) {
     const { top, height } = await page.evaluate((id) => {
       const s = document.querySelector<HTMLElement>(
@@ -59,6 +71,16 @@ test.describe('e2e flow', () => {
 
     await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), top + height);
 
+    // If this leg is gated, a dialog appears and nothing further happens until a
+    // human acts. Give it a short window to show, then click OK to advance.
+    const dialog = page.locator('dialog.win31');
+    try {
+      await dialog.waitFor({ state: 'visible', timeout: 1500 });
+      await page.locator('dialog.win31 [data-act="advance"]').click();
+    } catch {
+      // Ungated leg (shader transition) — nothing to drive, carry on.
+    }
+
     await page.waitForFunction((id) => {
       const el = document.getElementById(`chapter-${id}`);
       const transform = el?.style.transform ?? '';
@@ -68,12 +90,14 @@ test.describe('e2e flow', () => {
     }, toId, { timeout: 8000 });
   }
 
-  // R1 — the Phase 1 direct ARPANET → Figma Era transition no longer exists. The
-  // canonical path is now a THREE-chapter chain:
-  //   ARPANET → (CRT power-off) → Early Web → (glass-shatter) → Figma Era.
+  // R1 — the canonical path is now a FOUR-chapter chain (Slice 2 inserted Browser
+  // Wars and relocated glass-shatter):
+  //   ARPANET → (CRT power-off) → Early Web → (Win 3.1 dialog, USER-GATED)
+  //           → Browser Wars → (glass-shatter) → Figma Era.
   // WebGL output isn't screenshot-compared (headless compositing limit), but the DOM
-  // state after each transition is verified.
-  test('ARPANET → Early Web → Figma Era transition chain', async ({ page }) => {
+  // state after each transition is verified. Leg 2 is the project's first transition
+  // that does not complete on its own — scrollChapterToEnd drives the dialog (T11b).
+  test('ARPANET → Early Web → Browser Wars → Figma Era transition chain', async ({ page }) => {
     await page.goto('/#arpanet');
     await page.waitForSelector('.arpanet-terminal');
     await page.waitForTimeout(600); // overlay fade
@@ -90,19 +114,29 @@ test.describe('e2e flow', () => {
     await scrollChapterToEnd(page, 'arpanet', 'early-web');
     expect(await page.locator('.ew-browser').count()).toBeGreaterThanOrEqual(1);
 
-    // Leg 2: Early Web → Figma Era (glass-shatter).
-    await scrollChapterToEnd(page, 'early-web', 'figma-era');
+    // Leg 2: Early Web → Browser Wars (Win 3.1 dialog — USER-GATED, driven by the helper).
+    await scrollChapterToEnd(page, 'early-web', 'browser-wars');
+    expect(await page.locator('.bw-browser').count()).toBeGreaterThanOrEqual(1);
+    // The dialog must be fully gone, and neither body state left behind.
+    expect(await page.locator('dialog.win31').count()).toBe(0);
+    expect(await page.evaluate(() =>
+      document.body.classList.contains('transition-paused'))).toBe(false);
+
+    // Leg 3: Browser Wars → Figma Era (glass-shatter, relocated here by T7).
+    await scrollChapterToEnd(page, 'browser-wars', 'figma-era');
     const cardCount = await page.locator('.figma-card').count();
     expect(cardCount).toBeGreaterThanOrEqual(3);
 
-    // Both prior chapters are off-screen; scroll lock released.
+    // All prior chapters are off-screen; scroll lock released.
     const state = await page.evaluate(() => ({
       arpanet: document.getElementById('chapter-arpanet')?.style.transform,
       earlyWeb: document.getElementById('chapter-early-web')?.style.transform,
+      browserWars: document.getElementById('chapter-browser-wars')?.style.transform,
       locked: document.body.classList.contains('scroll-locked'),
     }));
     expect(state.arpanet).toMatch(/translateX\(-100vw\)/);
     expect(state.earlyWeb).toMatch(/translateX\(-100vw\)/);
+    expect(state.browserWars).toMatch(/translateX\(-100vw\)/);
     expect(state.locked).toBe(false);
   });
 

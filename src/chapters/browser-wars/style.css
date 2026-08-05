@@ -1,0 +1,436 @@
+/* Browser Wars — 1995–2001.
+   Every value here comes from docs/BROWSER-WARS-BRIEF.md. Change the brief first.
+
+   Two rules that are easy to break and expensive to break:
+   - ZERO border-radius anywhere in this chapter. Every border is 1px hard black or
+     a 2px beveled outset.
+   - #00FF00 (1.4:1), #FFFF00 (1.1:1) and #FF00FF (3.1:1) NEVER carry text on white.
+     They are frames, fills and ornament grounds only. All fact text lives in the
+     well at #1A1A1A (17.4:1). */
+
+/* Comic Neue (SIL OFL) is bundled because the stack must never end at a bare
+   generic: 'Comic Sans MS','Chalkboard SE',cursive lands on the system default
+   across Linux/Android with no error, which silently turns "correctly ugly 1998
+   page" into "badly made modern page". See src/assets/fonts/README.md. */
+@font-face {
+  font-family: 'Comic Neue';
+  src: url('../../assets/fonts/comic-neue-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Comic Neue';
+  src: url('../../assets/fonts/comic-neue-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+#chapter-browser-wars {
+  --bw-shell: #0A0A0A;
+  --bw-chrome: #C0C0C0;
+  --bw-chrome-hi: #FFFFFF;
+  --bw-chrome-lo: #808080;
+  --bw-chrome-dk: #000000;
+  --bw-title-l: #000080;
+  --bw-title-r: #1084D0;
+
+  --bw-page: #FFFFFF;
+  --bw-magenta: #FF00FF;
+  --bw-yellow: #FFFF00;
+  --bw-lime: #00FF00;
+  --bw-cyan: #00FFFF;
+  --bw-ink: #000000;
+
+  --bw-link: #0000FF;
+  --bw-visited: #800080;
+
+  --bw-well-frame: #FF00FF;
+  --bw-well-ground: #FFFFFF;
+  --bw-well-rule: #000000;
+  --bw-well-ink: #1A1A1A;
+  --bw-well-year: #C71585;
+
+  --bw-marquee-bg: #000000;
+  --bw-marquee-ink: #00FF00;
+  --bw-counter-bg: #000000;
+  --bw-counter-digit: #FF2400;
+
+  --bw-comic: 'Comic Sans MS', 'Comic Neue', 'Chalkboard SE', cursive;
+  --bw-body: Verdana, Geneva, 'DejaVu Sans', sans-serif;
+  --bw-chrome-font: 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, Verdana, sans-serif;
+
+  background: var(--bw-shell);
+  overflow: hidden;
+}
+
+.bw-shell {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 3vh 3vw;
+  box-sizing: border-box;
+}
+
+/* ── IE4 browser frame ─────────────────────────────────────────────────── */
+.bw-browser {
+  width: min(1180px, 94vw);
+  height: min(88vh, 780px);
+  display: flex;
+  flex-direction: column;
+  background: var(--bw-chrome);
+  border: 1px solid var(--bw-chrome-dk);
+  box-shadow:
+    inset 1px 1px 0 var(--bw-chrome-hi),
+    inset -1px -1px 0 var(--bw-chrome-lo),
+    0 18px 50px rgba(0, 0, 0, 0.6);
+  font: 12px/1.3 var(--bw-chrome-font);
+  color: var(--bw-chrome-dk);
+}
+
+.bw-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 3px 3px 6px;
+  background: linear-gradient(90deg, var(--bw-title-l), var(--bw-title-r));
+  color: #FFFFFF;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+.bw-title { flex: 1; }
+.bw-winctl {
+  width: 18px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--bw-chrome);
+  color: var(--bw-chrome-dk);
+  border: 1px solid var(--bw-chrome-dk);
+  box-shadow: inset 1px 1px 0 var(--bw-chrome-hi), inset -1px -1px 0 var(--bw-chrome-lo);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.bw-menubar {
+  display: flex;
+  gap: 14px;
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--bw-chrome-lo);
+  flex: 0 0 auto;
+}
+
+.bw-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--bw-chrome-lo);
+  box-shadow: inset 0 -1px 0 var(--bw-chrome-hi);
+  flex: 0 0 auto;
+}
+.bw-tbtn {
+  display: grid;
+  place-items: center;
+  gap: 1px;
+  min-width: 54px;
+  padding: 3px 6px 2px;
+  box-shadow: inset 1px 1px 0 var(--bw-chrome-hi), inset -1px -1px 0 var(--bw-chrome-lo);
+  font-size: 11px;
+}
+.bw-tbtn.is-off {
+  color: var(--bw-chrome-lo);
+  text-shadow: 1px 1px 0 var(--bw-chrome-hi);
+}
+.bw-tsep {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 5px;
+  background: var(--bw-chrome-lo);
+  box-shadow: 1px 0 0 var(--bw-chrome-hi);
+}
+
+/* Authored 16-colour sprite, 8 icons at 16×16. Not emoji — emoji as design
+   elements is AI-slop blacklist item 7, and an incomplete asset list is how it
+   gets in. */
+.bw-ico {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-image: url('./assets/ie4-toolbar-sprite.png');
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+.bw-ico-back    { background-position:    0 0; }
+.bw-ico-fwd     { background-position: -16px 0; }
+.bw-ico-stop    { background-position: -32px 0; }
+.bw-ico-refresh { background-position: -48px 0; }
+.bw-ico-home    { background-position: -64px 0; }
+.bw-ico-search  { background-position: -80px 0; }
+.bw-ico-fav     { background-position: -96px 0; }
+.bw-ico-e       { background-position: -112px 0; }
+
+.bw-throbber {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 26px;
+  background: var(--bw-title-l);
+  border: 1px solid var(--bw-chrome-dk);
+  box-shadow: inset 1px 1px 0 var(--bw-chrome-lo);
+}
+/* 1 rev / 1.2s, zero flashes — inside the 2 Hz motion budget. */
+.bw-throbber.is-spinning .bw-ico-e { animation: bw-spin 1.2s linear infinite; }
+@keyframes bw-spin { to { transform: rotate(360deg); } }
+
+.bw-address {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--bw-chrome-lo);
+  box-shadow: inset 0 -1px 0 var(--bw-chrome-hi);
+  flex: 0 0 auto;
+}
+.bw-address-label { font-size: 11px; }
+.bw-address-field {
+  flex: 1;
+  padding: 2px 5px;
+  background: var(--bw-page);
+  border: 1px solid var(--bw-chrome-lo);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.35);
+  font-size: 11px;
+}
+
+.bw-status {
+  display: flex;
+  gap: 8px;
+  padding: 3px 6px;
+  border-top: 1px solid var(--bw-chrome-hi);
+  font-size: 11px;
+  flex: 0 0 auto;
+}
+.bw-status-cell {
+  padding: 1px 5px;
+  box-shadow: inset 1px 1px 0 var(--bw-chrome-lo), inset -1px -1px 0 var(--bw-chrome-hi);
+}
+.bw-grow { flex: 1; }
+
+/* ── the page inside the browser ───────────────────────────────────────── */
+.bw-page {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bw-page);
+  background-image: var(--bw-tile);
+  background-repeat: repeat;
+  font-family: var(--bw-comic);
+  color: var(--bw-ink);
+  padding-bottom: 18px;
+}
+
+.bw-marquee {
+  background: var(--bw-marquee-bg);
+  color: var(--bw-marquee-ink);
+  font: 700 14px/1 var(--bw-comic);
+  padding: 6px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--bw-ink);
+}
+.bw-marquee-track {
+  display: inline-block;
+  padding-left: 100%;
+  animation: bw-marquee 18s linear infinite;
+}
+@keyframes bw-marquee { to { transform: translateX(-100%); } }
+
+.bw-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.bw-hero { padding: 14px 18px 8px; }
+.bw-wordart { display: block; max-width: min(560px, 100%); height: auto; }
+
+/* Asymmetric on purpose. NEVER repeat(3, 1fr) — three equal columns is AI-slop
+   blacklist item 2 and it is one keystroke away from here. */
+.bw-cols {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr) 148px;
+  gap: 14px;
+  padding: 6px 18px 0;
+  align-items: start;
+}
+
+/* ── left rail: badges + webring ───────────────────────────────────────── */
+.bw-rail { display: grid; gap: 10px; justify-items: start; }
+.bw-badge {
+  display: block;
+  border: 1px solid var(--bw-ink);
+  image-rendering: pixelated;
+}
+.bw-webring {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid var(--bw-ink);
+  background: var(--bw-cyan);
+  padding: 6px;
+  font: 11px/1.4 var(--bw-body);
+  text-align: center;
+  color: var(--bw-ink);
+}
+.bw-wr-link { color: var(--bw-link); }
+.bw-wr-link.is-visited { color: var(--bw-visited); }
+
+/* ── centre: the fact well (the calm) ──────────────────────────────────── */
+.bw-well {
+  border: 4px solid var(--bw-well-frame);
+  background: var(--bw-well-ground);
+  padding: 3px;
+}
+.bw-well-inner {
+  border: 1px solid var(--bw-well-rule);
+  padding: 16px 18px;
+}
+
+.bw-fact {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 320ms ease-out, transform 320ms ease-out;
+}
+.bw-fact.is-revealed { opacity: 1; transform: none; }
+
+.bw-fact-headline {
+  margin: 0 0 2px;
+  font: 700 17px/1.25 var(--bw-body);
+  color: var(--bw-well-ink);
+}
+.bw-fact-year {
+  display: block;
+  margin-bottom: 9px;
+  font: 700 12px/1 'Courier New', Courier, monospace;
+  letter-spacing: 0.08em;
+  color: var(--bw-well-year);
+}
+.bw-fact-body {
+  margin: 0;
+  font: 15px/1.6 var(--bw-body);
+  color: var(--bw-well-ink);
+  max-width: 62ch;
+}
+.bw-tag {
+  font: 13px/1 'Courier New', Courier, monospace;
+  background: #F0F0F0;
+  border: 1px solid #D0D0D0;
+  padding: 0 3px;
+}
+.bw-rule {
+  border: 0;
+  border-top: 1px solid #D0D0D0;
+  margin: 16px 0;
+}
+
+/* ── right rail: counter + ornaments ───────────────────────────────────── */
+.bw-side { display: grid; gap: 12px; justify-items: center; }
+
+.bw-counter { text-align: center; }
+.bw-counter-label {
+  display: block;
+  margin-bottom: 3px;
+  font: 700 10px/1.3 var(--bw-body);
+  color: var(--bw-ink);
+}
+.bw-counter-digits {
+  display: inline-block;
+  padding: 5px 7px;
+  background: var(--bw-counter-bg);
+  border: 2px solid var(--bw-ink);
+  box-shadow: inset 1px 1px 0 #4A4A4A;
+  font: 700 19px/1 'Courier New', Courier, monospace;
+  letter-spacing: 2px;
+  /* RED, deliberately not Early Web's #00FF00 odometer — two chapters cannot
+     share one artifact or the eye reads it as the same object. */
+  color: var(--bw-counter-digit);
+  text-shadow: 0 0 6px rgba(255, 36, 0, 0.75);
+  cursor: pointer;
+}
+.bw-counter-digits:focus-visible {
+  outline: 3px solid var(--bw-cyan);
+  outline-offset: 2px;
+}
+.bw-counter-digits:active { box-shadow: inset 2px 2px 0 #4A4A4A; }
+
+.bw-gif {
+  display: block;
+  border: 1px solid var(--bw-ink);
+  image-rendering: pixelated;
+}
+
+.bw-foot {
+  margin: 16px 18px 0;
+  padding-top: 10px;
+  border-top: 3px double var(--bw-ink);
+  font: 11px/1.5 var(--bw-body);
+  color: var(--bw-ink);
+}
+.bw-link { color: var(--bw-link); }
+.bw-link.is-visited { color: var(--bw-visited); }
+
+/* ── arrival beat: the 56k page load ───────────────────────────────────── */
+/* Tile → WordArt → marquee → well → GIFs popping in out of order and late.
+   Total under 1.0s. The jank is TIMING, never layout: every image carries
+   explicit width/height so space is reserved and nothing shifts.
+
+   Driven by a CLASS TOGGLE from JS, never a fill-mode keyframe. A `both`-filled
+   animation leaves animationName set forever, which both violates the project's
+   visibility invariant (see docs/HANDOFF.md) and makes the motion budget
+   unmeasurable — every arrived element would count as "still animating". */
+.bw-stagger { visibility: hidden; }
+.bw-stagger.is-in { visibility: visible; }
+
+/* ── responsive ────────────────────────────────────────────────────────── */
+/* Frame scales as one unit; rails unwrap BELOW the well; the well is always the
+   widest element and never drops under 14px. Deliberately different from Early
+   Web's horizontal-scroll call (TODO-008 shows that approach is unverified on
+   hardware, and this chapter carries an interactive dialog that must be reachable
+   without horizontal panning). Order changes; the era does not. */
+@media (max-width: 720px) {
+  .bw-shell { padding: 1.5vh 2vw; }
+  .bw-browser { width: 100%; height: min(92vh, 760px); }
+  .bw-menubar { display: none; }
+  .bw-tbtn { min-width: 0; font-size: 0; padding: 3px 5px; }
+  .bw-tbtn .bw-ico { margin: 0; }
+  .bw-title { font-size: 11px; }
+
+  .bw-cols {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 6px 12px 0;
+  }
+  /* well first, then counter, then badges — content before ornament */
+  .bw-well { order: 1; }
+  .bw-side { order: 2; grid-auto-flow: column; justify-content: start; justify-items: start; }
+  .bw-rail { order: 3; grid-auto-flow: column; justify-content: start; gap: 6px; }
+  .bw-webring { display: none; }
+  .bw-fact-body { font-size: 14px; }
+  .bw-fact-headline { font-size: 15px; }
+  .bw-hero { padding: 10px 12px 4px; }
+}
+
+/* ── reduced motion ────────────────────────────────────────────────────── */
+/* GIF srcs are swapped in JS (CSS cannot pause a GIF — Codex #8). Everything
+   else stops here. */
+@media (prefers-reduced-motion: reduce) {
+  .bw-marquee-track { animation: none; padding-left: 0; }
+  .bw-throbber.is-spinning .bw-ico-e { animation: none; }
+  .bw-fact { transition: none; }
+}

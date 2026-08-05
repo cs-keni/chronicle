@@ -175,13 +175,46 @@
   border: 2px solid #000080;
 }
 
-/* Browser Wars (stub) */
+/* Browser Wars — LIVE as of Phase 2 Slice 2.
+   'Comic Neue' added to the stack: the previous ending was a bare `cursive`, and
+   Chalkboard SE is macOS-only, so Linux/Android fell through to the system default
+   with no error. See src/assets/fonts/README.md. */
 .card-browser-wars {
   background: #FFFFFF;
   color: #000000;
-  font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+  font-family: 'Comic Sans MS', 'Comic Neue', 'Chalkboard SE', cursive;
   border: 3px solid;
-  border-image: linear-gradient(45deg, #FF00FF, #FFFF00, #00FF00, #00FFFF, #FF00FF) 1;
+  border-image: linear-gradient(var(--bw-card-angle, 45deg), #FF00FF, #FFFF00, #00FF00, #00FFFF, #FF00FF) 1;
+}
+
+/* Era-specific live hover, matching the ARPANET and Figma Era precedent: the
+   rainbow border rotates. Period-native (animated rainbow borders were everywhere)
+   and it signals "live" without adding chrome. 3s/rev — well inside the 2 Hz budget. */
+@property --bw-card-angle {
+  syntax: '<angle>';
+  initial-value: 45deg;
+  inherits: false;
+}
+.card-browser-wars[data-live='true']:hover,
+.card-browser-wars[data-live='true']:focus-visible {
+  animation: bw-card-spin 3s linear infinite;
+}
+@keyframes bw-card-spin {
+  to { --bw-card-angle: 405deg; }
+}
+
+/* `outline` renders OUTSIDE the border-image, so it cannot be swallowed by it —
+   which a border-based focus ring on this card would be. Cyan is in-palette. */
+.card-browser-wars[data-live='true']:focus-visible {
+  outline: 3px solid #00FFFF;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-browser-wars[data-live='true']:hover,
+  .card-browser-wars[data-live='true']:focus-visible {
+    animation: none;
+  }
 }
 
 /* Post-Crash (stub) */

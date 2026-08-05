@@ -1,6 +1,10 @@
 # Current Task
 
-**Phase:** Phase 2 Slice 2 (Browser Wars) — **PLAN + DESIGN BOTH LOCKED**, implementation not started. Plan: `docs/PHASE2-BROWSER-WARS-PLAN.md`. Design brief: `docs/BROWSER-WARS-BRIEF.md` (**build T6 against the brief, not the plan's prose**). Mockup: `claude.ai/code/artifact/c060c5e0-f3df-4768-97ab-77aefc932cb2`. Reviewed via `/plan-ceo-review` (SELECTIVE EXPANSION, 5 of 6 accepted), Codex outside voice (12 findings, all applied), `/plan-eng-review` (5 findings, all folded), and `/plan-design-review` 2026-08-04 (4/10 → 9/10, 18 decisions, T5 completed in-review).
+**Phase:** Phase 2 Slice 2 (Browser Wars) — **SHIPPED 2026-08-04**. Chronicle now runs a four-chapter chain: `ARPANET → (CRT) → Early Web → (Win 3.1 dialog, USER-GATED) → Browser Wars → (glass-shatter) → Figma Era`. Plan `docs/PHASE2-BROWSER-WARS-PLAN.md`, design brief `docs/BROWSER-WARS-BRIEF.md`, mockup `claude.ai/code/artifact/c060c5e0-f3df-4768-97ab-77aefc932cb2`. Verified: tsc clean, vitest 22/22, Playwright 36/36, build clean, entry 69.20 KB gzip.
+
+**Next up — Slice 3.** Open items, in the order I'd take them: **TODO-007** (generate chapter DOM from the manifest — deliberately deferred through two slices now; it would delete the need for `tests/wiring.spec.ts` entirely). Then the remaining Phase 2 chapters. **TODO-009** (frame morphs Netscape 4 → IE4 across the Browser Wars scroll) is the strongest idea surfaced by the design review and is pure upside. **TODO-010** (design the Browser Wars → Figma Era exit contrast) is the only major transition in the project nobody has designed, only wired.
+
+**Still manual, still blocked on hardware:** profile glass-shatter at 60fps in headed Chrome (WSL2 headless has no GPU path) → `docs/SHADER-PROFILES.md`. And **TODO-008**, Early Web mobile horizontal-scroll on a real phone. Note Browser Wars deliberately made the OPPOSITE responsive call (frame scales as one unit, rails unwrap below the well) — worth comparing the two on real hardware.
 
 **Next step: implement in 3 commits** — (1) T4 content + T9 assets + T9b Comic Relief self-host; (2) T1/T2/T2b/T2c/T3a/T3b engine; (3) T6+T7 atomic + T8/T10/T11/T11b/T12.
 

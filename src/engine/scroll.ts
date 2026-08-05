@@ -182,6 +182,13 @@ let backwardsNavInFlight = false;
 export function returnToChapter(toId: string, pct: number): Promise<void> {
   return new Promise((resolve) => {
     const overlay = document.getElementById('transition-overlay')!;
+    // The instant scrollTo below crosses a spacer boundary backwards, which fires
+    // onLeaveBack for the chapter we just left. Without this guard that queues a
+    // SECOND return on top of this one — re-locking the body for another 150ms after
+    // the first has already resolved. fireBackwardsNav has always had a guard for
+    // its own scrollTo; the guard belongs with the SCROLL, so it lives here now and
+    // covers the dialog's Cancel path too.
+    returnInFlight = true;
     lockScroll();
 
     overlay.style.transition = 'opacity 0.15s ease-in';
@@ -210,10 +217,15 @@ export function returnToChapter(toId: string, pct: number): Promise<void> {
       overlay.style.opacity = '0';
       unlockScroll();
 
+      // Held one extra frame-ish so the scroll-induced onLeaveBack (which fires
+      // asynchronously after the instant scrollTo) is still suppressed when it lands.
+      setTimeout(() => { returnInFlight = false; }, 150);
       resolve();
     }, 150);
   });
 }
+
+let returnInFlight = false;
 
 /**
  * Land at 85% through the previous chapter — near the end but clear of the dwell
@@ -225,7 +237,7 @@ export const RETURN_LANDING_PCT = 0.85;
 function fireBackwardsNav(fromId: string, toId: string) {
   // Guard: the instant scrollTo during this function can re-trigger onLeaveBack
   // for the chapter we're leaving, causing a second call before the first completes.
-  if (backwardsNavInFlight) return;
+  if (backwardsNavInFlight || returnInFlight) return;
   backwardsNavInFlight = true;
 
   stopChapterAmbient(fromId); // begin fading out alongside the overlay

@@ -13,6 +13,9 @@ import arpanetIndexSrc from '../chapters/arpanet/index.ts?raw';
 import arpanetTerminalSrc from '../chapters/arpanet/terminal.ts?raw';
 import earlyWebIndexSrc from '../chapters/early-web/index.ts?raw';
 import earlyWebStyleSrc from '../chapters/early-web/style.css?raw';
+import browserWarsIndexSrc from '../chapters/browser-wars/index.ts?raw';
+import browserWarsStyleSrc from '../chapters/browser-wars/style.css?raw';
+import win31DialogSrc from '../transitions/win31-dialog.ts?raw';
 import figmaStyleSrc from '../chapters/figma-era/style.css?raw';
 import figmaIndexSrc from '../chapters/figma-era/index.ts?raw';
 
@@ -55,6 +58,29 @@ const REGISTRY: Record<string, SourceFile[]> = {
       lang: 'ts',
       caption: 'Facts reveal on scroll into the framed page, and the green odometer hit-counter ticks up as the visitor scrolls — the era’s own progress bar.',
       code: earlyWebIndexSrc,
+    },
+  ],
+  'browser-wars': [
+    {
+      label: 'win31-dialog.ts',
+      path: 'src/transitions/win31-dialog.ts',
+      lang: 'ts',
+      caption: 'The chapter you just came through. Chronicle\u2019s first user-gated transition: a native <dialog> whose OK button advances, with a three-valued settlement because \u2018advance | cancel\u2019 cannot express the router navigating away mid-dialog.',
+      code: win31DialogSrc,
+    },
+    {
+      label: 'style.css',
+      path: 'src/chapters/browser-wars/style.css',
+      lang: 'css',
+      caption: 'Correctly ugly takes more craft than tastefully ugly. The loud magenta frame wraps a calm white cell at 17.4:1 contrast \u2014 decoration is period-accurate, fact text holds WCAG AA, and both hold at once.',
+      code: browserWarsStyleSrc,
+    },
+    {
+      label: 'index.ts',
+      path: 'src/chapters/browser-wars/index.ts',
+      lang: 'ts',
+      caption: 'The 56k arrival beat (jank in timing, never layout \u2014 every image reserves its space), and a visitor counter you can inflate by clicking, exactly as 90s page owners inflated theirs.',
+      code: browserWarsIndexSrc,
     },
   ],
   'figma-era': [

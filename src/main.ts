@@ -8,6 +8,7 @@ import { initAudioEngine } from './engine/audio';
 import { initLobby } from './chapters/lobby/index';
 import { initArpanet } from './chapters/arpanet/index';
 import { initEarlyWeb } from './chapters/early-web/index';
+import { initBrowserWars } from './chapters/browser-wars/index';
 import { initFigmaEra } from './chapters/figma-era/index';
 import { initControls } from './ui/controls';
 
@@ -19,6 +20,7 @@ import glassShatterFrag from './shaders/glass-shatter.frag?raw';
 const lobbyEl    = document.getElementById('chapter-lobby')!;
 const arpanetEl  = document.getElementById('chapter-arpanet')!;
 const earlyWebEl = document.getElementById('chapter-early-web')!;
+const browserWarsEl = document.getElementById('chapter-browser-wars')!;
 const figmaEraEl = document.getElementById('chapter-figma-era')!;
 
 // Init chapters (each registers itself with chapterManager internally).
@@ -26,6 +28,7 @@ const figmaEraEl = document.getElementById('chapter-figma-era')!;
 initLobby(lobbyEl);
 initArpanet(arpanetEl);
 initEarlyWeb(earlyWebEl);
+initBrowserWars(browserWarsEl);
 initFigmaEra(figmaEraEl);
 
 // Register lobby with chapter manager (arpanet + figma-era register themselves via initX)
