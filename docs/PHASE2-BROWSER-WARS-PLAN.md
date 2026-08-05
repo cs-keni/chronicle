@@ -385,7 +385,7 @@ content. Decoration is period-ugly; fact text holds WCAG AA (`#1A1A1A` on `#FFFF
 macOS-only, so on Linux and Android both fall through to a generic `cursive` that is usually
 not installed — landing on the system default. That is AI-slop blacklist item 11 arriving by
 accident on roughly a third of devices, and the "correctly ugly" thesis dies silently.
-**Fix: self-host Comic Relief** (SIL OFL, metric-compatible with Comic Sans, ~28KB woff2).
+**Fix: self-host a bundled comic face** (SIL OFL). Shipped as **Comic Neue** (23 KB, both weights, subset) — Comic Relief was the original call for metric compatibility but could not be sourced; Comic Neue is a redesign rather than a metric clone, so it sets slightly narrower. Cosmetic difference between two comic faces, not the failure this prevents.
 **Papyrus is dropped** — no free metric clone, and no job left once WordArt ships as an SVG
 asset rather than a typeface (which is what WordArt always was).
 
@@ -461,7 +461,7 @@ commit**.
     1 WordArt SVG with paths flattened · 1 background tile as a real 48×48 GIF
   - Verify: 220 KB budget held; `loading="lazy"`; explicit width/height on every image;
     **measured** flash rate ≤2 Hz per element
-- [ ] **T9b (P1, human: ~1h / CC: ~10min)** — assets — self-host **Comic Relief** (SIL OFL, ~28KB woff2 subset)
+- [x] **T9b (P1, human: ~1h / CC: ~10min)** — assets — self-host a bundled comic face (SIL OFL)
   - Surfaced by: design review — **live defect, not polish.** `lobby/style.css:182` ships
     `'Comic Sans MS','Chalkboard SE',cursive`; Chalkboard SE is macOS-only, so Linux/Android
     fall through to a generic `cursive` that is usually absent and land on the system default.

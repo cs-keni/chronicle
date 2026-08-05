@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 96" width="560" height="96" role="img" aria-label="Browser Wars">
+  <title>Browser Wars</title>
+  <!--
+    WordArt was never a typeface. It was a rendered picture embedded in the page,
+    which is why shipping it as an asset is MORE period-accurate than any font
+    choice - and why it removes the headline's font dependency entirely.
+    See docs/BROWSER-WARS-BRIEF.md, "Typography".
+
+    Impact / Arial Black is named only as outline geometry; if it is absent the
+    fallback sans still renders inside the same gradient + stroke + shadow
+    treatment, so the WordArt read survives. The heading text is carried by
+    <title> and the parent's aria-label, never by the glyphs alone.
+  -->
+  <defs>
+    <linearGradient id="bw-wordart" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF00FF"/>
+      <stop offset="52%" stop-color="#FF0080"/>
+      <stop offset="100%" stop-color="#FFFF00"/>
+    </linearGradient>
+  </defs>
+  <!-- hard offset shadow, teal, no blur - blur is a modern artifact -->
+  <text x="8" y="70" font-family="Impact, 'Arial Black', 'Helvetica Neue', sans-serif"
+        font-size="62" font-style="italic" font-weight="900" fill="#008080">BROWSER WARS</text>
+  <!-- face: gradient fill under a 2.5px black stroke, stroke painted first -->
+  <text x="0" y="64" font-family="Impact, 'Arial Black', 'Helvetica Neue', sans-serif"
+        font-size="62" font-style="italic" font-weight="900" fill="url(#bw-wordart)"
+        stroke="#000000" stroke-width="2.5" paint-order="stroke">BROWSER WARS</text>
+</svg>

@@ -210,7 +210,8 @@ fall through to the system default with no error. Self-host Comic Relief (SIL OF
 - [x] Early Web chapter (1983–1994): system gray, Navy/Red palette, Times New Roman, dithered gradients
 - [ ] Browser Wars chapter (1995–2001): gaudy palette, animated GIFs (authored originals, not archived — provenance), tiled bg, **IE4 frame + IE4 throbber** (D3.1's Netscape throbber reversed by design review — an IE4 window cannot carry an N-comet; Netscape demotes to a badge), 56k arrival beat, click-to-inflate counter — plan + brief locked, see `docs/BROWSER-WARS-BRIEF.md`
   - [x] T5 design brief — done in-review 2026-08-04
-  - [ ] T9b self-host Comic Relief (SIL OFL) — fixes a silent font fallback already live in `main`
+  - [x] T9b self-host a comic face (Comic Neue, SIL OFL, 23 KB) — fixes a silent font fallback already live in `main`
+  - [x] T4 content doc + 6-fact record · [x] T9 assets authored (19.0 KB / 220 KB budget)
 - [ ] Post-Crash / Web 2.0 chapter (2002–2007): desaturated blues, Verdana, rational spacing, gloss
 - [ ] Mobile / Skeuomorphic chapter (2008–2012): leather textures, linen, embossed type, Helvetica Neue
 - [ ] Flat / Material chapter (2013–2018): Google 2014 palette, Roboto, long shadows, FABs

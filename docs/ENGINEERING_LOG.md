@@ -1,5 +1,47 @@
 # Engineering Log
 
+## 2026-08-04 (Slice 2 Commit 1 — content + assets, no chapter code)
+
+T4, T9, T9b. Content before animation, per the project rule and Codex #11's re-sequencing.
+
+**T4 — `docs/BROWSER-WARS-CONTENT.md` + the `browser-wars` record in `chapters.ts`.** Six
+facts: proprietary tags (`<blink>` vs `<marquee>`) → the `<font>` tag handing designers
+typographic control → animated GIFs arriving as a Netscape looping extension → Verdana and
+Georgia drawn *for* the screen → the 88×31 button as the internet's first user-generated
+standard → layout freezing to a fixed 760px. The arc ends on fragmentation, which is what
+Post-Crash cleans up.
+
+**GeoCities deliberately omitted.** `EARLY-WEB-CONTENT.md` already owns it (1994, "Everyone
+Got a Home Page"). Repeating it would have made two adjacent chapters argue over the same
+territory. Worth checking cross-chapter content collisions before authoring, not after.
+
+**T9 — assets authored with PIL as real 16-colour files, 19.0 KB against the 220 KB budget.**
+3 animated GIFs (under-construction 2 Hz, email 1 Hz, NEW! 1.5 Hz) each with a mandatory
+static first-frame PNG sibling; 4 authored 88×31 badges; an 8-icon IE4 toolbar sprite; a
+48×48 background tile as a real GIF (a vector tile would be a modern artifact); the WordArt
+heading as SVG. Every GIF is at or under the 2 Hz motion budget by construction.
+
+**T9b — the font fix, with a deviation worth recording.** The brief specified **Comic
+Relief** because it is metrically compatible with Comic Sans. It is not sourceable from any
+reliable distribution point (three candidate URLs, all 404). **Shipped Comic Neue instead**
+(SIL OFL, Craig Rozynski, via Google Fonts) — same license class, same job, but a redesign
+rather than a metric clone, so it sets slightly narrower. That is a cosmetic difference
+between two comic faces, not the silent system-default fallback the bundle exists to prevent.
+Both weights subset to the glyphs actually used: **23 KB total**. `OFL.txt` bundled as the
+license requires; the deviation is documented in `src/assets/fonts/README.md` and in the
+brief rather than papered over.
+
+**Note on the entry chunk:** 64.31 → 66.45 KB gzip. The +2.1 KB is the content record, not
+code — `chapters.ts` is statically imported, so every chapter's prose ships in the entry
+bundle. That is pre-existing architecture and unrelated to the ~2 KB runner budget T3b is
+held to, but it is worth knowing that each new chapter costs ~2 KB of entry weight in facts
+alone before a line of chapter code exists.
+
+Verified: tsc clean, vitest 17/17, build clean. `browser-wars` stays `live: false` — the
+chapter is not wired until Commit 3, so nothing reads this content record yet.
+
+Commit: `PENDING-C1`.
+
 ## 2026-08-04 (planning: Phase 2 Slice 2 — design review, 4/10 → 9/10)
 
 No code. `/plan-design-review` on `docs/PHASE2-BROWSER-WARS-PLAN.md`. Wrote

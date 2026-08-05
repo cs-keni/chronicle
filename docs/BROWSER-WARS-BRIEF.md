@@ -124,21 +124,29 @@ object and the era-jump loses a beat.
 
 | Role | Stack | Size / weight |
 |------|-------|---------------|
-| Decoration & chrome copy | `"Comic Sans MS", "Comic Relief", "Chalkboard SE", cursive` | 13–15px / 400–700 |
+| Decoration & chrome copy | `"Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive` | 13–15px / 400–700 |
 | Fact body | `Verdana, Geneva, "DejaVu Sans", sans-serif` | 15px / 1.6 / 400, measure ~62ch |
 | Fact headline | `Verdana, Geneva, sans-serif` | 17px / 700 |
 | Year label | `"Courier New", monospace` | 12px / 700 / `.08em` |
 | Browser + dialog chrome | `"MS Sans Serif", "Microsoft Sans Serif", Tahoma, Verdana, sans-serif` | 11–12px |
 | WordArt heading | — not a font — | SVG asset |
 
-**Self-host Comic Relief (SIL OFL, ~28KB woff2 subset). This is P1, not polish.**
+**Self-host a bundled comic face (SIL OFL). This is P1, not polish.**
 `lobby/style.css:182` currently ships `'Comic Sans MS', 'Chalkboard SE', cursive`, and
 Chalkboard SE is macOS-only. On Linux and Android both fall through to a generic `cursive`
 that is usually not installed, so the browser lands on the system default — which is AI-slop
 blacklist item 11 (`system-ui` as the primary display face) arriving by accident on roughly a
 third of devices. The chapter then reads as a *badly made* website rather than a *1998*
-website, and the entire "correctly ugly" thesis dies silently. Comic Relief is metric-
-compatible with Comic Sans specifically, so machines that have the real face still use it.
+website, and the entire "correctly ugly" thesis dies silently. Machines that have real Comic Sans still use it; everyone else
+gets a genuine comic face instead of the system default.
+
+**Shipped: Comic Neue, not Comic Relief.** The original call was Comic Relief because it is
+*metrically compatible* with Comic Sans. It could not be sourced from a reliable distribution
+point at build time. Comic Neue (SIL OFL, Craig Rozynski, via Google Fonts) is shipped instead
+— same license class, same job, but a redesign rather than a metric clone, so it sets slightly
+narrower. That is a cosmetic difference between two comic faces, not the failure the bundle
+exists to prevent. Drop-in swap if Comic Relief becomes sourceable. Bundled at
+`src/assets/fonts/` with `OFL.txt`; both weights subset to 23 KB total.
 
 **Papyrus is dropped.** [auto-decided] It has no free metric clone, and once WordArt ships
 as an asset it has no remaining job.
@@ -411,7 +419,7 @@ incomplete asset lists are exactly where generic icons and emoji enter.
 | IE4 toolbar icons | 8 | 16×16 — Back, Forward, Stop, Refresh, Home, Search, Favorites, throbber |
 | WordArt heading | 1 | SVG, paths flattened, no font dependency |
 | Background tile | 1 | 48×48 real 16-color GIF (~400 bytes) — a vector tile would be a modern artifact |
-| Comic Relief webfont | 1 | ~28KB woff2, subset to used glyphs |
+| Comic Neue webfont | 2 | 23 KB total (regular + bold), woff2, subset to used glyphs. `OFL.txt` bundled. |
 
 **All authored originals.** No archived GeoCities assets — provenance risk on a public
 portfolio piece, and period-correct 16-color dithered encoding is also the smallest.
