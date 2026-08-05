@@ -31,7 +31,7 @@ nothing whatsoever, suspect staleness before suspecting your model of the code.
 
 Verified: tsc clean, vitest 22/22, Playwright **37/37**, build clean.
 
-Commit: `PENDING-C4`.
+Commit: `b0b1eaf`.
 
 ## 2026-08-04 (Slice 2 Commit 3 — Browser Wars is LIVE)
 
