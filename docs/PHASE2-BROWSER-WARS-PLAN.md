@@ -333,6 +333,17 @@ decoded when the capture runs.
 - Code overlay `?` opens real browser-wars source (REGISTRY entry present).
 - Share `s` renders the Browser Wars card, not Early Web's.
 
+**Added by design review:**
+- **Font fallback holds** — with MS core fonts unavailable, the chapter still renders in a
+  Comic-Sans-metric face (Comic Relief), not the system default. This is the AI-slop
+  blacklist-11 regression guard; without it the failure is silent on Linux/Android.
+- **Fact-text contrast** — computed contrast of `.bw-well` body copy ≥ 4.5:1 (target 17.4:1).
+- **Touch targets** — dialog OK/Cancel ≥ 44px tall under touch emulation.
+- **Lobby card goes live correctly** — `role="button"`, tabbable, "Explore →", and a visible
+  focus ring that survives the `border-image` (assert `outline` is set).
+- **Counter is interactive** — it is a `<button>`, Enter/Space increments, value changes.
+- **Motion budget** — no more than 3 concurrently animated elements in the viewport.
+
 **Chaos / hostile QA:**
 - 5 rapid OK clicks → exactly one transition, no double-swap.
 - Click OK then immediately hit browser Back.
@@ -341,29 +352,81 @@ decoded when the capture runs.
 
 ---
 
-## Design brief requirements (feeds `docs/BROWSER-WARS-BRIEF.md`)
+## Design — LOCKED via `/plan-design-review` 2026-08-04
 
-**AI slop risk: HIGH.** Geocities pastiche is a commodity template in 2026 (Neocities,
-Cameron's World, dedicated Geocities builders). Chronicle cannot win on "looks 90s." It
-wins on the *transition* and on the *arc* — the ugliness earns its place because you
-just left Mosaic and you're heading to Figma. Countermeasure: every color as hex before
-any code (per the `vague-color-references` pitfall, 9/10).
+**Full brief: `docs/BROWSER-WARS-BRIEF.md`.** Mockup:
+`claude.ai/code/artifact/c060c5e0-f3df-4768-97ab-77aefc932cb2` (source in
+`~/.gstack/projects/chronicle/designs/browser-wars-20260804/`). The brief is the source of
+truth for T5/T6/T9/T10; what follows is the delta this plan needs to know about.
 
-**Locked palette (SPEC.md:52):** `#FF00FF` magenta, `#FFFF00` yellow, `#00FF00` lime,
-on `#FFFFFF`. Tiled background. Type: Comic Sans MS, Papyrus, WordArt-style gradient
-headings — with a declared fallback stack, since neither font exists on Linux/Android.
+**AI slop risk: HIGH.** Geocities pastiche is a commodity template in 2026. Chronicle wins on
+the *transition* and the *arc*, never on "looks 90s." Design review rated the plan **4/10 on
+design completeness** — the engineering was 10/10 and the design was one paragraph naming four
+colors. The brief closes that with 31 hex tokens, a type table, a layout diagram, an arrival
+beat, a motion budget, and a dialog spec.
 
-**The contrast split (D5):** decoration is period-ugly by design; **fact text holds WCAG
-AA**. Facts render in a readable well inside the gaudy page — which is itself
-period-accurate, since real 90s pages put body copy in a white table cell.
+### The governing idea
 
-**Progress indicator:** the Netscape throbber (the animated N/comet in browser chrome
-that spun while loading). Period-native, and it leaves the visitor counter free to be
-the *interactive artifact* SPEC:83/108 assigns it — resolving the collision with Early
-Web's odometer, which took the hit-counter metaphor first.
+**The page inside the fiction has no hierarchy. The chapter does.** The fact well is the
+widest, most central, calmest object; every loud thing lives in the rails and never occludes
+content. Decoration is period-ugly; fact text holds WCAG AA (`#1A1A1A` on `#FFFFFF` = 17.4:1).
 
-**Emotional arc:** Early Web is quiet system gray. Browser Wars must land like a wall.
-The violence of the contrast is the product (SPEC:59).
+### Three conflicts with already-shipped code, all resolved
+
+| # | Conflict | Evidence | Resolution |
+|---|---|---|---|
+| C1 | D3.1 (Netscape throbber) vs D3.3 (IE4 frame) — an IE4 window cannot carry an N-comet | decided separately, never cross-checked | **[auto-decided] IE4 frame + IE4 throbber.** D3.1's throbber is REVERSED. Netscape demotes to a badge — the loser reduced to a button. Early Web (Netscape 1.0) → Browser Wars (IE4) tells the browser war in two window chromes with no copy. |
+| C2 | Palette omits `#00FFFF` | `lobby/style.css:184` ships a 5-stop gradient with cyan | **cyan added** to the chapter palette. Card and chapter share one palette, per the Early Web precedent. |
+| C3 | Counter would reuse Early Web's `#00FF00` odometer | `early-web/style.css:277` | **counter is red `#FF2400`.** Two chapters cannot share one artifact. |
+
+### The font stack is a live defect, not a polish item
+
+`lobby/style.css:182` ships `'Comic Sans MS', 'Chalkboard SE', cursive`. Chalkboard SE is
+macOS-only, so on Linux and Android both fall through to a generic `cursive` that is usually
+not installed — landing on the system default. That is AI-slop blacklist item 11 arriving by
+accident on roughly a third of devices, and the "correctly ugly" thesis dies silently.
+**Fix: self-host Comic Relief** (SIL OFL, metric-compatible with Comic Sans, ~28KB woff2).
+**Papyrus is dropped** — no free metric clone, and no job left once WordArt ships as an SVG
+asset rather than a typeface (which is what WordArt always was).
+
+### New design decisions folded in
+
+- **[auto-decided] Arrival beat — the 56k page load.** Tile → WordArt → marquee → well →
+  GIFs popping in out of order and late, throbber spinning, all under 1.0s. **Jank is timing,
+  never layout** — explicit `width`/`height` reserves space so nothing shifts. Without this,
+  "lands like a wall" is an assertion rather than an experience. Early Web has an arrival
+  beat; this chapter arrives by an *actively consented* OK click and had none.
+- **[auto-decided] The visitor counter is click-to-inflate.** `SPEC:83` names it as an
+  interactive artifact and the plan specified zero interaction. Clicking bumps it, as fast as
+  you click — which teaches the actual fact by letting the visitor commit the fraud 90s page
+  owners committed. Real `<button>`, accessible name, `aria-live="polite"`, no persistence.
+- **[auto-decided] Six facts** (T4 said 6–8), matching Early Web's count.
+- **[auto-decided] Facts reveal sequentially on scroll** via `onChapterProgress`, same as
+  ARPANET and Early Web. Decorative links are **inert + `aria-hidden`**, same as Early Web.
+- **[auto-decided] Mobile: the frame scales as one unit**, rails unwrap below the well, well
+  never under 14px. This deliberately DIFFERS from Early Web's horizontal-scroll call, because
+  TODO-008 shows that approach is unverified on hardware and this chapter carries an
+  interactive dialog that must be reachable without horizontal panning.
+- **Dialog buttons grow to 44px minimum touch height.** The one place period accuracy yields.
+  This transition has **no `fadeSwap` downgrade on touch** — it is the only path mobile users
+  get, so a 23px Win 3.1 button is not acceptable.
+- **Backdrop blur is 4px**, deliberately not one of the three values already in the codebase
+  (20/12/8px). Early Web must stay legible behind the dialog: the beat is being asked whether
+  to leave a place you can still see.
+- **Motion budget, binding:** 2 Hz max per element, max 3 concurrently animated elements in
+  viewport. WCAG 2.3.1 fails above 3 flashes/sec; this sits at two-thirds of the threshold by
+  construction rather than by after-the-fact measurement.
+
+### System rule promoted (belongs in `AI_CONTEXT.md`)
+
+Every chapter's scroll-progress indicator is a **period-native artifact of its own era**,
+never a generic bar. ARPANET = amber ASCII block bar. Early Web = green odometer. Browser
+Wars = IE4 throbber. Three chapters deep; chapter 4 should inherit it, not rediscover it.
+
+**Emotional arc:** Early Web is quiet system gray. Browser Wars must land like a wall. The
+violence of the contrast is the product (SPEC:59). The dialog's narrative job: *"Are you sure
+you want to proceed?"* is a warning, the visitor clicks OK, and 1998 assaults them. Setup and
+punchline. The arrival beat is the payoff and neither half works alone.
 
 ---
 
@@ -377,16 +440,35 @@ commit**.
 
 ### Commit 1 — content + design (no code)
 
-- [ ] **T4 (P1, human: ~2h / CC: ~20min)** — content — `docs/BROWSER-WARS-CONTENT.md`, 6–8 facts
-  - Surfaced by: project rule — content before animation
-  - Verify: visual/design-history scope; years accurate
-- [ ] **T5 (P1, human: ~3h / CC: ~25min)** — design — `docs/BROWSER-WARS-BRIEF.md`, every color as hex
+- [x] **T5 (P1, human: ~3h / CC: ~25min)** — design — `docs/BROWSER-WARS-BRIEF.md`, every color as hex
   - Surfaced by: Section 11 — HIGH AI-slop risk; `vague-color-references` pitfall (9/10)
-  - Verify: zero descriptive color names; fallback stack for Comic Sans / Papyrus declared
-- [ ] **T9 (P1, human: ~4h / CC: ~30min)** — assets — author period GIFs (16-color dithered, ≤150 KB total)
-  - Surfaced by: D3.2. **Raised P2 → P1** per Codex #11: the chapter and the flash-safety
-    measurement both depend on these existing.
-  - Verify: budget held; `loading="lazy"`; explicit width/height; **measured** flash rate
+  - **DONE 2026-08-04** via `/plan-design-review`. 31 hex tokens, type table, layout diagram,
+    fact-rendering pattern, arrival beat, motion budget, dialog spec, responsive + a11y.
+    Mockup published: `claude.ai/code/artifact/c060c5e0-f3df-4768-97ab-77aefc932cb2`
+- [ ] **T4 (P1, human: ~2h / CC: ~20min)** — content — `docs/BROWSER-WARS-CONTENT.md`, **6** facts
+  - Surfaced by: project rule — content before animation
+  - **Count narrowed 6–8 → 6** by design review (matches Early Web; keeps the well scrollable
+    rather than a wall of text)
+  - Verify: visual/design-history scope; years accurate; mirrors ARPANET's content-doc shape
+- [ ] **T9 (P1, human: ~5h / CC: ~40min)** — assets — full authored asset inventory, **≤220 KB**
+  - Surfaced by: D3.2. **Raised P2 → P1** per Codex #11. **Scope and budget both widened by
+    design review** — the original list covered GIFs only and omitted the badges (now
+    load-bearing narrative: Netscape demoted from browser to button), the IE4 toolbar icons,
+    and the WordArt heading. Incomplete asset lists are where generic icons and emoji enter
+    (AI-slop blacklist item 7).
+  - Inventory (all 16-color dithered, all authored originals): 3 animated GIFs · **3 static
+    first-frame PNG siblings (mandatory)** · 4 badges at 88×31 · 8 IE4 toolbar icons at 16×16 ·
+    1 WordArt SVG with paths flattened · 1 background tile as a real 48×48 GIF
+  - Verify: 220 KB budget held; `loading="lazy"`; explicit width/height on every image;
+    **measured** flash rate ≤2 Hz per element
+- [ ] **T9b (P1, human: ~1h / CC: ~10min)** — assets — self-host **Comic Relief** (SIL OFL, ~28KB woff2 subset)
+  - Surfaced by: design review — **live defect, not polish.** `lobby/style.css:182` ships
+    `'Comic Sans MS','Chalkboard SE',cursive`; Chalkboard SE is macOS-only, so Linux/Android
+    fall through to a generic `cursive` that is usually absent and land on the system default.
+    That is AI-slop blacklist item 11 reached by accident on ~1/3 of devices.
+  - Files: `src/assets/fonts/`, `src/chapters/browser-wars/style.css`, `src/chapters/lobby/style.css`
+  - Verify: chapter renders in a Comic-Sans-metric face on a Linux browser with no MS fonts
+    installed; **drop Papyrus entirely** (no free metric clone; WordArt is an SVG asset now)
 
 ### Commit 2 — engine (behavior-preserving for existing transitions)
 
@@ -423,19 +505,43 @@ commit**.
 
 ### Commit 3 — chapter + registry move (atomic; tree never red)
 
-- [ ] **T6 (P1, human: ~1.5d / CC: ~50min)** — chapter — `src/chapters/browser-wars/` via `createChapter`
+- [ ] **T6 (P1, human: ~2d / CC: ~70min)** — chapter — `src/chapters/browser-wars/` via `createChapter`
   - Files: chapter dir; `src/data/chapters.ts`; `src/data/manifest.ts`; `index.html`; `src/main.ts`
+  - **Build to `docs/BROWSER-WARS-BRIEF.md`, not to this plan.** Includes, per design review:
+    the IE4 frame + **IE4 throbber** (D3.1 reversed); the asymmetric `172px / 1fr / 148px`
+    grid — **never `repeat(3, 1fr)`**, which is AI-slop blacklist item 2 one keystroke away;
+    the fact well with sequential scroll reveal; the **56k arrival-beat assembly** (<1.0s,
+    jank in timing never layout); the **click-to-inflate visitor counter** as a real
+    `<button>`; decorative links inert + `aria-hidden`
+  - Verify: zero `border-radius` in the chapter; every image has explicit width/height
 - [ ] **T7 (P1, human: ~1h / CC: ~10min)** — data — glass-shatter → `browser-wars->figma-era`; remove `early-web->figma-era`
   - **Must land in the same commit as T6** (Codex #11) — flipping the chapter live
     without the registry move leaves a dead-end chapter
-- [ ] **T8 (P1, human: ~2h / CC: ~15min)** — ui — code-overlay REGISTRY entry + share-card branch
+- [ ] **T8 (P1, human: ~2.5h / CC: ~20min)** — ui — code-overlay REGISTRY entry + share-card branch + **lobby card live state**
   - Surfaced by: `chronicle-global-ui-per-chapter` pitfall (9/10) — definition of done
-- [ ] **T10 (P1, human: ~1d / CC: ~40min)** — a11y — flash ceiling, reduced-motion, AA on fact text
-  - Surfaced by: D5, D6; **rescoped** per Codex #8 — CSS alone cannot pause an animated
-    GIF and does not control a native `<marquee>`. Needs JS control plus **static
-    first-frame asset alternatives**, swapped under `prefers-reduced-motion`.
-  - Files: `src/chapters/browser-wars/index.ts`, `style.css`, `assets/` (static variants)
-  - Verify: measured flash rate under WCAG 2.3.1; marquee stops; GIFs swap to stills; fact text AA
+  - **Lobby card added by design review.** `manifest.ts:26` flipping to `live: true` changes
+    the card from `role="presentation"` to `role="button"` and swaps "Coming Soon" for
+    "Explore →" (`lobby/index.ts:20-22`, `:38`) — and the card has **no designed live state**.
+    Add: the generic live lift (`lobby/style.css:111`), an era-specific hover matching the
+    ARPANET (`:135`) / Figma Era (`:163`) precedent (rainbow `border-image` rotates, 3s/rev),
+    and `outline: 3px solid #00FFFF; outline-offset: 2px` for focus — `outline` renders
+    outside `border-image` so it cannot be swallowed.
+  - Files: `src/ui/code-overlay.ts`, `src/ui/share-card.ts`, `src/chapters/lobby/style.css`
+- [ ] **T10 (P1, human: ~1.5d / CC: ~55min)** — a11y — flash budget, reduced-motion, AA, touch targets
+  - Surfaced by: D5, D6; **rescoped twice** — per Codex #8 (CSS cannot pause a GIF or control
+    a native `<marquee>`; needs JS plus static first-frame alternatives) and again by design
+    review (touch targets, marquee AT handling, counter semantics)
+  - Files: `src/chapters/browser-wars/index.ts`, `style.css`, `assets/`,
+    `src/transitions/win31-dialog.css`
+  - **Design-review additions:** dialog buttons grow to **44px min touch height** (period
+    accuracy yields here — this transition has no `fadeSwap` downgrade on touch, so it is the
+    only path mobile gets); `<marquee>` is `aria-hidden` with a visually-hidden static text
+    sibling (AT handling of `<marquee>` is unreliable and the element is deprecated); counter
+    is a `<button>` with accessible name + `aria-live="polite"`; dialog buttons need a
+    `:focus-visible` ring **in addition to** the 1px dotted period rect, which reads poorly on
+    `#C0C0C0`
+  - Verify: flash rate ≤2 Hz per element and ≤3 concurrent animated elements; marquee stops;
+    GIFs swap to stills; fact text 17.4:1; `#00FF00`/`#FFFF00`/`#FF00FF` carry no text on white
 - [ ] **T11 (P1, human: ~3h / CC: ~25min)** — tests — full Playwright suite per the test plan
 - [ ] **T11b (P1 — CRITICAL REGRESSION, human: ~1h / CC: ~10min)** — tests — repair `scrollChapterToEnd` for gated transitions
   - Surfaced by: Eng review test diagram — **mandatory under the regression iron rule, no
@@ -539,13 +645,49 @@ playing over an on-screen Early Web.
 
 | Lane | Steps | Modules | Depends on |
 |---|---|---|---|
-| A | T4, T5, T9 | `docs/`, `assets/` | — |
+| A | ~~T5~~ (done), T4, T9, T9b | `docs/`, `assets/`, `src/assets/fonts/` | — |
 | B | T1, T2, T2b, T2c, T3a, T3b | `src/engine/`, `src/data/`, `tests/` | — |
 | C | T6, T7, T8, T10, T11, T11b | `src/chapters/`, `src/ui/`, `index.html` | A + B |
 
 Launch **A and B in parallel worktrees** — content/design authoring shares no module with
 the engine work. Merge both, then C. Lane C is sequential internally (T6 and T7 must be
 one commit).
+
+## Design review findings (7 passes, 4/10 → 9/10)
+
+Run 2026-08-04. Full brief written to `docs/BROWSER-WARS-BRIEF.md`; mockup hand-authored
+(the gstack designer had no API key configured) and published at
+`claude.ai/code/artifact/c060c5e0-f3df-4768-97ab-77aefc932cb2`.
+
+| Pass | Before | After | Headline finding |
+|---|---|---|---|
+| 1 · Information Architecture | 3/10 | 9/10 | 8+ competing elements, no stated hierarchy. Resolved: the page inside the fiction has none, the chapter does — well gets primacy, noise to the rails. |
+| 2 · Interaction States | 4/10 | 9/10 | Transition states were already 10/10 (the rescue registry is excellent). The chapter's own states were near-absent — the visitor counter, named as an interactive artifact by `SPEC:83`, had zero interaction spec. |
+| 3 · User Journey | 5/10 | 9/10 | No arrival beat. Early Web has one; this chapter arrives by an *actively consented* OK click and specified nothing for the first 800ms. "Lands like a wall" was an assertion. |
+| 4 · AI Slop Risk | 5/10 | 9/10 | 0 of 7 hard rejections. 2 blacklist hits: item 11 (`system-ui` as display face) arriving **by accident** via the font fallback, and item 7 (emoji) enabled by an incomplete asset inventory. |
+| 5 · Design System | 4/10 | 9/10 | **Three conflicts with already-shipped code** — the throbber/frame contradiction, the missing `#00FFFF`, and the counter colliding with Early Web's green odometer. |
+| 6 · Responsive & A11y | 5/10 | 9/10 | A11y intent was strong (D5/D6); responsive was absent entirely. Touch targets on the dialog were the sharp edge: 23px Win 3.1 buttons on the one transition with **no touch fallback**. |
+| 7 · Unresolved Decisions | — | — | 18 resolved, 2 deferred to TODOs (TODO-009 frame morph, TODO-010 exit contrast). |
+
+**The three findings worth reading if you read nothing else:**
+
+1. **The font fallback is a live defect that fails silently.** `lobby/style.css:182` already
+   ships a stack whose only non-Microsoft entry is macOS-only. On Linux and Android the
+   chapter renders in the system default — AI-slop blacklist item 11, reached by accident, on
+   roughly a third of devices, with no error anywhere. The chapter reads as *badly made*
+   rather than *1998*, and the whole "correctly ugly" thesis dies. This is T9b.
+2. **D3.1 and D3.3 contradict each other.** An IE4 window cannot carry a Netscape throbber.
+   Two locked decisions made in separate passes, never cross-checked. The fix is better than
+   the original: Early Web (Netscape 1.0 frame) → Browser Wars (IE4 frame) tells the browser
+   war in two window chromes, and Netscape demotes to a badge.
+3. **The chapter's own interactive artifact had no spec.** The plan freed the counter from
+   progress duty specifically so it could be the artifact `SPEC:83` names — and then never
+   said what it does. Now: clicking inflates it, which teaches the historical fact by letting
+   the visitor commit the fraud 90s page owners committed.
+
+**Method note worth keeping.** The plan is 571 lines of which ~25 were design, and it absorbed
+17 engineering findings with real rigor. None of them were about what the thing looks like. A
+plan can be exhaustively reviewed and still be 4/10 on the axis nobody reviewed.
 
 ## GSTACK REVIEW REPORT
 
@@ -554,18 +696,24 @@ one commit).
 | CEO Review | `/plan-ceo-review` | Scope & strategy | 1 | CLEAR | 6 proposals, 5 accepted, 1 deferred |
 | Outside Voice | Codex | Independent 2nd opinion | 1 | issues_found | 12 findings, 12/12 applied |
 | Eng Review | `/plan-eng-review` | Architecture & tests (required) | 1 | CLEAR (PLAN) | 5 issues, 0 critical gaps |
-| Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | recommended before implementation |
+| Design Review | `/plan-design-review` | UI/UX gaps | 1 | CLEAR (FULL) | score: 4/10 → 9/10, 18 decisions |
 | DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
 
 - **CODEX:** 12 findings, all applied. Three verified directly against source before
   acting: `scroll-locked` disables pointer events (`global.css:90`), `isInitialized` is
   called from nowhere (`chapter.ts:70`), `fireBackwardsNav` is private (`scroll.ts:169`).
-- **CROSS-MODEL:** no tension — every Codex finding was a defect in the draft, not a
-  difference of opinion. The two reviews found disjoint problem classes: Codex caught
-  unverified assumptions about existing code; the eng review caught a missing platform
-  built-in, a lifecycle gap in audio, and a test regression. Neither would have found the
-  other's set.
-- **VERDICT:** CEO + ENG CLEARED — ready to implement. `/plan-design-review` recommended
-  first, since Section 11 rated AI-slop risk HIGH for this specific chapter.
+- **CROSS-MODEL:** no tension across any of the three reviews — each found a disjoint problem
+  class. Codex caught unverified assumptions about existing code; the eng review caught a
+  missing platform built-in, an audio lifecycle gap, and a test regression; the design review
+  caught three conflicts with already-shipped CSS plus a silent font-fallback failure. None of
+  the three would have found the others' set, and the design review's findings were the only
+  ones invisible to code inspection alone.
+- **STALENESS:** CEO / Eng / Codex reviews were logged at `b9bf061`; HEAD is `f5b29da`, 4
+  commits later. Those 4 are docs-and-plan commits (no `src/` changes), so the architectural
+  conclusions still hold — but the design review added T9b and widened T6/T8/T9/T10, which
+  eng review has not seen. Re-run `/plan-eng-review` before implementing if you want the
+  font-hosting and lobby-card work architecturally validated.
+- **VERDICT:** CEO + ENG + DESIGN CLEARED — ready to implement. Build T6 against
+  `docs/BROWSER-WARS-BRIEF.md`, not against this plan's prose.
 
 NO UNRESOLVED DECISIONS

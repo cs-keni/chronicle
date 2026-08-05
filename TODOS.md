@@ -251,3 +251,73 @@ counter + arrival assembly hold at 375px? Consider a `scale-to-fit` fallback if
 horizontal-scroll reads as broken.
 
 **Depends on:** Early Web chapter (Phase 2 Slice 1) being built.
+
+---
+
+## TODO-009: Browser frame morphs Netscape 4 → IE4 across the Browser Wars scroll
+
+**What:** Instead of a fixed IE4 frame, start the Browser Wars chapter framed in Netscape
+Navigator 4 (continuing Early Web's Netscape 1.0 lineage) and transform the chrome into
+Internet Explorer 4 as the visitor scrolls 1995 → 2001. The browser war happens *in the
+frame* while you read about it.
+
+**Why:** `SPEC.md:87` says "the visual transitions ARE the product." This is the strongest
+available expression of that inside a single chapter, and it is uniquely well-matched to
+this chapter because the era is literally named after the thing the chrome would be doing.
+The fixed-IE4 version (shipped in Slice 2) already tells the story across two chapters —
+Netscape 1.0 in Early Web, IE4 here — but tells it in two still frames rather than one
+motion.
+
+**Pros:** Turns scroll position into historical argument; the single most memorable idea
+surfaced during the design review; reuses the progress-driven layer pattern the chapter
+already has for fact reveal.
+**Cons:** Needs a progress-driven chrome layer with two full sets of browser chrome assets
+(toolbar icons, throbber, title bar) and a crossfade or morph between them. Roughly doubles
+the T9 chrome asset inventory.
+
+**Context:** Surfaced during the Phase 2 Slice 2 design review (2026-08-04) as option 6B.
+Deferred because Slice 2 already rewrites the transition engine (`kind` discriminator, DOM
+runner, new `transition-paused` body state), and stacking a second visual system into the
+same slice is the pattern that produced `nav-latch-race`. The fixed-frame decision is
+LOCKED for Slice 2 — this is an enhancement, not a reopen.
+
+**Where to start:** After Browser Wars ships. The chapter's `onChapterProgress` already
+drives sequential fact reveal; the chrome swap hangs off the same signal. Author the
+Netscape 4 chrome asset set first and verify the two frames are dimensionally identical so
+the morph does not reflow the page inside them.
+
+**Depends on:** Browser Wars chapter (Phase 2 Slice 2) being built.
+
+---
+
+## TODO-010: Design the Browser Wars → Figma Era exit contrast
+
+**What:** Give the `browser-wars → figma-era` transition the same design attention the
+`early-web → browser-wars` dialog got. Right now glass-shatter is a relocated registry key
+with no chapter-specific design thinking behind it.
+
+**Why:** This is the project's second-most violent contrast — maximum chromatic chaos
+running into near-black minimalism — and it is currently the *only* major transition in
+Chronicle that nobody has designed, only wired. `SPEC.md:59` calls the violence of the
+contrast "intentional," which it cannot be while it is incidental.
+
+**Pros:** The arrival into Figma Era is the payoff for the whole Browser Wars chapter;
+getting it right retroactively improves the chapter you just left. Also the last transition
+before the project's most polished existing chapter, so it is the one most likely to be
+seen.
+**Cons:** glass-shatter already exists and works; this is refinement, not repair. Easy to
+over-invest.
+
+**Context:** Surfaced during the Phase 2 Slice 2 design review (2026-08-04). glass-shatter
+was authored for `early-web → figma-era` as a temporary bridge and is being relocated by T7
+to `browser-wars → figma-era`. It was never designed for its new neighbours. Questions worth
+answering: does the shatter read differently coming out of a magenta-and-lime page than it
+did out of system gray? Should the fragments carry the era's colours? Is there an exit beat
+(the mirror of the 56k arrival assembly) where the chaos drains before it shatters?
+
+**Where to start:** After Browser Wars ships, view the transition live and judge it against
+the `early-web → browser-wars` dialog, which now has a full design spec in
+`docs/BROWSER-WARS-BRIEF.md`. Run `/design-review` on the live transition rather than
+planning it cold.
+
+**Depends on:** Browser Wars chapter + T7 registry move (Phase 2 Slice 2).

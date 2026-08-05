@@ -311,6 +311,11 @@ gzip. This has been measured; don't undo it.
 | `createChapter` extracted at three examples | Rule of three — two would have frozen a text-reveal-shaped abstraction |
 | Tone + html2canvas dynamically imported | Keeps cold paint at ~64 KB instead of ~167 KB gzip |
 | Audio scheduled via `Tone.now()` only | Per-frame audio competes with the shader for the main thread |
+| Progress indicator is a period artifact per chapter | Amber ASCII bar / green odometer / IE4 throbber. A generic bar breaks the "you ARE in the era" rule, and two chapters sharing one artifact costs an era-jump beat |
+| Period fonts self-hosted, never trusted to the system | `'Comic Sans MS','Chalkboard SE',cursive` lands on the system default across Linux/Android with no error. An era whose typography IS the design cannot depend on the OS having the face |
+| WordArt ships as SVG, not a font | It was always a rendered picture; SVG is both more period-accurate and dependency-free |
+| Motion budgeted at design time, not measured after | 2 Hz/element + 3 concurrent max keeps WCAG 2.3.1 satisfied by construction. A ceiling you verify afterwards is a bug report |
+| Decoration may be period-ugly; fact text holds AA | The chapter's content is what the project calls its soul. Real 90s pages put body copy in a white table cell, so authenticity and accessibility point the same way |
 
 ---
 
@@ -324,5 +329,5 @@ gzip. This has been measured; don't undo it.
   implemented). Read this before touching `transition.ts` or `transitions.ts`: it changes
   the registry to a discriminated union and adds a second kind of transition.
 - `docs/PHASE2-EARLY-WEB-PLAN.md` — the previous slice plan (Slice 1, shipped).
-- `docs/*-BRIEF.md` — per-era visual specs. Authoritative for that chapter's design.
+- `docs/*-BRIEF.md` — per-era visual specs. **Authoritative for that chapter's design — build the chapter against the brief, not against the slice plan's prose.** `BROWSER-WARS-BRIEF.md` is the most complete example (31 hex tokens, type table, layout diagram, arrival beat, motion budget, dialog spec) and is the shape new chapter briefs should take.
 - `docs/SHADER-PROFILES.md` — shader cost analysis and 60fps verification status.

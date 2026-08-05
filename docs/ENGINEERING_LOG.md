@@ -1,5 +1,51 @@
 # Engineering Log
 
+## 2026-08-04 (planning: Phase 2 Slice 2 — design review, 4/10 → 9/10)
+
+No code. `/plan-design-review` on `docs/PHASE2-BROWSER-WARS-PLAN.md`. Wrote
+`docs/BROWSER-WARS-BRIEF.md` (the T5 deliverable, so T5 is now checked off) and hand-authored
+a mockup, published at `claude.ai/code/artifact/c060c5e0-f3df-4768-97ab-77aefc932cb2`. The
+gstack designer had no OpenAI key configured; hand-authoring turned out to be the better path
+anyway, since the blocking need was exact hex values and a diffusion model approximates those.
+
+**The plan rated 4/10 on design completeness** — 571 lines, of which ~25 were design. It had
+absorbed 17 engineering findings (12 Codex, 5 eng) with real rigor and not one of them was
+about what the thing looks like. A plan can be exhaustively reviewed and still be weak on the
+axis nobody reviewed.
+
+**Three conflicts with already-shipped code:**
+- **D3.1 × D3.3 contradict.** An IE4 window cannot carry a Netscape throbber. Two locked
+  decisions made in separate passes, never cross-checked. Resolved to IE4 frame + IE4
+  throbber, Netscape demoted to a badge — which is better than either original, because Early
+  Web (Netscape 1.0 frame) → Browser Wars (IE4 frame) now tells the browser war in two window
+  chromes with no copy.
+- **`#00FFFF` missing from the palette** while `lobby/style.css:184` already ships a 5-stop
+  gradient containing it. Card and chapter would have diverged.
+- **The counter would have reused Early Web's `#00FF00` odometer** (`early-web/style.css:277`).
+  Two chapters, one artifact. Now red `#FF2400`.
+
+**The finding that mattered most — a silent failure already in `main`.** `lobby/style.css:182`
+ships `'Comic Sans MS', 'Chalkboard SE', cursive`. Chalkboard SE is macOS-only, so on Linux and
+Android both entries miss and the browser lands on the system default. That is AI-slop
+blacklist item 11 arriving by accident on roughly a third of devices, with no error anywhere —
+the chapter reads as *badly made* rather than *1998*, and the "correctly ugly" thesis dies
+silently. Fix is T9b: self-host Comic Relief (SIL OFL, metric-compatible with Comic Sans).
+Papyrus dropped — no free metric clone, and no job left once WordArt ships as an SVG asset,
+which is what WordArt always was (a rendered picture, never a typeface).
+
+**Design gaps closed:** no stated hierarchy (resolved — the page inside the fiction has none,
+the chapter does); no arrival beat (added — a 56k page-load assembly under 1.0s, jank in
+timing never layout); the visitor counter had zero interaction spec despite `SPEC:83` naming
+it as an interactive artifact (now click-to-inflate, which teaches the fact by letting the
+visitor commit the fraud); no responsive call; no motion budget (now binding: 2 Hz per
+element, 3 concurrent max, two-thirds of the WCAG 2.3.1 threshold by construction).
+
+**Plan deltas:** T5 done. T9 widened (badges, IE4 icons, WordArt, tile) and budget 150 → 220 KB.
+T9b added. T6/T8/T10/T11 all widened. TODO-009 (frame morphs Netscape 4 → IE4 across the
+scroll) and TODO-010 (design the exit contrast into Figma Era) logged.
+
+Commit: see below.
+
 ## 2026-08-03 (planning: Phase 2 Slice 2 — Browser Wars plan locked)
 
 No code. `docs/PHASE2-BROWSER-WARS-PLAN.md` written and locked through the full review

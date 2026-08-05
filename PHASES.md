@@ -187,21 +187,30 @@ then the `createChapter` extraction (Commit 3 / T10). One manual item remains: t
 Chrome 60fps profile of glass-shatter (needs a real GPU path — not runnable under WSL2
 headless), to be recorded in `docs/SHADER-PROFILES.md`.
 
-**Slice 2 (Browser Wars) — PLAN LOCKED 2026-08-03, implementation not started.** Plan:
-`docs/PHASE2-BROWSER-WARS-PLAN.md`. Reviewed via `/plan-ceo-review` (SELECTIVE EXPANSION,
-5 of 6 proposals accepted), a Codex outside voice (12 findings, all applied), and
-`/plan-eng-review` (5 findings, all folded). The slice teaches the transition engine a
-**second kind** of transition: `SPEC.md:71` specs Early Web → Browser Wars as a Windows
-3.1 dialog whose OK button advances, which is the first user-gated transition in the
-project. Ships in 3 commits: content+design → engine → chapter+registry move.
-**Next step: `/plan-design-review`** (AI-slop risk rated HIGH for this chapter).
+**Slice 2 (Browser Wars) — PLAN + DESIGN BOTH LOCKED, implementation not started.**
+Plan: `docs/PHASE2-BROWSER-WARS-PLAN.md`. Design brief: `docs/BROWSER-WARS-BRIEF.md`
+(**build the chapter against the brief, not the plan's prose**). Mockup:
+`claude.ai/code/artifact/c060c5e0-f3df-4768-97ab-77aefc932cb2`. Reviewed via
+`/plan-ceo-review` (SELECTIVE EXPANSION, 5 of 6 accepted), a Codex outside voice (12
+findings, all applied), `/plan-eng-review` (5 findings, all folded), and
+`/plan-design-review` 2026-08-04 (**4/10 → 9/10**, 18 decisions, T5 completed in-review).
+The slice teaches the transition engine a **second kind** of transition: `SPEC.md:71`
+specs Early Web → Browser Wars as a Windows 3.1 dialog whose OK button advances, the first
+user-gated transition in the project. Ships in 3 commits: content+assets → engine →
+chapter+registry move.
+
+**Start with T9b** — it fixes a defect already live in `main`: `lobby/style.css:182` ships
+`'Comic Sans MS','Chalkboard SE',cursive`, Chalkboard SE is macOS-only, so Linux/Android
+fall through to the system default with no error. Self-host Comic Relief (SIL OFL).
 
 - [x] `createChapter` scaffold extracted (`src/engine/create-chapter.ts`); ARPANET + Early Web + Figma Era refactored onto it
 - [ ] glass-shatter profiled at 60fps in headed Chrome + documented (manual)
 - [x] CRT shader moves from ARPANET→Figma Era (Phase 1 temp) to canonical ARPANET→Early Web position
 - [x] Figma Era gets its canonical entry shader: glass shatter (debuts as temp Early Web→Figma bridge until Flat exists)
 - [x] Early Web chapter (1983–1994): system gray, Navy/Red palette, Times New Roman, dithered gradients
-- [ ] Browser Wars chapter (1995–2001): gaudy palette, animated GIFs (authored originals, not archived — provenance), tiled bg, IE4-era frame, Netscape throbber as progress — plan locked, see `docs/PHASE2-BROWSER-WARS-PLAN.md`
+- [ ] Browser Wars chapter (1995–2001): gaudy palette, animated GIFs (authored originals, not archived — provenance), tiled bg, **IE4 frame + IE4 throbber** (D3.1's Netscape throbber reversed by design review — an IE4 window cannot carry an N-comet; Netscape demotes to a badge), 56k arrival beat, click-to-inflate counter — plan + brief locked, see `docs/BROWSER-WARS-BRIEF.md`
+  - [x] T5 design brief — done in-review 2026-08-04
+  - [ ] T9b self-host Comic Relief (SIL OFL) — fixes a silent font fallback already live in `main`
 - [ ] Post-Crash / Web 2.0 chapter (2002–2007): desaturated blues, Verdana, rational spacing, gloss
 - [ ] Mobile / Skeuomorphic chapter (2008–2012): leather textures, linen, embossed type, Helvetica Neue
 - [ ] Flat / Material chapter (2013–2018): Google 2014 palette, Roboto, long shadows, FABs
@@ -215,9 +224,9 @@ project. Ships in 3 commits: content+design → engine → chapter+registry move
   - [x] Flat → Figma Era: glass shatter (voronoi shard system + WebGL) — authored source-agnostic; live now as the temp Early Web→Figma bridge, relocates to Flat→Figma by key change when Flat ships
   - [ ] Figma Era → AI Web: TBD — speculative, authored during Phase 2
 - [ ] All shaders profiled (60fps on M3 target), documented in SHADER-PROFILES.md
-- [ ] Era-appropriate progress indicators for all Phase 2 chapters
+- [ ] Era-appropriate progress indicators for all Phase 2 chapters — **system rule** (3 chapters deep): each chapter's scroll-progress indicator is a period-native artifact of its own era, never a generic bar. ARPANET = amber ASCII block bar · Early Web = green odometer · Browser Wars = IE4 throbber
 - [ ] Interactive artifacts:
-  - [ ] Visitor counter (Browser Wars): increments on load, CSS hit counter style
+  - [ ] Visitor counter (Browser Wars): **click to inflate it** — each click bumps the number, teaching the historical fact by letting the visitor commit the fraud 90s page owners committed. Real `<button>`, `aria-live="polite"`, red `#FF2400` LED (not Early Web's green odometer). Spec: `docs/BROWSER-WARS-BRIEF.md`
   - [ ] Dark mode toggle (Figma Era): was introduced in 2019, live toggle in that chapter
 - [ ] Variable font axes wired to scroll position within each chapter
 - [ ] Ambient audio per chapter (Creative Commons or original — see TODOS.md)
